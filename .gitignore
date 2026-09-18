@@ -1,0 +1,13 @@
+MEDS_data/
+.env
+MEDS_ML4H_2025_Tutorial/
+meds_output/
+papers/
+femr/
+hf_ehr/
+data_input/
+omop_extract/
+meds_reader_extract/
+.DS_Store
+transcripts/
+output/
