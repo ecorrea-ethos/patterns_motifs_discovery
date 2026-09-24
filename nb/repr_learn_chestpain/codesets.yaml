@@ -1,0 +1,124 @@
+# Bitacora
+# v1 - ported from ethos_omop.py's CODESETS Python dict to this YAML file (patterns/vocabularies/concept_ids shape, no behavior change)
+# v2 - removed letrozole/anastrozole/tamoxifen/clomiphene/gonadotropin/metformin/glp1/insulin/breast_cancer/infertility -- leftover from the repr_learn_letrozole copy, unused anywhere in this cohort's notebooks (beta_blocker/statin kept: used live in Day3's FOCUS set)
+# v3 - removed mastectomy/mammogram/breast_biopsy -- also unused leftovers, unrelated to chest pain
+#
+# The clinical code sets Day 1-5 work with. Two spec shapes per tag:
+#
+#   <tag>:
+#     patterns: ["pat1", "pat2"]      # matched against concept_name via resolve()
+#     vocabularies: ["SNOMED", ...]   # optional; omit for no vocabulary restriction
+#
+#   <tag>:
+#     concept_ids: [id1, id2]         # literal -- resolve() skipped entirely
+#
+# Name-resolution is what makes a codeset portable across the real extract and the demo
+# extract alike; use literal concept_ids only when the exact id set is small, knowable, and
+# verified against real data (see the archived attempt below for why that's harder than it
+# sounds).
+#
+# ethos_omop_taxonomy_crosswalk.csv (repo root) maps internal OLD_TERM -> OMOP_ID (its
+# NEW_TERM is the Athena-backed standard concept name actually used in production). An
+# earlier pass at this file used those crosswalk concept_ids literally, one tag per id,
+# kept here commented for reference:
+#
+#   letrozole__ingredient:        {concept_ids: [1315946]}
+#   anastrozole__ingredient:      {concept_ids: [1348265]}
+#   tamoxifen__ingredient:        {concept_ids: [1436678]}
+#   clomiphene__ingredient:       {concept_ids: [1598819]}
+#   gonadotropin__disposition:    {concept_ids: [42536139]}
+#   metformin__ingredient:        {concept_ids: [1503297]}
+#   glp1:                         {concept_ids: [793143, 45774435, 40170911, 1583722, 779705]}
+#   insulin_glulisine_human__ingredient: {concept_ids: [1544838]}
+#   beta_blocker:                 {concept_ids: [1307046, 1314002, 1346823, 1338005, 1353766]}
+#   statin:                       {concept_ids: [1545958, 1539403, 1510813, 1551860]}
+#   ssri:                         {concept_ids: [739138, 755695, 715939, 797617, 722031]}
+#   breast_cancer:                {concept_ids: [4112853]}  # Breast cancer, Invasive ductal/lobular carcinoma of breast
+#   fertility_problem__clinical_finding: {concept_ids: [4098887]}  # Infertility, Female/Male infertility
+#   angina_pectoris__disorder:    {concept_ids: [321318]}    # Angina pectoris, Unstable/Stable angina
+#   chest_pain__clinical_finding: {concept_ids: [77670]}     # crosswalk: chest_pain
+#   anxiety__clinical_finding:    {concept_ids: [441542]}    # crosswalk: anxiety
+#   anxiety_disorder__disorder:   {concept_ids: [442077]}    # crosswalk: anxiety_panic_stress_other
+#   panic_disorder__disorder:     {concept_ids: [436074]}    # crosswalk: panic_disorder (only panic term in crosswalk; "panic" regex false-positived on tympanic/Papanicolaou)
+#   benzodiazepine_therapy__procedure: {concept_ids: [36674742]}  # crosswalk: benzodiazepine_therapy
+#   gastroesophageal_reflux_disease__disorder: {concept_ids: [318800]}  # crosswalk: gastroesophageal_reflux_disease -- rare in this extract (7 rows); real claims mostly use the "without esophagitis" variant below, which the crosswalk doesn't list
+#   gastroesophageal_reflux_disease_without_esophagitis__disorder: {concept_ids: [4144111]}  # dominant real-world GERD code (243k rows) -- not in the crosswalk, found by checking master_condition_occurrence directly
+#   gastro-esophageal_reflux_disease_with_esophagitis__disorder: {concept_ids: [30437]}  # crosswalk: reflux_esophagitis
+#   heartburn__clinical_finding:  {concept_ids: [23325]}     # crosswalk: heartburn
+#   costal_chondritis__disorder:  {concept_ids: [4272340]}   # crosswalk: costochondritis
+#   coronary_arteriosclerosis__disorder: {concept_ids: [317576]}  # crosswalk: coronary_artery_disease
+#   myocardial_infarction__disorder: {concept_ids: [4329847]}
+#   type_2_diabetes_mellitus__disorder: {concept_ids: [201826]}  # crosswalk: diabetes_type2
+#   neuropathy__disorder:         {concept_ids: [4301699]}
+#   excision_of_breast__procedure: {concept_ids: [37164749]}  # crosswalk: breast_excision
+#   mammography__procedure:       {concept_ids: [4324693]}   # crosswalk: mammogram
+#   biopsy_of_breast__procedure:  {concept_ids: [4047494]}   # crosswalk: breast_biopsy
+#   ekg:                          {concept_ids: [4163951, 4261794, 4313572]}
+#   troponin_measurement__procedure: {concept_ids: [4021291]}
+#   stress_test:                  {concept_ids: [4296597]}
+#   coronary_angiography:         {concept_ids: [4299523, 1243964, 4184592]}
+#   hba1c:                        {concept_ids: [4184637]}   # crosswalk: hemoglobin_a1c
+#   ed_visit:                     {concept_ids: [9203]}
+#
+# Abandoned: several of these single/few-id sets matched 0 patients in the real extract --
+# claims data codes many of these via specific product/CPT4/HCPCS variants, not the generic
+# ingredient/procedure concept the crosswalk lists. Went back to name-resolution below for
+# every tag.
+
+beta_blocker:
+  patterns: ["metoprolol", "atenolol", "carvedilol", "bisoprolol", "propranolol"]
+statin:
+  patterns: ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin"]
+ssri:
+  patterns: ["sertraline", "fluoxetine", "escitalopram", "citalopram", "paroxetine"]
+chest_pain:
+  # "angina" alone is wrong two ways at once: it pulls in "Herpangina" (unrelated
+  # pediatric illness, matched only because "angina" is a substring) plus six distinct
+  # angina-pectoris concepts (a real but different condition, ICD10 I20.x, not R07.x).
+  # It also MISSES R07.82 entirely, since nothing matches "intercostal". This pattern
+  # list is what actually tags the cohort with 0 gap, verified against the real extract.
+  patterns: ["chest pain", "precordial pain", "intercostal space"]
+  vocabularies: ["SNOMED"]
+anxiety:
+  patterns: ["anxiety"]
+  vocabularies: ["SNOMED"]
+panic_attack:
+  # "panic" alone false-positives on "tympanic membrane" and "Papanicolaou" -- verified
+  # against the real extract, "panic disorder" is the only correct pattern.
+  patterns: ["panic disorder"]
+  vocabularies: ["SNOMED"]
+benzodiazepine:
+  patterns: ["alprazolam", "lorazepam", "diazepam", "clonazepam", "temazepam"]
+gerd:
+  patterns: ["gastroesophageal reflux", "gastro-esophageal reflux", "heartburn"]
+  vocabularies: ["SNOMED"]
+costochondritis:
+  patterns: ["costochondritis", "costal chondritis", "tietze"]
+  vocabularies: ["SNOMED"]
+cad:
+  patterns: ["coronary artery disease", "coronary arteriosclerosis",
+             "myocardial infarction", "ischemic heart"]
+  vocabularies: ["SNOMED"]
+t2dm:
+  patterns: ["type 2 diabetes", "type ii diabetes"]
+  vocabularies: ["SNOMED"]
+neuropathy:
+  patterns: ["neuropathy"]
+  vocabularies: ["SNOMED"]
+ekg:
+  patterns: ["electrocardiogra"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+troponin:
+  patterns: ["troponin"]
+  vocabularies: ["LOINC", "SNOMED", "CPT4"]
+stress_test:
+  patterns: ["cardiovascular stress test", "myocardial perfusion imaging"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+coronary_angio:
+  patterns: ["coronary angiograph", "coronary arteriograph", "cardiac catheteri"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+hba1c:
+  patterns: ["hemoglobin a1c", "glycated haemoglobin", "hba1c"]
+  vocabularies: ["LOINC", "SNOMED"]
+ed_visit:
+  patterns: ["emergency room", "emergency department"]

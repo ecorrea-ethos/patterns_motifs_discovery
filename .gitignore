@@ -5,7 +5,7 @@ meds_output/
 papers/
 femr/
 hf_ehr/
-data_input/
+inputs/
 omop_extract/
 meds_reader_extract/
 .DS_Store

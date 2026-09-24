@@ -8,6 +8,7 @@ named in a table so you know what you skipped. All five run end to end.
 | File | What it is |
 |---|---|
 | `ethos_omop.py` | extract + load layer. Your Snowflake script, refactored, plus the feature helpers the notebooks use |
+| `codesets.yaml` | the clinical code sets, as config -- edit this to change what a tag matches, no code changes needed |
 | `make_demo_extract.py` | writes a synthetic `omop_extract/` with the same schema, for running without Snowflake |
 | `Day1_Extract_and_Representation.ipynb` | the extract, its four preprocessing decisions, and why bag-of-codes fails |
 | `Day2_Clustering.ipynb` | k-means, HDBSCAN, and bootstrap stability |
@@ -18,7 +19,7 @@ named in a table so you know what you skipped. All five run end to end.
 ## Setup
 
 ```bash
-pip install numpy pandas scikit-learn scipy matplotlib networkx jupyter
+pip install numpy pandas scikit-learn scipy matplotlib networkx jupyter pyyaml
 # plus snowflake-connector-python if you are extracting
 ```
 
@@ -67,10 +68,11 @@ concept_id, source_concept_id, or source_value. `extract_omop()` was refactored 
 functions share one `_dump_core()` (same dip exclusion, slimming, symlinks); only where the
 person_id seed list comes from differs.
 
-**Codesets resolve by name, not by hardcoded concept_id.** `CODESETS` maps a clinical label
-to name patterns plus vocabularies, so the same notebook runs against real Athena concepts
-and the demo extract alike. `eo.resolve()` shows you what matched — always look before
-trusting it.
+**Codesets live in `codesets.yaml`, not in code.** Each tag is either
+`{patterns: [...], vocabularies: [...]}` (name-matched via `resolve()`, portable across the
+real extract and the demo extract alike) or `{concept_ids: [...]}` (a literal, verified id
+set). `eo.build_codesets()` loads and resolves the file; `eo.resolve()` shows you what a
+pattern matched — always look before trusting it.
 
 **`tag` collapses many concept_ids to one readable label.** Mining raw concept_ids produces
 patterns nobody can read; this is the hand-rolled version of ontology rollup, and it is what

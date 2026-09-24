@@ -29,6 +29,7 @@ import csv
 import glob
 import numpy as np
 import pandas as pd
+import yaml
 
 DATABASE = "ETHOS_PRODUCTION"
 SCHEMA   = "OMOP_54"
@@ -281,8 +282,16 @@ def load_concept(out_dir=OUT_DIR):
 
 def load_person(out_dir=OUT_DIR):
     p = _read(out_dir, "person")
-    g = load_concept(out_dir).set_index("concept_id")["concept_name"]
-    p["gender"] = p["gender_concept_id"].map(g).fillna("Unknown")
+    # gender_source_value ("male"/"female", already on the person row) rather than mapping
+    # gender_concept_id through concept.csv: that table is slimmed to concept_ids referenced
+    # by clinical EVENTS (extract_cohort()'s slim_concept), never person.gender_concept_id,
+    # so the map always misses and everyone silently becomes "Unknown". Verified against the
+    # real chest-pain extract this session -- same bug, same fix.
+    if "gender_source_value" in p and p["gender_source_value"].notna().any():
+        p["gender"] = p["gender_source_value"].astype(str)
+    else:
+        g = load_concept(out_dir).set_index("concept_id")["concept_name"]
+        p["gender"] = p["gender_concept_id"].map(g).fillna("Unknown")
     if "birth_datetime" in p and p["birth_datetime"].notna().any():
         p["birth_date"] = pd.to_datetime(p["birth_datetime"], errors="coerce")
     else:
@@ -371,12 +380,18 @@ def load_death(out_dir=OUT_DIR):
 
 # =====================================================  concept set resolution
 
-def resolve(concept, patterns, vocabularies=None, domain=None, standard_only=True):
+def resolve(concept, patterns, vocabularies=None, domain=None, standard_only=True,
+            exclude=None):
     """
     Find concept_ids by name pattern. Returns a DataFrame for eyeballing —
     ALWAYS look at it before trusting a code set.
 
         resolve(concept, ['letrozole'], vocabularies=['RxNorm'])
+
+    exclude drops any hit whose concept_name also matches one of these
+    patterns -- e.g. excluding "history of"/"screening" from a diagnosis
+    codeset so it doesn't pick up "Family history of breast cancer" or
+    "Screening for malignant neoplasm of breast" alongside the real thing.
     """
     c = concept
     if standard_only:
@@ -387,6 +402,9 @@ def resolve(concept, patterns, vocabularies=None, domain=None, standard_only=Tru
         c = c[c["domain_id"] == domain]
     pat = "|".join(patterns)
     hit = c[c["concept_name"].str.contains(pat, case=False, na=False, regex=True)]
+    if exclude:
+        excl_pat = "|".join(exclude)
+        hit = hit[~hit["concept_name"].str.contains(excl_pat, case=False, na=False, regex=True)]
     return hit[["concept_id", "concept_name", "vocabulary_id",
                 "concept_code", "domain_id"]].sort_values("concept_name")
 
@@ -411,50 +429,47 @@ def roll_up(concept_ids, levels=1, out_dir=OUT_DIR):
     return set(sel["ancestor_concept_id"].astype("int64"))
 
 
-# --- The clinical code sets the notebooks work with. Resolved by NAME so the same
-# --- notebook runs against real Snowflake concepts and the demo extract alike.
-CODESETS = {
-    "letrozole":        (["^letrozole"],                          ["RxNorm", "RxNorm Extension"]),
-    "anastrozole":      (["^anastrozole"],                        ["RxNorm", "RxNorm Extension"]),
-    "tamoxifen":        (["^tamoxifen"],                          ["RxNorm", "RxNorm Extension"]),
-    "clomiphene":       (["clomiphene"],                          ["RxNorm", "RxNorm Extension"]),
-    "gonadotropin":     ["chorionic gonadotropin", "menotropins", "follitropin"],
-    "metformin":        (["^metformin"],                          ["RxNorm", "RxNorm Extension"]),
-    "glp1":             ["semaglutide", "dulaglutide", "liraglutide", "exenatide", "tirzepatide"],
-    "insulin":          ["^insulin"],
-    "beta_blocker":     ["metoprolol", "atenolol", "carvedilol", "bisoprolol", "propranolol"],
-    "statin":           ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin"],
-    "ssri":             ["sertraline", "fluoxetine", "escitalopram", "citalopram", "paroxetine"],
-    "breast_cancer":    (["malignant neoplasm of breast", "breast cancer",
-                          "carcinoma of breast"],                 ["SNOMED"]),
-    "infertility":      (["infertility", "anovulation", "ovulation disorder"], ["SNOMED"]),
-    "chest_pain":       (["chest pain", "precordial pain", "angina"],          ["SNOMED"]),
-    "anxiety":          (["anxiety", "panic"],                    ["SNOMED"]),
-    "cad":              (["coronary artery disease", "coronary arteriosclerosis",
-                          "myocardial infarction", "ischemic heart"],          ["SNOMED"]),
-    "t2dm":             (["type 2 diabetes"],                     ["SNOMED"]),
-    "neuropathy":       (["neuropathy"],                          ["SNOMED"]),
-    "mastectomy":       (["mastectomy"],                          ["SNOMED"]),
-    "mammogram":        (["mammograph"],                          ["SNOMED", "CPT4", "HCPCS"]),
-    "breast_biopsy":    (["biopsy of breast"],                    ["SNOMED", "CPT4", "HCPCS"]),
-    "ekg":              (["electrocardiogra"],                    ["SNOMED", "CPT4", "HCPCS"]),
-    "troponin":         (["troponin"],                            ["LOINC", "SNOMED"]),
-    "stress_test":      (["cardiac stress test", "exercise tolerance test",
-                          "myocardial perfusion"],                ["SNOMED", "CPT4", "HCPCS"]),
-    "coronary_angio":   (["coronary angiograph", "coronary arteriograph",
-                          "cardiac catheteri"],                   ["SNOMED", "CPT4", "HCPCS"]),
-    "hba1c":            (["hemoglobin a1c", "glycated haemoglobin", "hba1c"], ["LOINC", "SNOMED"]),
-    "ed_visit":         (["emergency room", "emergency department"], None),
-}
+# --- The clinical code sets the notebooks work with, loaded from codesets.yaml
+# --- (same directory as this file) so they're portable/editable without touching code.
+def _load_codesets(path=None):
+    path = path or os.path.join(os.path.dirname(__file__), "codesets.yaml")
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+
+CODESETS = _load_codesets()
 
 
 def build_codesets(concept, codesets=None, verbose=True):
-    """Resolve CODESETS to concept_id sets. Returns dict tag -> set(concept_id)."""
+    """
+    Resolve CODESETS to concept_id sets. Returns dict tag -> set(concept_id).
+
+    Each entry in codesets.yaml is either:
+      tag: {patterns: [...], vocabularies: [...], domain: ..., exclude: [...]}
+                                                      # name-matched via resolve() --
+                                                      # vocabularies/domain/exclude optional
+    or:
+      tag: {concept_ids: [...]}                      # literal, resolve() skipped entirely
+
+    Name-resolution is what makes most codesets portable across the real extract and the
+    demo extract alike; use literal concept_ids only for a tag where the exact id set is
+    small, known, and verified against real data.
+    """
     codesets = codesets or CODESETS
     out = {}
     for tag, spec in codesets.items():
-        pats, vocabs = spec if isinstance(spec, tuple) else (spec, None)
-        hit = resolve(concept, pats, vocabularies=vocabs)
+        if "concept_ids" in spec:
+            ids = {int(c) for c in spec["concept_ids"]}
+            out[tag] = ids
+            if verbose:
+                names = concept.loc[concept["concept_id"].isin(ids), "concept_name"]
+                print(f"{tag:16s} {len(ids):5d} concepts (literal)   "
+                      f"e.g. {names.head(2).tolist()}")
+            continue
+        hit = resolve(concept, spec["patterns"],
+                      vocabularies=spec.get("vocabularies"),
+                      domain=spec.get("domain"),
+                      exclude=spec.get("exclude"))
         out[tag] = set(hit["concept_id"].astype("int64"))
         if verbose:
             print(f"{tag:16s} {len(out[tag]):5d} concepts   "
@@ -566,6 +581,22 @@ def signed_gap(events, tag_a, tag_b, col="tag"):
 
 # ==============================================================  weak labels
 
+# Corroborating-evidence tags for weak_labels(), pulled from codesets.yaml's
+# "Fertility side" / "Oncology side" groups rather than hardcoded here, so
+# adding a tag to the yaml is enough to widen the evidence set. anastrozole
+# and tamoxifen are excluded even though they're oncology drugs: codesets.yaml
+# files them under "Aromatase inhibitors (the ambiguous exposure)" alongside
+# letrozole, so using them as oncology evidence would partly relabel the
+# exposure as its own corroborating evidence.
+FERTILITY_TAGS = ["clomiphene", "gonadotropin_drug", "art_procedure",
+                   "follicle_monitoring", "ovarian_reserve_test",
+                   "pregnancy_test", "infertility", "pcos"]
+ONCOLOGY_TAGS = ["mastectomy", "breast_biopsy", "chemotherapy",
+                  "antineoplastic_drug", "receptor_assay",
+                  "radiation_therapy", "lumpectomy", "lymph_node_procedure",
+                  "metastasis"]
+
+
 def weak_labels(events, person=None, col="tag"):
     """
     Rule-based PROBE labels for the letrozole indication, from corroborating
@@ -578,16 +609,18 @@ def weak_labels(events, person=None, col="tag"):
     Returns person_id, weak_label in {fertility, oncology}. Ambiguous and
     no-evidence patients are dropped — report how many.
     """
+    missing = [t for t in FERTILITY_TAGS + ONCOLOGY_TAGS if t not in CODESETS]
+    assert not missing, f"weak_labels tags missing from codesets.yaml: {missing}"
+
     has = lambda tag: set(events.loc[events[col] == tag, "person_id"])
 
     lz = has("letrozole")
-    fert = has("clomiphene") | has("gonadotropin") | has("infertility")
+    fert = set().union(*(has(t) for t in FERTILITY_TAGS))
     # NOTE: breast_cancer is deliberately NOT oncology evidence. A fertility
     # patient can develop breast cancer years later, so the diagnosis alone is
     # confounded with the very thing we are trying to disambiguate. Only
     # treatment and workup co-evidence counts.
-    onco = (has("mastectomy") | has("breast_biopsy")
-            | has("anastrozole") | has("tamoxifen"))
+    onco = set().union(*(has(t) for t in ONCOLOGY_TAGS))
 
     rows = []
     for pid in sorted(lz):

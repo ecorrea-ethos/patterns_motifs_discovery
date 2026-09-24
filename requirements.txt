@@ -2,3 +2,4 @@
 meds-etl==0.3.11
 snowflake-connector-python
 ipykernel
+pyyaml

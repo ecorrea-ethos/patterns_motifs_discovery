@@ -1,0 +1,302 @@
+# Bitacora
+# v1 - ported from ethos_omop.py's CODESETS Python dict to this YAML file (patterns/vocabularies/concept_ids shape, no behavior change)
+# v2 - removed glp1/insulin/neuropathy/hba1c -- unused anywhere in this cohort's notebooks (only mentioned in markdown prose, never looked up as a tag)
+# v3 - removed beta_blocker/statin/ssri -- no clinical tie to the fertility-vs-oncology question, only referenced in the still-unadapted Day3 leftover cell (statin/beta_blocker) or Table 1 without thematic justification (ssri, also dropped from Day1's CODE_ROWS)
+# v4 - added the discriminating concepts surfaced by k=12 NMF (comp 9 oncology,
+#      comp 10 fertility) which v3 was blind to; split ambiguous drug/lab tags;
+#      added menopause status as the primary clinical discriminator.
+# v5 - FIXED the breast_cancer over-match that made the two notebooks disagree
+#      sixfold on the letrozole/breast-cancer overlap. Details below, plus
+#      repairs to three codesets that resolved to the wrong concepts, and
+#      ordering fixes for tag_events' first-tag-wins behaviour.
+#
+#      v5 changes, one by one:
+#
+#      1. breast_cancer: DROPPED the pattern "neoplasm of breast". resolve()
+#         does an unanchored str.contains(), so that substring also matched
+#         "Benign neoplasm of breast" and "Neoplasm of uncertain behavior of
+#         breast". In a cohort averaging 35.8 years old, benign breast neoplasm
+#         is common -- this alone produced breast_cancer = 10.1% (616 patients)
+#         in the letrozole cohort against 0.8% mastectomy and 0.9%
+#         chemotherapy. Expect ~1.5-2% after this change, consistent with the
+#         90 oncology-labelled patients weak_labels() found.
+#      2. breast_cancer: split carcinoma in situ out into its own dcis tag.
+#         DCIS is not invasive disease and does not carry the same endocrine
+#         therapy expectation, so it should not be pooled with the oncology
+#         label. Add 'dcis' to CODE_ROWS if you want it in Table 1.
+#      3. breast_biopsy: the pattern "biopsy breast" requires those two words
+#         adjacent in that order, which no real concept name uses. Real names
+#         are "Breast biopsy ...", "Excision of breast lesion", "Percutaneous
+#         needle biopsy...". Result was 2 concepts and 0.4% prevalence in a
+#         cohort where every patient was biopsied by definition. Widened.
+#      4. lumpectomy: "excision of lesion of breast" misses the actual CPT4
+#         phrasing "Excision of breast lesion". 0.0% alongside 30% mastectomy
+#         is not clinically possible -- breast-conserving surgery is the more
+#         common operation. Widened.
+#      5. metastasis: resolved to 0 concepts in BOTH notebooks under the v4
+#         patterns. Widened with the phrasings SNOMED actually uses. If it
+#         still resolves to 0 after this, the concept genuinely is not in
+#         either extract and the 0% is real -- but verify rather than assume.
+#      6. pregnancy_test moved ABOVE pregnancy_outcome. tag_events() does
+#         "first tag wins" by dict insertion order, and pregnancy_outcome's
+#         bare "pregnancy" pattern was swallowing pregnancy tests (187
+#         concepts, 47% prevalence). The specific tag has to come first.
+#      7. pregnancy_outcome: replaced the bare "pregnancy" pattern with
+#         specific outcome phrasings. "pregnancy" alone matched supervision-of,
+#         ectopic, test-for, and history-of concepts indiscriminately.
+#      8. art_procedure: dropped the bare "sperm" pattern, which matched
+#         "spermatic cord" procedures. Replaced with sperm-specific phrasings.
+#      9. Added bc_surgery_any as a convenience roll-up for the plausibility
+#         check described at the bottom of this file.
+# v6 - breast_cancer: added domain: "Condition" + exclude for "family history",
+#      "personal history", "history of", "screening", "at risk" -- ported from
+#      the letrozole notebook's codesets.yaml, now that ethos_omop.py's
+#      resolve()/build_codesets() actually wire domain/exclude through. Belt
+#      and suspenders on top of the v5 pattern fix: domain alone already drops
+#      the Measurement/Observation false positives ("Screening for...",
+#      "Family history of...") in both extracts seen so far; exclude is the
+#      second guard for a same-domain "history of"/"screening" Condition row.
+#
+#      NOTE ON ORDER: this file's order is load-bearing. tag_events() builds
+#      its lookup with `lookup.setdefault(cid, tag)`, so when two codesets
+#      match the same concept_id the one defined FIRST wins. Specific tags must
+#      precede general ones. Do not alphabetise this file.
+
+# The clinical code sets Day 1-5 work with. Two spec shapes per tag:
+#
+#   <tag>:
+#     patterns: ["pat1", "pat2"]      # matched against concept_name via resolve()
+#     vocabularies: ["SNOMED", ...]   # optional; omit for no vocabulary restriction
+#
+#   <tag>:
+#     concept_ids: [id1, id2]         # literal -- resolve() skipped entirely
+#
+# Name-resolution is what makes a codeset portable across the real extract and the demo
+# extract alike; use literal concept_ids only when the exact id set is small, knowable, and
+# verified against real data.
+#
+# PATTERNS ARE UNANCHORED SUBSTRING REGEX. resolve() joins them with "|" and calls
+# str.contains(case=False, regex=True). Two consequences worth holding in mind every
+# time you edit this file:
+#   * A short pattern matches inside longer names. "neoplasm of breast" matches
+#     "Benign neoplasm of breast". That is how v4 broke.
+#   * Word order is literal. "biopsy breast" does not match "Breast biopsy".
+# Anchor with ^ where the concept name should start with the term, and prefer the
+# exact phrasing the vocabulary uses over a paraphrase.
+
+# ---- Aromatase inhibitors (the ambiguous exposure) ----
+letrozole:
+  patterns: ["^letrozole", "femara"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+anastrozole:
+  patterns: ["^anastrozole", "arimidex"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+exemestane:
+  patterns: ["^exemestane", "aromasin"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+tamoxifen:
+  patterns: ["^tamoxifen", "nolvadex"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+
+# ---- Fertility side ----
+clomiphene:
+  patterns: ["clomiphene", "clomid"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+gonadotropin_drug:
+  patterns: ["chorionic gonadotropin", "menotropins", "follitropin", "urofollitropin"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+art_procedure:
+  patterns:
+    - "in vitro fertilization"
+    - "oocyte retrieval"
+    - "embryo transfer"
+    - "intrauterine insemination"
+    - "assisted reproductive"
+    - "sperm washing"          # v5: was bare "sperm", which matched "spermatic cord"
+    - "sperm analysis"
+    - "semen analysis"
+    - "sperm isolation"
+    - "hysterosalpingography"
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+follicle_monitoring:
+  patterns: ["transvaginal echograph", "ultrasound pelvic", "pelvic ultrasound"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+ovarian_reserve_test:
+  patterns:
+    - "anti-mullerian hormone"
+    - "follicle stimulating hormone"
+    - "luteinizing hormone"
+    - "estradiol measurement"
+    - "progesterone measurement"
+  vocabularies: ["SNOMED", "LOINC", "CPT4"]
+
+# v5: pregnancy_test MUST stay above pregnancy_outcome -- first tag wins in
+# tag_events(), and the outcome patterns would otherwise absorb the tests.
+pregnancy_test:
+  patterns: ["pregnancy test", "choriogonadotropin"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4"]
+pregnancy_outcome:
+  patterns:                      # v5: was bare "pregnancy" -- 187 concepts, 47%
+    - "live birth"
+    - "delivery of"
+    - "normal delivery"
+    - "cesarean"
+    - "spontaneous abortion"
+    - "missed abortion"
+    - "ectopic pregnancy"
+    - "stillbirth"
+    - "postpartum"
+    - "weeks gestation"
+  vocabularies: ["SNOMED"]
+infertility:
+  patterns: ["infertility", "anovulation", "ovulation disorder", "oligomenorrhea"]
+  vocabularies: ["SNOMED"]
+pcos:
+  patterns: ["polycystic ovar"]
+  vocabularies: ["SNOMED"]
+
+# ---- Oncology side ----
+# v5: dcis defined BEFORE breast_cancer so in-situ disease is not pooled into
+# the invasive label. Both patterns are specific enough not to collide, but the
+# ordering makes the intent explicit and survives future edits.
+dcis:
+  patterns:
+    - "carcinoma in situ of breast"
+    - "intraductal carcinoma of breast"
+    - "ductal carcinoma in situ"
+  vocabularies: ["SNOMED"]
+breast_cancer:
+  patterns:
+    - "malignant neoplasm of breast"
+    - "malignant tumor of breast"
+    - "malignant neoplasm of female breast"
+    - "breast cancer"
+    - "carcinoma of breast"
+    - "primary malignant neoplasm of breast"
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["family history", "personal history",
+            "history of", "screening", "at risk"]
+  # v5: "neoplasm of breast" and "carcinoma in situ of breast" REMOVED.
+  # The first matched "Benign neoplasm of breast"; the second now lives in dcis.
+  # v6: domain/exclude added -- see bitacora above.
+chemotherapy:
+  patterns: ["chemotherapy administration", "administration of antineoplastic",
+             "antineoplastic chemotherapy", "chemotherapy by infusion",
+             "intravenous chemotherapy", "chemotherapy session"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+antineoplastic_drug:
+  patterns: ["^trastuzumab", "^cyclophosphamide", "^doxorubicin", "^paclitaxel",
+             "^docetaxel", "^carboplatin", "^capecitabine", "^pertuzumab",
+             "^palbociclib", "^ribociclib", "^abemaciclib"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+receptor_assay:
+  patterns: ["estrogen receptor", "progesterone receptor", "her2",
+             "immunohistochemistry"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4"]
+radiation_therapy:
+  patterns: ["radiation therapy", "radiotherapy", "teletherapy",
+             "radiation treatment delivery", "brachytherapy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+mastectomy:
+  patterns: ["mastectomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+lumpectomy:
+  patterns:                      # v5: added the phrasings CPT4 actually uses
+    - "lumpectomy"
+    - "partial mastectomy"
+    - "excision of lesion of breast"
+    - "excision of breast lesion"
+    - "breast conserving"
+    - "quadrantectomy"
+    - "wide local excision of breast"
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+lymph_node_procedure:
+  patterns: ["sentinel", "axillary lymph", "lymphadenectomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+breast_biopsy:
+  patterns:                      # v5: "biopsy breast" never matched anything
+    - "biopsy of breast"
+    - "breast biopsy"
+    - "biopsy of lesion of breast"
+    - "needle biopsy of breast"
+    - "core biopsy of breast"
+    - "fine needle aspiration.*breast"
+    - "stereotactic.*breast"
+    - "percutaneous.*biopsy.*breast"
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+metastasis:
+  patterns:                      # v5: v4 resolved to 0 concepts in BOTH notebooks
+    - "secondary malignant neoplasm"
+    - "metastasis"
+    - "metastatic"
+    - "secondary neoplasm"
+    - "malignant neoplasm.*metastatic"
+  vocabularies: ["SNOMED"]
+bone_health:
+  patterns: ["bone density", "dual energy x-ray", "dexa", "^zoledronic",
+             "^denosumab", "osteoporosis", "osteopenia"]
+  vocabularies: ["SNOMED", "RxNorm", "RxNorm Extension", "CPT4", "HCPCS"]
+mammogram_screening:
+  patterns: ["screening mammograph"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+mammogram_diagnostic:
+  patterns: ["diagnostic mammograph"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+
+# ---- Known confounders / shared between both indications ----
+# GnRH agonists appear in BOTH IVF protocols and adjuvant ovarian suppression.
+# Tagged deliberately so the ambiguity is visible rather than invisible.
+gnrh_agonist:
+  patterns: ["^leuprolide", "^goserelin", "^cetrorelix", "^ganirelix"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+
+# metformin is only interpretable alongside t2dm and pcos -- keep all three.
+metformin:
+  patterns: ["^metformin"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+t2dm:
+  patterns: ["type 2 diabetes"]
+  vocabularies: ["SNOMED"]
+
+# ---- Context ----
+menopause_status:
+  patterns: ["postmenopausal", "menopaus", "perimenopaus", "premature ovarian"]
+  vocabularies: ["SNOMED"]
+ed_visit:
+  patterns: ["emergency room", "emergency department"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+
+# ============================================================================
+# AFTER EDITING THIS FILE, RUN THESE TWO CHECKS
+#
+# 1. Eyeball what the changed codesets actually matched. The existing
+#    n_concepts == 0 warning catches nothing here, because every broken
+#    codeset in v4 resolved to a small nonzero number.
+#
+#      for tag in ['breast_cancer', 'dcis', 'breast_biopsy', 'lumpectomy',
+#                  'metastasis', 'pregnancy_outcome']:
+#          print(f"\n--- {tag} ({len(codesets[tag])}) ---")
+#          print(concept.loc[concept.concept_id.isin(codesets[tag]),
+#                            ['concept_name', 'vocabulary_id']]
+#                       .to_string(index=False))
+#
+#    Read every name. If anything benign, history-of, screening-related or
+#    anatomically unrelated appears under breast_cancer, the pattern is still
+#    too loose.
+#
+# 2. Plausibility check between related tags. A codeset can resolve to real
+#    concepts and still be wrong if it misses the ones carrying the volume.
+#    In the breast cancer cohort these relationships must hold:
+#
+#      breast_biopsy  >=  breast_cancer * 0.5   # everyone is biopsied
+#      lumpectomy + mastectomy  >=  breast_cancer * 0.5
+#      breast_cancer  >  chemotherapy           # not everyone gets chemo
+#
+#    In the letrozole cohort, expect breast_cancer near 1.5-2% and roughly
+#    in line with mastectomy + chemotherapy + endocrine therapy, not 10x them.
+#
+# 3. The two notebooks must now agree on the overlap. Compute
+#    |letrozole AND breast_cancer| from each side; before v5 these were ~616
+#    and ~78. They should converge.
+# ============================================================================

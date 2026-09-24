@@ -30,6 +30,7 @@ import csv
 import glob
 import numpy as np
 import pandas as pd
+import yaml
 
 DATABASE = "ETHOS_PRODUCTION"
 SCHEMA   = "OMOP_54"
@@ -380,12 +381,18 @@ def load_death(out_dir=OUT_DIR):
 
 # =====================================================  concept set resolution
 
-def resolve(concept, patterns, vocabularies=None, domain=None, standard_only=True):
+def resolve(concept, patterns, vocabularies=None, domain=None, standard_only=True,
+            exclude=None):
     """
     Find concept_ids by name pattern. Returns a DataFrame for eyeballing —
     ALWAYS look at it before trusting a code set.
 
         resolve(concept, ['letrozole'], vocabularies=['RxNorm'])
+
+    exclude drops any hit whose concept_name also matches one of these
+    patterns -- e.g. excluding "history of"/"screening" from a diagnosis
+    codeset so it doesn't pick up "Family history of breast cancer" or
+    "Screening for malignant neoplasm of breast" alongside the real thing.
     """
     c = concept
     if standard_only:
@@ -396,6 +403,9 @@ def resolve(concept, patterns, vocabularies=None, domain=None, standard_only=Tru
         c = c[c["domain_id"] == domain]
     pat = "|".join(patterns)
     hit = c[c["concept_name"].str.contains(pat, case=False, na=False, regex=True)]
+    if exclude:
+        excl_pat = "|".join(exclude)
+        hit = hit[~hit["concept_name"].str.contains(excl_pat, case=False, na=False, regex=True)]
     return hit[["concept_id", "concept_name", "vocabulary_id",
                 "concept_code", "domain_id"]].sort_values("concept_name")
 
@@ -420,124 +430,47 @@ def roll_up(concept_ids, levels=1, out_dir=OUT_DIR):
     return set(sel["ancestor_concept_id"].astype("int64"))
 
 
-# --- The clinical code sets the notebooks work with. Resolved by NAME so the same
-# --- notebook runs against real Snowflake concepts and the demo extract alike.
-CODESETS = {
-    # Earlier pass at this: literal Athena/crosswalk-verified concept_ids per tag, kept
-    # here commented for reference. Abandoned because several of these single/few-id
-    # sets matched 0 patients in the real extract -- claims data codes many of these via
-    # specific product/CPT4/HCPCS variants, not the generic ingredient/procedure concept
-    # the crosswalk lists. Went back to name-resolution (below) for all tags.
-    # "letrozole__ingredient":        {1315946},
-    # "anastrozole__ingredient":      {1348265},
-    # "tamoxifen__ingredient":        {1436678},
-    # "clomiphene__ingredient":       {1598819},
-    # "gonadotropin__disposition":     {42536139},
-    # "metformin__ingredient":        {1503297},
-    # "glp1":             {793143, 45774435, 40170911, 1583722, 779705},
-    # "insulin_glulisine_human__ingredient":          {1544838},
-    # "beta_blocker":     {1307046,1314002,1346823,1338005,1353766},
-    # "statin":           {1545958,1539403,1510813,1551860},
-    # "ssri":             {739138, 755695, 715939, 797617, 722031},
-    # "breast_cancer":    {4112853},  # Breast cancer, Invasive ductal carcinoma of breast, Invasive lobular carcinoma of breast -- add/replace with your Athena-verified ids
-    # "fertility_problem__clinical_finding":      {4098887},  # Infertility, Female infertility, Male infertility -- add/replace with your Athena-verified ids
-    # "angina_pectoris__disorder":  {321318},  # Angina pectoris, Unstable angina, Stable angina -- add/replace with your Athena-verified ids
-    # "chest_pain__clinical_finding":     {77670},    # crosswalk: chest_pain
-    # "anxiety__clinical_finding":        {441542},   # crosswalk: anxiety
-    # "anxiety_disorder__disorder":       {442077},   # crosswalk: anxiety_panic_stress_other
-    # "panic_disorder__disorder":         {436074},   # crosswalk: panic_disorder (only panic term in crosswalk; "panic" regex false-positived on tympanic/Papanicolaou)
-    # "benzodiazepine_therapy__procedure":   {36674742},  # crosswalk: benzodiazepine_therapy
-    # "gastroesophageal_reflux_disease__disorder":                    {318800},  # crosswalk: gastroesophageal_reflux_disease -- rare in this extract (7 rows); real claims mostly use the "without esophagitis" variant below, which the crosswalk doesn't list
-    # "gastroesophageal_reflux_disease_without_esophagitis__disorder": {4144111},  # dominant real-world GERD code (243k rows) -- not in the crosswalk, found by checking master_condition_occurrence directly
-    # "gastro-esophageal_reflux_disease_with_esophagitis__disorder":  {30437},   # crosswalk: reflux_esophagitis
-    # "heartburn__clinical_finding":                                  {23325},  # crosswalk: heartburn
-    # "costal_chondritis__disorder":      {4272340},  # crosswalk: costochondritis
-    # "coronary_arteriosclerosis__disorder": {317576},   # crosswalk: coronary_artery_disease
-    # "myocardial_infarction__disorder":     {4329847},  # crosswalk: myocardial_infarction
-    # "type_2_diabetes_mellitus__disorder":  {201826},   # crosswalk: diabetes_type2
-    # "neuropathy__disorder":                {4301699},
-    # "excision_of_breast__procedure":      {37164749},  # crosswalk: breast_excision
-    # "mammography__procedure":        {4324693},  # crosswalk: mammogram
-    # "biopsy_of_breast__procedure":    {4047494},  # crosswalk: breast_biopsy
-    # "ekg":              {4163951,4261794,4313572},
-    # "troponin_measurement__procedure":         {4021291},
-    # "stress_test":      {4296597},
-    # "coronary_angiography":   {4299523,1243964,4184592,},  # crosswalk: coronary_angiography
-    # "hba1c":            {4184637},  # crosswalk: hemoglobin_a1c
-    # "ed_visit":         {9203},
+# --- The clinical code sets the notebooks work with, loaded from codesets.yaml
+# --- (same directory as this file) so they're portable/editable without touching code.
+def _load_codesets(path=None):
+    path = path or os.path.join(os.path.dirname(__file__), "codesets.yaml")
+    with open(path) as f:
+        return yaml.safe_load(f)
 
-    "letrozole":        (["^letrozole"],                          ["RxNorm", "RxNorm Extension"]),
-    "anastrozole":      (["^anastrozole"],                        ["RxNorm", "RxNorm Extension"]),
-    "tamoxifen":        (["^tamoxifen"],                          ["RxNorm", "RxNorm Extension"]),
-    "clomiphene":       (["clomiphene"],                          ["RxNorm", "RxNorm Extension"]),
-    "gonadotropin":     (["chorionic gonadotropin", "menotropins", "follitropin"], None),
-    "metformin":        (["metformin"],                           ["RxNorm", "RxNorm Extension"]),
-    "glp1":             ["semaglutide", "dulaglutide", "liraglutide", "exenatide", "tirzepatide"],
-    "insulin":          (["insulin"],                             ["RxNorm", "RxNorm Extension"]),
-    "beta_blocker":     ["metoprolol", "atenolol", "carvedilol", "bisoprolol", "propranolol"],
-    "statin":           ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin"],
-    "ssri":             ["sertraline", "fluoxetine", "escitalopram", "citalopram", "paroxetine"],
-    "breast_cancer":    (["breast cancer", "invasive ductal carcinoma of breast",
-                          "invasive lobular carcinoma of breast"],  ["SNOMED"]),
-    "infertility":      (["infertility", "fertility problem"],     ["SNOMED"]),
-    # "angina" alone is wrong two ways at once: it pulls in "Herpangina" (unrelated
-    # pediatric illness, matched only because "angina" is a substring) plus six distinct
-    # angina-pectoris concepts (a real but different condition, ICD10 I20.x, not R07.x).
-    # It also MISSES R07.82 entirely, since nothing matches "intercostal". This pattern
-    # list is what actually tags the cohort with 0 gap, verified against the real extract.
-    "chest_pain":       (["chest pain", "precordial pain", "intercostal space"], ["SNOMED"]),
-    # "panic" alone false-positives on "tympanic membrane" and "Papanicolaou" -- verified
-    # against the real extract, "panic disorder" is the only correct pattern.
-    "anxiety":          (["anxiety"],                             ["SNOMED"]),
-    "panic_attack":     (["panic disorder"],                      ["SNOMED"]),
-    "benzodiazepine":   ["alprazolam", "lorazepam", "diazepam", "clonazepam", "temazepam"],
-    "gerd":             (["gastroesophageal reflux", "gastro-esophageal reflux",
-                          "heartburn"],                            ["SNOMED"]),
-    "costochondritis":  (["costochondritis", "costal chondritis", "tietze"], ["SNOMED"]),
-    "cad":              (["coronary artery disease", "coronary arteriosclerosis",
-                          "myocardial infarction", "ischemic heart"], ["SNOMED"]),
-    "t2dm":             (["type 2 diabetes", "type ii diabetes"],  ["SNOMED"]),
-    "neuropathy":       (["neuropathy"],                          ["SNOMED"]),
-    "mastectomy":       (["mastectomy"],                          ["SNOMED"]),
-    "mammogram":        (["mammograph"],                          ["SNOMED", "CPT4", "HCPCS"]),
-    "breast_biopsy":    (["biopsy of breast"],                    ["SNOMED", "CPT4", "HCPCS"]),
-    "ekg":              (["electrocardiogra"],                    ["SNOMED", "CPT4", "HCPCS"]),
-    "troponin":         (["troponin"],                            ["LOINC", "SNOMED", "CPT4"]),
-    "stress_test":      (["cardiovascular stress test", "myocardial perfusion imaging"],
-                                                                   ["SNOMED", "CPT4", "HCPCS"]),
-    "coronary_angio":   (["coronary angiograph", "coronary arteriograph",
-                          "cardiac catheteri"],                   ["SNOMED", "CPT4", "HCPCS"]),
-    "hba1c":            (["hemoglobin a1c", "glycated haemoglobin", "hba1c"], ["LOINC", "SNOMED"]),
-    "ed_visit":         (["emergency room", "emergency department"], None),
-}
+
+CODESETS = _load_codesets()
 
 
 def build_codesets(concept, codesets=None, verbose=True):
     """
     Resolve CODESETS to concept_id sets. Returns dict tag -> set(concept_id).
 
-    A spec is normally (patterns, vocabularies) or just patterns, resolved by
-    NAME via resolve() -- this is what makes most codesets portable across the
-    real extract and the demo extract alike.
+    Each entry in codesets.yaml is either:
+      tag: {patterns: [...], vocabularies: [...], domain: ..., exclude: [...]}
+                                                      # name-matched via resolve() --
+                                                      # vocabularies/domain/exclude optional
+    or:
+      tag: {concept_ids: [...]}                      # literal, resolve() skipped entirely
 
-    A spec can also be a literal set/frozenset of concept_ids, e.g. hand-picked
-    from Athena. resolve() is skipped entirely for that tag -- use this for a
-    cohort-anchor tag where the exact id set is small and known, and any
-    name-matching drift (false positives/negatives) is unacceptable.
+    Name-resolution is what makes most codesets portable across the real extract and the
+    demo extract alike; use literal concept_ids only for a tag where the exact id set is
+    small, known, and verified against real data.
     """
     codesets = codesets or CODESETS
     out = {}
     for tag, spec in codesets.items():
-        if isinstance(spec, (set, frozenset)):
-            ids = {int(c) for c in spec}
+        if "concept_ids" in spec:
+            ids = {int(c) for c in spec["concept_ids"]}
             out[tag] = ids
             if verbose:
                 names = concept.loc[concept["concept_id"].isin(ids), "concept_name"]
                 print(f"{tag:16s} {len(ids):5d} concepts (literal)   "
                       f"e.g. {names.head(2).tolist()}")
             continue
-        pats, vocabs = spec if isinstance(spec, tuple) else (spec, None)
-        hit = resolve(concept, pats, vocabularies=vocabs)
+        hit = resolve(concept, spec["patterns"],
+                      vocabularies=spec.get("vocabularies"),
+                      domain=spec.get("domain"),
+                      exclude=spec.get("exclude"))
         out[tag] = set(hit["concept_id"].astype("int64"))
         if verbose:
             print(f"{tag:16s} {len(out[tag]):5d} concepts   "
@@ -688,6 +621,13 @@ def weak_labels(events, person=None, col="tag"):
     return lab
 
 
+# Corroborating-evidence tags for chest_pain_labels() / Table 1, pulled from
+# codesets.yaml rather than hand-typed twice, so both places use the exact
+# same list and can't drift apart.
+PSYCH_TAGS = ["anxiety", "panic_attack", "ssri", "benzodiazepine"]
+CARDIAC_TAGS = ["troponin", "stress_test", "coronary_angio", "cad"]
+
+
 def chest_pain_labels(events, col="tag"):
     """
     Rule-based PROBE labels for the dx_9487 chest-pain triage question, from
@@ -703,11 +643,14 @@ def chest_pain_labels(events, col="tag"):
     no-evidence (neither) patients are dropped — report how many, same as
     weak_labels(). This is a probe for evaluation, never a feature.
     """
+    missing = [t for t in PSYCH_TAGS + CARDIAC_TAGS if t not in CODESETS]
+    assert not missing, f"chest_pain_labels tags missing from codesets.yaml: {missing}"
+
     has = lambda tag: set(events.loc[events[col] == tag, "person_id"])
 
     cp = has("chest_pain")
-    psych = has("anxiety") | has("panic_attack") | has("ssri") | has("benzodiazepine")
-    cardiac = has("troponin") | has("stress_test") | has("coronary_angio") | has("cad")
+    psych = set().union(*(has(t) for t in PSYCH_TAGS))
+    cardiac = set().union(*(has(t) for t in CARDIAC_TAGS))
 
     rows = []
     for pid in sorted(cp):

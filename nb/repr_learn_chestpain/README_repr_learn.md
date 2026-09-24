@@ -15,6 +15,7 @@ anxiety/panic presentations coded as chest pain. Five days: extract → cluster 
 | File | What it is |
 |---|---|
 | `ethos_omop.py` | extract + load layer, plus `chest_pain_labels()` and `cardiac_workup_outcome()` for this problem specifically |
+| `codesets.yaml` | the clinical code sets, as config -- edit this to change what a tag matches, no code changes needed |
 | `make_demo_extract.py` | writes a synthetic `omop_extract/` with the same schema, for running without Snowflake |
 | `Day1_Extract_and_Representation.ipynb` | the extract, its four preprocessing decisions, and why bag-of-codes fails on dx_9487 |
 | `Day2_Clustering.ipynb` | k-means, HDBSCAN, and bootstrap stability |
@@ -25,7 +26,7 @@ anxiety/panic presentations coded as chest pain. Five days: extract → cluster 
 ## Setup
 
 ```bash
-pip install numpy pandas scikit-learn scipy matplotlib networkx jupyter
+pip install numpy pandas scikit-learn scipy matplotlib networkx jupyter pyyaml
 # plus snowflake-connector-python if you are re-extracting
 ```
 
@@ -79,10 +80,12 @@ no mortality endpoint for a triage question, so this replaces Kaplan-Meier-on-de
 primary validation; a short KM-on-death cut stays as a secondary robustness check since the
 real `death` table is available for this cohort.
 
-**Codesets resolve by name, not by hardcoded concept_id.** `CODESETS` maps a clinical label
-to name patterns plus vocabularies, so the same notebook runs against real Snowflake
-concepts and the demo extract alike. `eo.resolve()` shows you what matched — always look
-before trusting it.
+**Codesets live in `codesets.yaml`, not in code.** Each tag is either
+`{patterns: [...], vocabularies: [...]}` (name-matched via `resolve()`, portable across the
+real extract and the demo extract alike) or `{concept_ids: [...]}` (a literal, verified id
+set, for a tag that can't tolerate name-matching drift). `eo.build_codesets()` loads and
+resolves the file; `eo.resolve()` shows you what a pattern matched — always look before
+trusting it.
 
 **`tag` collapses many concept_ids to one readable label.** Mining raw concept_ids produces
 patterns nobody can read; this is the hand-rolled version of ontology rollup, and it is what
