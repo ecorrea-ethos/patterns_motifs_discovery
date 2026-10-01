@@ -11,3 +11,4 @@ meds_reader_extract/
 .DS_Store
 transcripts/
 output/
+nb/**/*.html

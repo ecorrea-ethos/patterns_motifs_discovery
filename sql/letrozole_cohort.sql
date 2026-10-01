@@ -1,3 +1,7 @@
+----------------------------------------------------
+-- v0.2
+-- Letrozole-exposed (RxNorm / RxNorm Extension / NDC) persons in OMOP, limited to
+-- persons with a policy (POLICY_ERA -> PCP) whose DIM_UNDERWRITING_PROCESS != 'TBD'.
 WITH src AS (
     -- 1. Identify the Letrozole ingredient concept in RxNorm / RxNorm Extension
     SELECT c.concept_id, c.concept_code, c.concept_name
@@ -42,11 +46,21 @@ std AS (
      AND t.standard_concept = 'S'
      AND t.invalid_reason IS NULL
 ),
+eligible_persons AS (
+    -- Persons linked to at least one PCP policy with a non-TBD underwriting process
+    SELECT DISTINCT era.PERSON_ID
+    FROM ethos_production.omop_54.policy_era era
+    JOIN ethos_production.dbt_mart_transformation.m_policy_carrier_product pcp
+      ON era.POLICY_ID = pcp.BK_POLICY_ID
+    WHERE era.PERSON_ID IS NOT NULL
+      AND pcp.DIM_UNDERWRITING_PROCESS != 'TBD'
+),
 hits AS (
     SELECT de.person_id,
            de.drug_exposure_id,
            de.drug_exposure_start_date
     FROM ethos_production.omop_54.drug_exposure de
+    JOIN eligible_persons ep ON ep.PERSON_ID = de.person_id
     WHERE de.drug_concept_id IN (SELECT std_concept_id FROM std)
        OR de.drug_source_concept_id IN (SELECT concept_id FROM src)
        OR LOWER(de.drug_source_value) LIKE '%letrozole%'
