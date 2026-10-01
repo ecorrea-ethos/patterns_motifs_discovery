@@ -82,4 +82,4 @@ Re-running Stage 1 re-pulls from Snowflake (new random patient sample unless you
 
 ### `nb/repr_learn_chestpain/` and `nb/repr_learn_letrozole/`
 
-Each is self-contained; see its own `README_repr_learn.md` for setup and the Day1–Day5 run order. Run from inside the course's own directory (its notebooks resolve `../data_input/`, `../sql/` relative to that directory) — the opposite convention from `nb/repr_clmbr/`.
+Each is self-contained; see its own `README_repr_learn.md` for setup and the Day1–Day5 run order. How Day 1's bag of codes and NMF are built and validated (labels, prevalence floor, choosing k) is documented in `docs/README.md`. Run from inside the course's own directory (its notebooks resolve `../data_input/`, `../sql/` relative to that directory) — the opposite convention from `nb/repr_clmbr/`.

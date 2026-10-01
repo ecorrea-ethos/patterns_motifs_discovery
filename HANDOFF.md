@@ -1,5 +1,27 @@
 # Handoff
 
+## Update 2026-10-01: pattern-discovery Day 1 (bag of codes + NMF)
+
+Details are in `docs/` (start at `docs/README.md`). Summary for the next person:
+
+**Done in `nb/repr_learn_chestpain/` Day 1 (reference version):**
+- New unique fallback labels `<name20>__<class>__<concept_id>` in all three `ethos_omop.py` copies (`docs/event-labels.md`). Class and id are never cut; accents folded, non-alphanumerics removed.
+- Prevalence-floor cell: floor of 35 patients (`KEEP_TAGS`); `X` is rebuilt from kept codes with `min_count=1`.
+- One shared `NMF_KW = dict(init='nndsvd', random_state=0, max_iter=2000, tol=1e-4)` for every NMF fit (an earlier base/refit mismatch was fixed).
+- One k-sweep cell: k = 3..14, two split seeds `(1, 2)`, `N_BOOT_K = 10`, t-based intervals, run in parallel on a sparse matrix `Xs`. `X_nmf` and the dense `Xv` were removed. Verified equal to the old dense serial code on synthetic data (`docs/day1-performance.md`).
+- Loadings-check cell built from `codesets.yaml` (psych / cardiac / other codesets).
+
+**Chest pain results (latest run):** k=8 is the largest k that is solid on both splits (worst-split ARI 0.822, cosine 0.991, nothing unstable); k=9 is bad; k>=10 is only suggestive. The earlier k=11 (old labels) is not supported. NMF bundles reflect care delivery (pharmacy, acute workup, preventive), not condition: SSRI/benzodiazepine load on the pharmacy bundle; no psych bundle exists. Full tables in `docs/nmf-validation.md`.
+
+**Open decisions / next steps:**
+1. Pick the final k for chest pain (statistics favour 8) and rewrite Table 1's `COMPONENT_GROUPS` and the "Reading the k=.. output" notes; they are still hand-written for an older k and older labels.
+2. Cardiac risk factors (hypertension, hyperlipidemia, obesity) are not in `codesets.yaml`, so the loadings check cannot see them. Adding them would pool their concepts and change the whole matrix; decision on hold.
+3. Rerun Days 2-5 for chest pain: they still use `bag_of_codes(events, min_count=20)` (no patient floor) and do not drop the anchor before SVD, unlike Day 1. A `min_patients=` argument on `bag_of_codes()` would let all notebooks share the floor.
+4. **Port to breast cancer and letrozole tomorrow, after their cohort SQL (`sql/breast_cancer_cohort.sql`, `sql/letrozole_cohort.sql`) has been reviewed.** Cohort sizes (1,704 and 6,103 patients) may change. What those two have today: the new labels, `NMF_KW`, and a serial dense k-sweep with the same cell order as chest pain. What they lack: the prevalence-floor cell, sparse `Xs` + parallel sweep, `X_nmf` removal, loadings check. Their sweep split sizes were fixed to scale with cohort size (a fixed 20,000/10,000 would have left no held-out patients).
+5. The chest pain anchor code is 100% prevalent by construction (it defines the cohort); it is dropped only for the SVD/NMF matrix.
+
+**Gotchas:** three separate copies of `ethos_omop.py` must be edited together; run the `nmf_stability` definition cell before the k sweep; the parallel sweep needs multiprocessing (blocked in restricted sandboxes, fine in Jupyter); Day 1 notebooks get large after a run, so edit the JSON with a script if an editor tool refuses to read them. All Day 1 results computed before the label change are not comparable and must be rerun.
+
 ## State
 
 `nb/repr_clmbr/clmbr_paper_reproduction.ipynb` runs end to end (Stages 1–6): Snowflake OMOP sample → MEDS → `meds_reader` extract → small vocab → per-day code sets → tiny CLMBR-replica model (EmbeddingBag + GRU), trained loss goes down over 20 epochs.

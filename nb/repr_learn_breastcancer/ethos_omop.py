@@ -308,7 +308,7 @@ def load_events(out_dir=OUT_DIR, domains=None, standard_only=True):
     Union the domain tables into one long event stream.
 
     Returns person_id, event_date, domain, concept_id, vocabulary_id, concept_code,
-    concept_name, token.
+    concept_name, concept_class_id (when concept.csv has it), token.
 
     token = 'vocabulary_id/concept_code', e.g. SNOMED/184099003 — the same form
     CLMBR and MEDS use, so this frame is one step from a MEDS conversion.
@@ -323,7 +323,10 @@ def load_events(out_dir=OUT_DIR, domains=None, standard_only=True):
         keep = concept[concept["standard_concept"] == "S"]
     else:
         keep = concept
-    cmap = keep.set_index("concept_id")[["vocabulary_id", "concept_code", "concept_name"]]
+    cmap_cols = ["vocabulary_id", "concept_code", "concept_name"]
+    if "concept_class_id" in keep:
+        cmap_cols.append("concept_class_id")             # needed by tag_events' fallback label
+    cmap = keep.set_index("concept_id")[cmap_cols]
 
     frames = []
     for table, cid_col, date_col, domain in EVENT_SOURCES:
@@ -477,11 +480,34 @@ def build_codesets(concept, codesets=None, verbose=True):
     return out
 
 
-def _slug(name, n=22):
-    out = "".join(ch if ch.isalnum() else "_" for ch in str(name).lower())
-    while "__" in out:
-        out = out.replace("__", "_")
-    return out.strip("_")[:n]
+# Accent fold used for the fallback label (same tables as the Snowflake TRANSLATE).
+_ACCENT_FROM = "àáâãäåāăąçćčèéêëēėęěìíîïīįñńòóôõöøōőśšùúûüūůýÿžźż"
+_ACCENT_TO   = "aaaaaaaaaccceeeeeeeeiiiiiinnoooooooossuuuuuuyyzzz"
+assert len(_ACCENT_FROM) == len(_ACCENT_TO)
+_ACCENT_TABLE = str.maketrans(_ACCENT_FROM, _ACCENT_TO)
+
+
+def _clean(s):
+    """Lower-case, fold accents, drop everything that is not a-z/0-9/space, spaces -> '_'."""
+    s = str(s).lower().translate(_ACCENT_TABLE)
+    s = "".join(ch for ch in s if (ch.isascii() and ch.isalnum()) or ch == " ")
+    return "_".join(s.split())
+
+
+def _fallback_label(name, cls, cid):
+    """
+    Unique label for an event with no codeset tag: <name20>__<class>__<concept_id>.
+
+    name20 = cleaned concept_name cut to 20 characters (not re-stripped after the
+    cut, matching the SQL steps); class = cleaned concept_class_id, omitted when
+    missing; concept_id makes the label unique per concept, so no two concepts
+    ever share a bag-of-codes column.
+    """
+    parts = [_clean(name)[:20]]
+    if not pd.isna(cls):
+        parts.append(_clean(cls))
+    parts.append(str(cid))
+    return "__".join(parts)
 
 
 def tag_events(events, code_map, fallback="name"):
@@ -492,7 +518,8 @@ def tag_events(events, code_map, fallback="name"):
     sequence mining in Day 3 legible — mining raw concept_ids produces patterns
     nobody can read.
 
-    fallback  'name'  untagged events get a slug of concept_name (readable)
+    fallback  'name'  untagged events get <name20>__<class>__<concept_id>
+                      (readable and unique per concept; see _fallback_label)
               'token' untagged events keep vocabulary/code (compact, opaque)
               'drop'  untagged events are removed (focus mode; loses context)
     """
@@ -506,7 +533,14 @@ def tag_events(events, code_map, fallback="name"):
     if fallback == "drop":
         ev = ev[ev["in_codeset"]]
     elif fallback == "name":
-        ev["tag"] = ev["tag"].fillna(ev["concept_name"].map(_slug))
+        # build the label once per untagged concept_id, not once per event
+        cls = ev["concept_class_id"] if "concept_class_id" in ev else pd.Series(np.nan, index=ev.index)
+        u = (ev.assign(_cls=cls).loc[~ev["in_codeset"], ["concept_id", "concept_name", "_cls"]]
+               .drop_duplicates("concept_id"))
+        labels = pd.Series([_fallback_label(n, c, i)
+                            for i, n, c in zip(u["concept_id"], u["concept_name"], u["_cls"])],
+                           index=u["concept_id"])
+        ev["tag"] = ev["tag"].fillna(ev["concept_id"].map(labels))
     else:
         ev["tag"] = ev["tag"].fillna(ev["token"])
     return ev.reset_index(drop=True)
