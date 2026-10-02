@@ -1,5 +1,33 @@
 # Handoff
 
+## Update 2026-10-01 (evening): Day 1 results for three cohorts; next is Day 3 MVP
+
+**Next session: Day 3 MVP (PrefixSpan / SPADE) for letrozole and chest pain.**
+- `nb/repr_learn_chestpain/Day3_Sequence_Mining.ipynb` already has hand-written `prefixspan()` and `spade()` cells plus closed patterns, discriminative mining and a timeline graph. First step: run it end to end on the current Day 1 outputs.
+- `nb/repr_learn_letrozole/` has no Day 3 notebook (only Day 1 and Day 2). Create it from the chest pain one. What must change: the anchor/index code (`letrozole`), probe labels from `weak_labels()` (fertility vs oncology) instead of `chest_pain_labels()`, and the signed-gap pair (e.g. letrozole vs `breast_cancer`).
+- Check first: Days 2-5 still use `bag_of_codes(events, min_count=20)` without the prevalence floor (see open step 3 below). Decide whether Day 3 should use the floor before comparing results with Day 1.
+
+**Day 1 results (k-sweep, five split seeds, `N_BOOT_K = 10`, rule: ARI >= 0.75 on 4+ of 5 splits and no unstable component):**
+
+| Cohort | Largest passing k | Splits solid | Note |
+|---|---|---|---|
+| Chest pain (139k patients) | 8 | 4/5 | k=9 is the cliff (1 solid split); k=7 is a dip (3 solid, 1 unstable); k=5 is the safest (5/5). Replaces the older "solid on both splits" claim, which came from the two-split run. |
+| Letrozole (5,238 patients, female-only v0.5 SQL) | 8 | 5/5 | Flat plateau at k=4-8, cliff at k=9. At k=8 every component is solid (cosine 0.988-0.997, bootstrap ARI 0.899, SD 0.026). |
+| Breast cancer | 4 | 4/5 | One split misses at 0.747; nothing above k=4 is even suggestive. Sweep screenshot was the older column format (`ari_min`). |
+
+**Chest pain k=8 reading (loadings check):** bundles reflect care delivery, not condition. Cardiac evidence splits into an acute workup bundle (troponin 62%, rank 1) and an outpatient bundle (stress test, EKG, diabetes, lipids). GERD loads on the GI/screening bundle (51%); costochondritis on the acute-respiratory bundle (43%, needs Zack's confirmation). Anxiety is diffuse (max 23%); SSRI/benzodiazepine sit in generic pharmacy with beta-blockers and statins, so they are not a psych signal. No psych bundle exists at k=5 or k=8.
+
+**Letrozole k=8 reading:** fertility is four bundles (treatment c2, carrier screening c4, prenatal labs c7, pregnancy outcome c0; 37.5% of patients). Oncology is one bundle (c5, 7.2%): its top-10 codes look procedural, but breast_cancer, chemotherapy and mastectomy load there at 79-100% with low ranks (400-1,300). Oral aromatase inhibitors also load on the pharmacy bundle (c1), so c5's n=379 is a lower bound. c1, c3 and c6 (55%) are background care with no letrozole signal. Triage and pathway columns are draft inference and need review by Zack or an underwriter.
+
+**Done this session in `nb/repr_learn_letrozole/Day1_Extract_and_Representation.ipynb`** (ported from chest pain, edited via script, not yet run end to end): prevalence-floor cells, sparse `Xs` replacing `X_nmf`/`Xv`, five-seed parallel sweep with the 4-of-5 rule, loadings check (fertility / oncology / other codesets; `K_CHECK` follows the last NMF fit), shorter markdown in the cells touched. Not ported: the k list in the NMF printout cell (`[5, 12]`; set it to `[8]` so stability and loadings use the k=8 fit), Table 1 component names. Breast cancer notebook was not touched by this port.
+
+**To do next, besides Day 3:**
+1. Letrozole: rerun Day 1 from the top; run the `breast_cancer` x `infertility` cross-tab by dominant component (counts patients with both histories and shows how many breast-cancer patients sit outside c5).
+2. Chest pain: per-component stability at the chosen k; rewrite Table 1 `COMPONENT_GROUPS` and the "reading the output" notes (still written for k=11).
+3. Update `docs/nmf-validation.md` with the five-seed chest pain table and the letrozole and breast cancer tables.
+
+The 2026-10-01 morning entry follows. Its item 4 (port to breast cancer and letrozole) is done for letrozole as described above.
+
 ## Update 2026-10-01: pattern-discovery Day 1 (bag of codes + NMF)
 
 Details are in `docs/` (start at `docs/README.md`). Summary for the next person:
@@ -8,7 +36,7 @@ Details are in `docs/` (start at `docs/README.md`). Summary for the next person:
 - New unique fallback labels `<name20>__<class>__<concept_id>` in all three `ethos_omop.py` copies (`docs/event-labels.md`). Class and id are never cut; accents folded, non-alphanumerics removed.
 - Prevalence-floor cell: floor of 35 patients (`KEEP_TAGS`); `X` is rebuilt from kept codes with `min_count=1`.
 - One shared `NMF_KW = dict(init='nndsvd', random_state=0, max_iter=2000, tol=1e-4)` for every NMF fit (an earlier base/refit mismatch was fixed).
-- One k-sweep cell: k = 3..14, two split seeds `(1, 2)`, `N_BOOT_K = 10`, t-based intervals, run in parallel on a sparse matrix `Xs`. `X_nmf` and the dense `Xv` were removed. Verified equal to the old dense serial code on synthetic data (`docs/day1-performance.md`).
+- One k-sweep cell: k = 3..14, five split seeds `(1, 2, 3, 4, 5)` (was two; the k=8 numbers below are from the two-split run and need refreshing), `N_BOOT_K = 10`, pass rule "4 of 5 splits", t-based intervals, run in parallel on a sparse matrix `Xs`. `X_nmf` and the dense `Xv` were removed. Verified equal to the old dense serial code on synthetic data (`docs/day1-performance.md`).
 - Loadings-check cell built from `codesets.yaml` (psych / cardiac / other codesets).
 
 **Chest pain results (latest run):** k=8 is the largest k that is solid on both splits (worst-split ARI 0.822, cosine 0.991, nothing unstable); k=9 is bad; k>=10 is only suggestive. The earlier k=11 (old labels) is not supported. NMF bundles reflect care delivery (pharmacy, acute workup, preventive), not condition: SSRI/benzodiazepine load on the pharmacy bundle; no psych bundle exists. Full tables in `docs/nmf-validation.md`.

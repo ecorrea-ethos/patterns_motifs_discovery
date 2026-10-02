@@ -40,21 +40,33 @@ settings in new cells.
 - **`n_unstable`:** components whose matched cosine is below 0.75. **`n_used`:** components that
   are dominant for at least 1% of held-out patients.
 
-Settings in the sweep cell: `SPLIT_SEEDS = (1, 2)` (two independent splits of the cohort),
-`N_BOOT_K = 10` refits per k and split, `K_GRID = 3..14`. The error bars use a t interval
+Settings in the sweep cell: `SPLIT_SEEDS = (1, 2, 3, 4, 5)` (five independent random splits of the
+cohort), `N_BOOT_K = 10` refits per k and split, `K_GRID = 3..14`. The error bars use a t interval
 (`stats.t.ppf(0.975, N_BOOT_K - 1)`), because a 1.96 interval is too narrow for few refits.
-`ari_min` (the worst split) is what the pass lines use.
 
-Why two splits: with one split, a k can look stable or unstable depending on which patients
+Summary columns, one row per k: `ari_mean` (average over splits), `ari_sd_splits` (spread between
+splits), `n_splits_solid` / `n_splits_sugg` (splits with ARI at or above 0.75 / 0.60), `cos_mean`,
+`n_unstable` (median over splits), `n_used` (minimum over splits). The pass lines use
+`MIN_SPLITS_OK = ceil(0.8 * number of splits)`, so a k passes if it holds on 4 of 5 splits. (A
+minimum over five splits would be too harsh; the older two-split version used the worst split.)
+
+Why several splits: with one split, a k can look stable or unstable depending on which patients
 were drawn. On the chest pain data one earlier run gave ARI 0.49 for k=13 on one split and
-0.73 on another. More refits only reduce noise within a split; they cannot show that.
+0.73 on another. More refits only reduce noise within a split; they cannot show that. The five
+splits all come from the same cohort, so they overlap and the spread between them is slightly
+optimistic.
+
+Cost: 5 splits x 12 values of k = 60 jobs, about 55 CPU-minutes, so roughly 5-6 minutes on 12
+workers (the two-split run took 2.2 minutes).
 
 Split sizes scale with the cohort: `N_SWEEP = min(20_000, 60% of cohort)` and
 `N_HELD = min(10_000, the rest)`. (Chest pain: 139,416 patients; breast cancer: 1,704; letrozole:
 6,103.)
 
 ## Chest pain findings (new labels, 35-patient floor, `NMF_KW`, 10 refits, 2 splits)
-ARI of the worse split (`ari_min`), mean cosine, unstable components:
+These numbers come from the earlier two-split run (`ari_min` = the worse of the two splits). The
+notebook now runs five splits, so this table needs refreshing after the next run.
+ARI of the worse split, mean cosine, unstable components:
 
 | k | ari_min | cos | unstable |
 |---|---|---|---|

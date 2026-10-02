@@ -12,3 +12,5 @@ meds_reader_extract/
 transcripts/
 output/
 nb/**/*.html
+*.png
+__pycache__/
