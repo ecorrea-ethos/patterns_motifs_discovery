@@ -2,6 +2,8 @@
 # v1 - ported from ethos_omop.py's CODESETS Python dict to this YAML file (patterns/vocabularies/concept_ids shape, no behavior change)
 # v2 - removed letrozole/anastrozole/tamoxifen/clomiphene/gonadotropin/metformin/glp1/insulin/breast_cancer/infertility -- leftover from the repr_learn_letrozole copy, unused anywhere in this cohort's notebooks (beta_blocker/statin kept: used live in Day3's FOCUS set)
 # v3 - removed mastectomy/mammogram/breast_biopsy -- also unused leftovers, unrelated to chest pain
+# v4 - added psych_eval_therapy + psych_screen (psychiatric eval / psychotherapy CPT-HCPCS codes) -- candidate psych evidence for the
+#      anxiety/stress question. Literal concept_ids, each verified against this cohort's extract. NOT in eo.PSYCH_TAGS yet (pending UW/Zack review)
 #
 # The clinical code sets Day 1-5 work with. Two spec shapes per tag:
 #
@@ -122,3 +124,30 @@ hba1c:
   vocabularies: ["LOINC", "SNOMED"]
 ed_visit:
   patterns: ["emergency room", "emergency department"]
+# Psych evaluation / treatment procedures (CPT4 + HCPCS). Evidence of psychiatric CARE, not of
+# anxiety specifically -- a code does not say which diagnosis was treated. Literal ids: patterns
+# would also catch unrelated names, and these are the exact concepts present in the extract.
+psych_eval_therapy:
+  concept_ids: [
+    43527984,  # 90791 Psychiatric diagnostic evaluation
+    43527985,  # 90792 Psychiatric diagnostic evaluation with medical services
+    43527986,  # 90832 Psychotherapy, 30 min
+    43527987,  # 90833 Psychotherapy, 30 min, with E/M
+    43527904,  # 90834 Psychotherapy, 45 min
+    43527988,  # 90836 Psychotherapy, 45 min, with E/M
+    43527905,  # 90837 Psychotherapy, 60 min
+    43527989,  # 90838 Psychotherapy, 60 min, with E/M
+    43527990,  # 90839 Psychotherapy for crisis, first 60 min
+    2213545,   # 90846 Family psychotherapy (patient not present)
+    2213546,   # 90847 Family psychotherapy (patient present)
+    2213548,   # 90853 Group psychotherapy
+    725122,    # 99492 Psychiatric collaborative care, initial
+    725123,    # 99493 Psychiatric collaborative care, subsequent
+    725124,    # 99494 Psychiatric collaborative care, additional 30 min
+  ]
+# Screening / brief assessment: shows someone was SCREENED (GAD-7, PHQ-9, ADHD scales), not that
+# they have anxiety. Kept separate on purpose; do not pool with psych_eval_therapy as evidence.
+psych_screen:
+  concept_ids: [
+    46257498,  # 96127 Brief emotional/behavioral assessment
+  ]

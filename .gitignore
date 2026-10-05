@@ -13,4 +13,9 @@ transcripts/
 output/
 nb/**/*.html
 *.png
+*.npz
+*.pptx
+*.xlsx
+*.json
+!graphify-out/**/*.json
 __pycache__/
