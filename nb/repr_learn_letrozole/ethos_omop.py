@@ -510,32 +510,53 @@ def _fallback_label(name, cls, cid):
     return "__".join(parts)
 
 
-def tag_events(events, code_map, fallback="name"):
+def tag_events(events, code_map, fallback="name", token_level="group", multi_group=False):
     """
-    Add a `tag` column collapsing many concept_ids to one clinical label.
+    Add a `tag` column (the token sequences / bag-of-codes / NMF are built from) and a
+    `group` column (the curated codeset an event belongs to, NaN when none).
 
-    This is the ontology-rollup step done by hand, and it is what makes the
-    sequence mining in Day 3 legible — mining raw concept_ids produces patterns
-    nobody can read.
+    token_level  'group'   (default) curated concepts collapse to their group name, the
+                           ontology-rollup step done by hand that makes Day 3 legible;
+                           `tag` == `group` for them.
+                 'concept' every event keeps its own concept-level token, curated ones
+                           included (`fallback` decides the form); the group survives only
+                           in `group`, so details stay available to later pipelines.
+                           Select a group by name with `events["group"]`, or let the
+                           helpers below do it (their `col=None` default).
 
-    fallback  'name'  untagged events get <name20>__<class>__<concept_id>
+    multi_group  False (default) a concept matched by several codesets belongs only to the FIRST one in
+                 `code_map` order (legacy). True: `group` still holds that first codeset, but a new
+                 `groups` column lists ALL of them ("ekg|stress_test"); the helpers below (`group_mask`,
+                 `index_dates`, the label functions) then select on every group the concept is in.
+
+    fallback  'name'  events without a `tag` get <name20>__<class>__<concept_id>
                       (readable and unique per concept; see _fallback_label)
-              'token' untagged events keep vocabulary/code (compact, opaque)
-              'drop'  untagged events are removed (focus mode; loses context)
+              'token' they keep vocabulary/code (compact, opaque)
+              'drop'  untagged events are removed (focus mode; loses context;
+                      only with token_level='group')
     """
-    lookup = {}
+    if token_level not in ("group", "concept"):
+        raise ValueError(f"token_level must be 'group' or 'concept', got {token_level!r}")
+    if token_level == "concept" and fallback == "drop":
+        raise ValueError("fallback='drop' removes untagged events; it only makes sense with token_level='group'")
+    lookup, members = {}, {}
     for tag, ids in code_map.items():
         for cid in ids:
             lookup.setdefault(cid, tag)          # first tag wins
+            members.setdefault(cid, []).append(tag)
     ev = events.copy()
-    ev["tag"] = ev["concept_id"].map(lookup)
-    ev["in_codeset"] = ev["tag"].notna()
+    ev["group"] = ev["concept_id"].map(lookup)
+    if multi_group:
+        ev["groups"] = ev["concept_id"].map({cid: "|".join(ts) for cid, ts in members.items()}).astype("category")
+    ev["in_codeset"] = ev["group"].notna()
+    ev["tag"] = (ev["group"] if token_level == "group"        # NaN everywhere at concept level
+                 else pd.Series(np.nan, index=ev.index, dtype=object))
     if fallback == "drop":
         ev = ev[ev["in_codeset"]]
     elif fallback == "name":
-        # build the label once per untagged concept_id, not once per event
+        # build the label once per concept_id that still has no tag, not once per event
         cls = ev["concept_class_id"] if "concept_class_id" in ev else pd.Series(np.nan, index=ev.index)
-        u = (ev.assign(_cls=cls).loc[~ev["in_codeset"], ["concept_id", "concept_name", "_cls"]]
+        u = (ev.assign(_cls=cls).loc[ev["tag"].isna(), ["concept_id", "concept_name", "_cls"]]
                .drop_duplicates("concept_id"))
         labels = pd.Series([_fallback_label(n, c, i)
                             for i, n, c in zip(u["concept_id"], u["concept_name"], u["_cls"])],
@@ -591,9 +612,48 @@ def sequences(events, col="tag", dedup_same_day=True, collapse_repeats=True):
     return out
 
 
-def index_dates(events, tag, col="tag"):
-    """First occurrence of `tag` per patient — the point-in-time anchor."""
-    hit = events[events[col] == tag]
+def _gcol(events, col):
+    """Column that holds curated group names: `group` when tag_events wrote it, else `tag`."""
+    return col or ("group" if "group" in events.columns else "tag")
+
+
+def group_mask(events, names):
+    """Boolean mask of events whose concept is in ANY of the curated group(s) `names` (str or iterable).
+
+    Uses the `groups` column when tag_events(multi_group=True) wrote it, so a concept matched by several
+    codesets counts in each of them; otherwise falls back to the single-valued `group` (or `tag`) column.
+    """
+    names = {names} if isinstance(names, str) else set(names)
+    if "groups" in events.columns:
+        pairs = events[["concept_id", "groups"]].drop_duplicates("concept_id").dropna()
+        hit = pairs["groups"].astype(str).str.split("|").map(lambda ts: bool(names.intersection(ts)))
+        return events["concept_id"].isin(pairs.loc[hit.to_numpy(), "concept_id"])
+    return events[_gcol(events, None)].isin(names)
+
+
+def _select(events, tag, col):
+    """Events of group/tag `tag`: every group the concept is in (col=None) or an explicit column's value."""
+    return group_mask(events, tag) if col is None else events[col] == tag
+
+
+def group_tokens(events, name):
+    """The `tag` tokens (columns of a bag-of-codes / NMF) that belong to curated group `name`."""
+    return set(events.loc[group_mask(events, name), "tag"].unique())
+
+
+def group_loadings(H, events):
+    """components x tokens matrix -> components x curated groups: a group's loading is the sum over its tokens
+    (a token counts in every group it belongs to)."""
+    if "groups" in events.columns:
+        names = sorted({g for gs in events["groups"].dropna().astype(str).unique() for g in gs.split("|")})
+    else:
+        names = sorted(events["group"].dropna().unique())
+    return pd.DataFrame({g: H[H.columns.intersection(list(group_tokens(events, g)))].sum(axis=1) for g in names}, index=H.index)
+
+
+def index_dates(events, tag, col=None):
+    """First occurrence of group/tag `tag` per patient — the point-in-time anchor."""
+    hit = events[_select(events, tag, col)]
     return (hit.groupby("person_id")["event_date"].min()
                .rename("index_date").reset_index())
 
@@ -604,7 +664,7 @@ def truncate_at(events, index, col="tag"):
     return ev[ev["event_date"] <= ev["index_date"]].drop(columns="index_date")
 
 
-def signed_gap(events, tag_a, tag_b, col="tag"):
+def signed_gap(events, tag_a, tag_b, col=None):
     """Days from first tag_a to first tag_b, per patient. Negative = b came first."""
     a = index_dates(events, tag_a, col).rename(columns={"index_date": "t_a"})
     b = index_dates(events, tag_b, col).rename(columns={"index_date": "t_b"})
@@ -631,7 +691,7 @@ ONCOLOGY_TAGS = ["mastectomy", "breast_biopsy", "chemotherapy",
                   "metastasis"]
 
 
-def weak_labels(events, person=None, col="tag"):
+def weak_labels(events, person=None, col=None):
     """
     Rule-based PROBE labels for the letrozole indication, from corroborating
     co-evidence only.
@@ -646,7 +706,7 @@ def weak_labels(events, person=None, col="tag"):
     missing = [t for t in FERTILITY_TAGS + ONCOLOGY_TAGS if t not in CODESETS]
     assert not missing, f"weak_labels tags missing from codesets.yaml: {missing}"
 
-    has = lambda tag: set(events.loc[events[col] == tag, "person_id"])
+    has = lambda tag: set(events.loc[_select(events, tag, col), "person_id"])
 
     lz = has("letrozole")
     fert = set().union(*(has(t) for t in FERTILITY_TAGS))
