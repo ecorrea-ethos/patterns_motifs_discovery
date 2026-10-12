@@ -14,6 +14,7 @@ and validated. Other days are described in each course's `README_repr_learn.md`.
 | [event-labels.md](event-labels.md) | How each medical code gets its column name, and how rare codes are pruned |
 | [nmf-validation.md](nmf-validation.md) | How the number of NMF components (k) is chosen and checked; what the chest pain run found |
 | [day1-performance.md](day1-performance.md) | Why Day 1 uses a sparse matrix and a parallel sweep, and how it was checked |
+| [literature-search.md](literature-search.md) | How the letrozole final table's triage, literature and PMID columns are filled and checked (PubMed search rule, rating definitions) |
 | [glossary.md](glossary.md) | Plain-English definitions of the terms used here |
 | `../HANDOFF.md` | Current state, open decisions, and next steps |
 | [superpowers/specs/](superpowers/specs/) | Design specs written earlier (chest pain triage) |

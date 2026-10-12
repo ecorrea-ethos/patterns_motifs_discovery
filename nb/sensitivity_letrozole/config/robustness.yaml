@@ -1,0 +1,39 @@
+# Day 3 v3 motif-robustness config. Proposed defaults from docs/Day3_motif_robustness_plan_1.md (pending Zack).
+# Paths are relative to nb/repr_learn_letrozole/ (run everything from that folder).
+paths:
+  extract_dir: "../../inputs/letrozole_cohort/"
+  nmf_cache: "nmf_k8_letrozole_v2.npz"
+  out_dir: "outputs/day3_v3"
+
+mining:                      # same as v2
+  rel_sup: 0.15
+  max_len: 4
+  max_cand: 100
+  min_len: 3                 # report only patterns with >= 3 steps
+
+matching:
+  primary: strict_date       # tie_ordered | strict_date | windowed
+  max_span_days: 365
+
+scoring:
+  min_or: 2.0
+  b_perm: 1000               # label-permutation draws for p_fwer
+  alpha: 0.05
+
+families:
+  jaccard_dist: 0.2
+
+stability:
+  split_seeds: 20            # seeds; both directions are evaluated (40 evaluations)
+  rediscovery_seeds: 20      # mining per (component, seed, direction); lower this if the benchmark says so
+  min_holdout_rate_lo: 0.70  # Wilson lower bound required for "robust"
+  oot_quantile: 0.60         # train = first-letrozole date <= this quantile
+  pre_index_min_sup: 0.05    # support floor after truncating to events before first letrozole (v2 floor 0.15 would drop post-index motifs)
+  small_half: 200            # half-size below which a component is flagged small_component
+
+seeds:
+  global: 0
+  permutation: 11
+  split: 1                   # seed s in 1..split_seeds
+  outside_v2: 0              # v2 regression: fixed 1,500 outside sample
+  bootstrap_v2: 0

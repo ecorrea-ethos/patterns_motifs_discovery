@@ -674,6 +674,33 @@ def signed_gap(events, tag_a, tag_b, col=None):
     return m
 
 
+def window_around_anchor(events, anchor, months=18, days_per_month=30.4375, dedup=True):
+    """Keep each patient's events within `months` of ANY event of the anchor group (union of the windows around every anchor date).
+
+    A window is +/- round(months * days_per_month) days (548 days for 18 months), both ends inclusive. Windows that overlap are merged, so an event
+    covered by two anchor dates is kept once and a patient stays one patient. Patients with no anchor event are dropped. With dedup=True, exact repeats
+    (same person, concept, date) are dropped afterwards. Row order (and so the same-day tie-break) is preserved.
+    """
+    half = int(round(months * days_per_month))
+    anc = events.loc[group_mask(events, anchor), ["person_id", "event_date"]]
+    if not len(anc):
+        return events.iloc[0:0].copy()
+    day = lambda s: s.to_numpy().astype("datetime64[D]").astype("int64")
+    d_ev, d_an = day(events["event_date"]), day(anc["event_date"])
+    dmin = int(min(d_ev.min(), d_an.min()))
+    pid = pd.Index(pd.unique(events["person_id"]))
+    STRIDE = 1 << 22                                           # >> (date range + 3 * half), so keys of different patients never fall within `half`
+    key_ev = pid.get_indexer(events["person_id"]).astype(np.int64) * STRIDE + (d_ev - dmin + half + 1)
+    key_an = np.unique(pid.get_indexer(anc["person_id"]).astype(np.int64) * STRIDE + (d_an - dmin + half + 1))
+    i = np.searchsorted(key_an, key_ev)
+    lo, hi = key_an[np.clip(i - 1, 0, len(key_an) - 1)], key_an[np.clip(i, 0, len(key_an) - 1)]
+    keep = np.minimum(np.abs(key_ev - lo), np.abs(key_ev - hi)) <= half
+    out = events.loc[keep]
+    if dedup:
+        out = out.drop_duplicates(["person_id", "concept_id", "event_date"])
+    return out.reset_index(drop=True)
+
+
 # ==============================================================  weak labels
 
 def weak_labels(events, person=None, col=None):

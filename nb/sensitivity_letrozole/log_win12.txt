@@ -1,0 +1,656 @@
+### CELL 2  t=0s
+### CELL 5  t=0s
+../../inputs/letrozole_cohort// already populated -- skipping extract_cohort(). Delete it to re-pull from Snowflake.
+### CELL 7  t=0s
+events per domain, BEFORE vs AFTER visit pruning
+              before    after  removed_%
+domain                                  
+Condition     458033   458033        0.0
+Drug          523552   523552        0.0
+Measurement   339167   339167        0.0
+Procedure     390455   390455        0.0
+Visit         709880        0      100.0
+TOTAL        2421087  1711207       29.3
+
+patients:                    5,238 -> 5,238
+distinct concepts:          11,008 -> 11,001
+median events/patient:         328 -> 215
+
+removed rows by vocabulary:
+vocabulary_id
+NUCC      516555
+Visit     191934
+SNOMED      1391
+
+top removed visit concepts:
+concept_name
+Pharmacy                              516555
+Office Visit                          164763
+Telehealth                             18916
+Home Visit                              8175
+Unknown                                 1391
+Pharmacy visit                            78
+Emergency Room and Inpatient Visit         2
+
+curated codeset tags that sit on visit concepts (their events are gone): none
+events (1711207, 13)   patients 5238
+codeset coverage: 8.9% of events carry a clinical tag
+truth labels: ABSENT (real data)
+### CELL 8  t=5s
+windowed to +/- 12 months around any letrozole event, merged per patient, exact duplicates dropped:
+  events   1,711,207 -> 632,249
+  patients 5,238 -> 5,238
+  median events per patient: 76
+### CELL 9  t=5s
+                           file   rows    MB
+    master_visit_occurrence.csv 886865 111.1
+       master_drug_exposure.csv 528746 102.9
+           concept_ancestor.csv 488853  10.7
+master_condition_occurrence.csv 458040  67.1
+master_procedure_occurrence.csv 390673  57.8
+         master_measurement.csv 339374  46.1
+         master_observation.csv 240551  29.7
+                    concept.csv  11793   1.5
+                     person.csv   5238   0.7
+                      death.csv      0   0.0
+### CELL 11  t=5s
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:123: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.tight_layout(); plt.show()
+count    5238.0
+mean      757.0
+std       420.0
+min         0.0
+25%       516.0
+50%       685.0
+75%       826.0
+max      2588.0
+
+3314 patients (63.3%) have under 2 years of history.
+Exclude them from any analysis that depends on the ABSENCE of a code.
+### CELL 13  t=5s
+### CELL 14  t=5s
+letrozole concepts, direct:       2
+letrozole concepts, + descendants: 2
+breast cancer parents, 1 level up:   1
+### CELL 15  t=5s
+tag
+venipuncture_for_blo__procedure__4102442              18960
+letrozole_25_mg_oral__clinical_drug__19022830         18273
+progesterone_measure__procedure__4263754              10495
+estradiol_total__cpt4__2212320                         9458
+gonadotropin_chorion__cpt4__2212631                    7874
+female_infertility__disorder__201909                   7393
+transvaginal_echogra__procedure__4027510               6033
+luteinizing_hormone___procedure__4287388               5219
+progesterone_200_mg___clinical_drug__1552350           5012
+ultrasound_pelvic_no__cpt4__2211768                    4941
+psychotherapy_60_min__cpt4__43527905                   4859
+05_ml_choriogonadotr__quant_branded_drug__19127159     4455
+therapeutic_procedur__cpt4__2314284                    4427
+thyroid_stimulating___procedure__4246879               4426
+low_back_pain__clinical_finding__194133                4123
+
+tagged into a codeset: 13.7%
+### CELL 17  t=5s
+(5238, 2449)
+### CELL 19  t=6s
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:180: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.tight_layout(); plt.show()
+2449 codes, prevalence range 0.019% - 99.847%
+<pandas.io.formats.style.Styler at 0x16b9c5be0>
+### CELL 21  t=6s
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:227: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.tight_layout(); plt.show()
+                               prevalence_%  columns  pairs_kept_%
+rule                                                              
+>= 1 patients                        0.0191     8292        100.00
+>= 2 patients                        0.0382     5758         99.09
+>= 5 patients                        0.0955     3614         97.02
+>= 10 patients                       0.1909     2507         94.43
+>= 20 patients                       0.3818     1719         90.61
+>= 35 patients                       0.6682     1249         86.17
+>= 50 patients                       0.9546      979         82.20
+>= 100 patients                      1.9091      575         71.97
+>= 200 patients                      3.8183      327         59.45
+>= 500 patients                      9.5456       96         34.98
+current min_count=20 (events)           NaN     2449         93.22
+cohort 5238 patients, training split 3142
+suggested floor: 9 patients (0.172% prevalence) -> 2648 of 8292 columns, 94.9% of patient-code pairs kept
+codeset tags below the floor: none
+
+To apply it, build X from the kept codes only (min_count=1 on pre-filtered events):
+    X = eo.bag_of_codes(events[events.tag.isin(KEEP_TAGS)], min_count=1)
+### CELL 22  t=6s
+(5238, 2648)
+### CELL 23  t=7s
+letrozole patients: 5238   labelled: 3596   both-evidence (dropped): 243   no-evidence (dropped): 1399
+bag-of-codes view -- identical on letrozole/breast_cancer, differs on ['thyroid_stimulating___procedure__4246879', 'covid19__disorder__37311061', 'estrogen_receptor_as__procedure__4307360']:
+           letrozole  breast_cancer  thyroid_stimulating___procedure__4246879  covid19__disorder__37311061  estrogen_receptor_as__procedure__4307360
+person_id                                                                                                                                           
+1239744            1              1                                         1                            1                                         0
+264821             1              1                                         0                            0                                         1
+
+actual timelines -- obviously different:
+
+  person_id 1239744  (fertility)
+event_date         groups                                             tag
+2019-12-13      letrozole   letrozole_25_mg_oral__clinical_drug__19022830
+2020-03-06    infertility            female_infertility__disorder__201909
+2020-03-06 pregnancy_test        urine_pregnancy_test__procedure__4014769
+2020-03-06 pregnancy_test pregnancy_test_posit__clinical_finding__4094910
+2021-01-18  breast_cancer         primary_malignant_ne__disorder__4162253
+
+  person_id 264821  (oncology)
+event_date         groups                                           tag
+2024-07-26 receptor_assay           immunohistochemistry__cpt4__2213300
+2024-07-26 receptor_assay      estrogen_receptor_as__procedure__4307360
+2024-08-06  breast_cancer       primary_malignant_ne__disorder__4162253
+2025-01-28      letrozole letrozole_25_mg_oral__clinical_drug__19022830
+### CELL 25  t=8s
+/opt/miniconda3/envs/ethos_llm/lib/python3.13/site-packages/sklearn/metrics/pairwise.py:2480: DataConversionWarning: Data was converted to boolean for metric jaccard
+  warnings.warn(msg, DataConversionWarning)
+/opt/miniconda3/envs/ethos_llm/lib/python3.13/site-packages/sklearn/metrics/pairwise.py:2480: DataConversionWarning: Data was converted to boolean for metric jaccard
+  warnings.warn(msg, DataConversionWarning)
+Xs (5238, 2646), density 1.872%
+cosine     mean=0.912  sd=0.083
+jaccard    mean=0.957  sd=0.046
+
+cosine     neighbours of 1239744: ['fertility', 'fertility', 'fertility', '?', 'fertility']
+cosine     distance(1239744, 264821) = 0.870
+jaccard    neighbours of 1239744: ['fertility', '?', 'fertility', 'fertility', 'fertility']
+jaccard    distance(1239744, 264821) = 0.931
+### CELL 27  t=9s
+  dims   min/max distance ratio
+    10                    0.000
+    50                    0.000
+   200                    0.000
+  1000                    0.568
+  5000                    0.782
+
+Ratio -> 1 means every patient is equally far from every other.
+### CELL 29  t=9s
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:358: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.title('SVD scree -- where to truncate'); plt.tight_layout(); plt.show()
+### CELL 31  t=9s
+### CELL 32  t=9s
+[Parallel(n_jobs=12)]: Using backend LokyBackend with 12 concurrent workers.
+[Parallel(n_jobs=12)]: Done  48 tasks      | elapsed:   31.3s
+[Parallel(n_jobs=12)]: Done 110 out of 110 | elapsed:   46.0s finished
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:483: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.tight_layout(); plt.show()
+110 jobs on 12 workers; summed fit time 8.7 CPU-min
+    held_out_err  silhouette  ari_mean  ari_sd_splits  n_splits_solid  n_splits_sugg  cos_mean  n_unstable  n_used
+k                                                                                                                 
+3          0.892       0.098     0.706          0.075               1              5     0.943         0.0       3
+4          0.884       0.102     0.647          0.094               1              3     0.920         0.0       4
+5          0.876       0.069     0.772          0.060               3              5     0.982         0.0       5
+6          0.871       0.060     0.733          0.044               1              5     0.969         0.0       6
+7          0.866       0.066     0.597          0.115               1              2     0.917         0.0       7
+8          0.861       0.067     0.750          0.080               3              5     0.945         0.0       8
+9          0.858       0.066     0.753          0.063               2              5     0.929         1.0       9
+10         0.854       0.062     0.761          0.051               2              5     0.936         0.0      10
+11         0.851       0.061     0.792          0.059               4              5     0.955         0.0      11
+12         0.848       0.059     0.790          0.029               5              5     0.945         0.0      12
+13         0.845       0.057     0.680          0.060               1              5     0.899         1.0      13
+14         0.843       0.053     0.645          0.050               0              4     0.890         2.0      14
+15         0.840       0.046     0.615          0.054               0              3     0.884         3.0      15
+16         0.838       0.048     0.583          0.056               0              1     0.866         3.0      16
+17         0.835       0.040     0.578          0.024               0              0     0.876         3.0      17
+18         0.833       0.043     0.580          0.058               0              2     0.866         3.0      18
+19         0.831       0.038     0.561          0.022               0              0     0.854         4.0      18
+20         0.829       0.033     0.560          0.021               0              0     0.849         4.0      19
+21         0.827       0.029     0.544          0.023               0              0     0.839         6.0      20
+22         0.825       0.027     0.537          0.019               0              0     0.833         5.0      21
+23         0.823       0.024     0.503          0.037               0              0     0.821         6.0      22
+24         0.821       0.020     0.493          0.029               0              0     0.816         6.0      23
+largest k with ARI >= 0.60 on 5+ of 5 splits and mean cos >= 0.75: 13
+largest k with ARI >= 0.75 on 5+ of 5 splits and no unstable component (median): 12
+### CELL 36  t=55s
+### CELL 37  t=55s
+
+NMF with 12 components:
+component 0 (n=489, 9.3%): ['catheterization_and___cpt4__2110199 (4.4%)', 'estradiol_total__cpt4__2212320 (3.9%)', 'progesterone_measure__procedure__4263754 (3.7%)', 'gonadotropin_chorion__cpt4__2212631 (3.6%)', 'transvaginal_echogra__procedure__4027510 (3.5%)', 'female_infertility__disorder__201909 (3.4%)', 'follicle_stimulating__procedure__4149280 (3.2%)', 'luteinizing_hormone___procedure__4287388 (3.1%)', 'ocular_prosthetic_se__procedure__4049310 (3.1%)', 'hysterosalpingograph__cpt4__2211565 (3.0%)']
+component 1 (n=870, 16.6%): ['estradiol_2_mg_oral___clinical_drug__1548199 (4.9%)', 'progesterone_50_mgml__clinical_drug__1552382 (4.1%)', 'progesterone_200_mg___clinical_drug__1552350 (3.5%)', 'follicle_stimulating__branded_drug__19128370 (3.5%)', '05_ml_choriogonadotr__quant_branded_drug__19127159 (3.2%)', 'leuprolide_acetate_5__clinical_drug__1351622 (3.2%)', '05_ml_ganirelix_acet__quant_clinical_drug__40162447 (3.1%)', 'chorionic_gonadotrop__branded_drug__40169567 (2.6%)', 'doxycycline_hyclate___clinical_drug__46233711 (2.2%)', 'doxycycline_hyclate___clinical_drug__46234523 (2.1%)']
+component 2 (n=1314, 25.1%): ['amoxicillin_875_mg_c__clinical_drug__19115197 (1.6%)', '6_azithromycin_250_m__clinical_pack__19128020 (1.5%)', 'ibuprofen_800_mg_ora__clinical_drug__19019074 (1.4%)', 'fluconazole_150_mg_o__clinical_drug__1754996 (1.4%)', '21_methylprednisolon__clinical_pack__19129398 (1.3%)', 'ondansetron_4_mg_dis__clinical_drug__19005965 (1.2%)', 'prednisone_20_mg_ora__clinical_drug__1551170 (1.2%)', 'nitrofurantoin_macro__clinical_drug__46234346 (1.2%)', 'cephalexin_500_mg_or__clinical_drug__19075034 (1.1%)', 'medroxyprogesterone___clinical_drug__40224789 (1.1%)']
+component 3 (n=211, 4.0%): ['cftr_cystic_fibrosis__cpt4__42742292 (3.1%)', 'hexa_hexosaminidase___cpt4__42742310 (2.9%)', 'smn1_survival_of_mot__cpt4__927146 (2.9%)', 'ikbkap_inhibitor_of___cpt4__42742313 (2.9%)', 'fmr1_fragile_x_messe__cpt4__42742305 (2.9%)', 'aspa_aspartoacylase___cpt4__42742558 (2.8%)', 'gba_glucosidase_beta__cpt4__42742309 (2.8%)', 'fancc_fanconi_anemia__cpt4__42742304 (2.8%)', 'mcoln1_mucolipin_1_e__cpt4__42742327 (2.8%)', 'smpd1_sphingomyelin___cpt4__42742348 (2.8%)']
+component 4 (n=272, 5.2%): ['t4_free_measurement__procedure__4196969 (2.4%)', 'vitamin_d_25hydroxy___procedure__4007831 (2.4%)', 'hemoglobin_a1c_measu__procedure__4184637 (2.4%)', 'thyroid_stimulating___procedure__4246879 (2.2%)', 'testosterone_measure__procedure__4309944 (2.1%)', 'lipid_panel_this_pan__cpt4__2212095 (1.9%)', 'prolactin_measuremen__procedure__4010412 (1.9%)', 'follicle_stimulating__procedure__4149280 (1.8%)', 'comprehensive_metabo__procedure__3661905 (1.6%)', 'vitamin_b12_measurem__procedure__4032173 (1.5%)']
+component 5 (n=479, 9.1%): ['abo_typing__procedure__4238568 (7.4%)', 'rh_blood_group_typin__procedure__4179840 (7.4%)', 'serologic_test_for_r__procedure__4321890 (6.5%)', 'rbc_antibody_detecti__procedure__4231581 (6.1%)', 'infectious_agent_ant__cpt4__2213087 (5.3%)', 'hepatitis_c_antibody__procedure__4273104 (4.4%)', 'measurement_of_varic__procedure__4018595 (4.4%)', 'serologic_test_for_s__procedure__4229096 (3.5%)', 'infectious_agent_ant__cpt4__42742380 (3.1%)', 'blood_cell_count_aut__procedure__4035541 (2.9%)']
+component 6 (n=249, 4.8%): ['ondansetron_injectio__clinical_drug_form__35605480 (1.6%)', 'ketorolac_injectable__branded_drug_form__40048832 (1.3%)', 'fentanyl_005_mgml_in__branded_drug__35603455 (1.3%)', 'level_iv_surgical_pa__cpt4__2213283 (1.3%)', 'propofol_injection__clinical_drug_form__40220385 (1.2%)', 'dexamethasone_inject__clinical_drug_form__1719010 (1.2%)', 'midazolam_injectable__branded_drug_form__40064208 (1.2%)', 'complete_blood_count__procedure__4319466 (1.0%)', 'comprehensive_metabo__procedure__3661905 (0.9%)', 'calcium_chloride_02___clinical_drug__19135374 (0.9%)']
+component 7 (n=319, 6.1%): ['single_live_birth_fr__clinical_finding__4014295 (2.5%)', 'ultrasound_pregnant___cpt4__2211756 (2.2%)', 'postnatal_maternal_e__procedure__4297232 (1.9%)', 'active_or_passive_im__procedure__4132855 (1.8%)', 'immunization_adminis__cpt4__2213418 (1.8%)', 'glucose_measurement___procedure__4017078 (1.8%)', 'transvaginal_obstetr__procedure__4324607 (1.8%)', 'high_risk_pregnancy__clinical_finding__4188598 (1.6%)', 'neuraxial_labor_anal__cpt4__2101813 (1.4%)', 'ultrasound_pregnant___cpt4__2211749 (1.4%)']
+component 8 (n=302, 5.8%): ['therapeutic_procedur__cpt4__2314284 (3.6%)', 'manual_therapy_techn__cpt4__2314290 (3.2%)', 'low_back_pain__clinical_finding__194133 (3.0%)', 'chiropractic_manipul__cpt4__2314331 (2.5%)', 'neck_pain__clinical_finding__24134 (2.2%)', 'somatic_dysfunction___clinical_finding__36713926 (2.2%)', 'somatic_dysfunction___clinical_finding__36713918 (2.2%)', 'therapeutic_activiti__cpt4__2314294 (2.2%)', 'cervical_somatic_dys__clinical_finding__4213540 (2.2%)', 'therapeutic_procedur__cpt4__2314285 (2.1%)']
+component 9 (n=366, 7.0%): ['periodic_comprehensi__cpt4__2514527 (4.7%)', 'gynecologic_examinat__procedure__4306780 (4.4%)', 'general_examination___procedure__4036803 (4.0%)', 'lipid_panel_this_pan__cpt4__2212095 (2.4%)', 'cytopathology_cervic__cpt4__2213244 (2.2%)', 'infectious_agent_det__cpt4__46257666 (2.0%)', 'active_or_passive_im__procedure__4132855 (1.9%)', 'venipuncture_for_blo__procedure__4102442 (1.8%)', 'immunization_adminis__cpt4__2213418 (1.6%)', 'initial_comprehensiv__cpt4__2514520 (1.6%)']
+component 10 (n=207, 4.0%): ['oocyte_recovery__procedure__4072862 (2.5%)', 'culture_of_oocytesem__cpt4__2213347 (2.4%)', 'extended_culture_of___cpt4__2213361 (2.3%)', 'ultrasonic_guidance___procedure__4214752 (2.2%)', 'identification_of_oo__procedure__4258837 (2.2%)', 'embryo_transfer_intr__cpt4__2110275 (2.1%)', 'assisted_fertilizati__procedure__4272937 (2.0%)', 'sperm_isolation_comp__cpt4__2213358 (2.0%)', 'preparation_of_embry__procedure__4261953 (1.9%)', 'cryopreservation_emb__cpt4__2213355 (1.9%)']
+component 11 (n=160, 3.1%): ['infectious_agent_det__cpt4__2213162 (7.7%)', 'infectious_agent_det__cpt4__2213115 (7.7%)', 'bacterial_culture_ur__procedure__4016363 (3.4%)', 'cytopathology_cervic__cpt4__2213244 (3.2%)', 'infectious_agent_det__cpt4__44816441 (3.0%)', 'infectious_agent_det__cpt4__46257666 (2.9%)', 'hepatitis_c_antibody__procedure__4273104 (2.6%)', 'syphilis_test_qualit__procedure__4218428 (2.6%)', 'obstetric_panel_incl__cpt4__42628031 (2.1%)', 'infectious_agent_ant__cpt4__42742380 (1.9%)']
+### CELL 40  t=56s
+<pandas.io.formats.style.Styler at 0x3501f0550>
+components (n, top code): {0: (489, 'catheterization_and___cpt4__'), 1: (870, 'estradiol_2_mg_oral___clinic'), 2: (1314, 'amoxicillin_875_mg_c__clinic'), 3: (211, 'cftr_cystic_fibrosis__cpt4__'), 4: (272, 't4_free_measurement__procedu'), 5: (479, 'abo_typing__procedure__42385'), 6: (249, 'ondansetron_injectio__clinic'), 7: (319, 'single_live_birth_fr__clinic'), 8: (302, 'therapeutic_procedur__cpt4__'), 9: (366, 'periodic_comprehensi__cpt4__'), 10: (207, 'oocyte_recovery__procedure__'), 11: (160, 'infectious_agent_det__cpt4__')}
+codeset tags with no column (dropped by the prevalence floor, or never occur): ['mastectomy', 'breast_biopsy', 'antineoplastic_drug', 'radiation_therapy', 'lumpectomy', 'metastasis', 'dcis', 'ed_visit']
+### CELL 41  t=56s
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:585: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.tight_layout(); plt.show()
+base fit: NMF k=12  (the `nmf` from the cell above)
+  boot 1/10  0s  ARI 0.805
+  boot 2/10  1s  ARI 0.624
+  boot 3/10  1s  ARI 0.773
+  boot 4/10  0s  ARI 0.832
+  boot 5/10  1s  ARI 0.708
+  boot 6/10  0s  ARI 0.828
+  boot 7/10  0s  ARI 0.846
+  boot 8/10  0s  ARI 0.886
+  boot 9/10  0s  ARI 0.857
+  boot 10/10  0s  ARI 0.874
+       n                                          top_codes  cos_mean  cos_sd  cos_min     verdict
+0    489  catheterization_and___cpt4__2110199, estradiol...     0.956   0.086    0.706       solid
+1    870  estradiol_2_mg_oral___clinical_drug__1548199, ...     0.986   0.030    0.896       solid
+2   1314  amoxicillin_875_mg_c__clinical_drug__19115197,...     0.986   0.012    0.960       solid
+3    211  cftr_cystic_fibrosis__cpt4__42742292, hexa_hex...     0.996   0.001    0.995       solid
+4    272  t4_free_measurement__procedure__4196969, vitam...     0.906   0.163    0.465       solid
+5    479  abo_typing__procedure__4238568, rh_blood_group...     0.981   0.027    0.923       solid
+6    249  ondansetron_injectio__clinical_drug_form__3560...     0.960   0.046    0.828       solid
+7    319  single_live_birth_fr__clinical_finding__401429...     0.993   0.002    0.988       solid
+8    302  therapeutic_procedur__cpt4__2314284, manual_th...     0.987   0.003    0.980       solid
+9    366  periodic_comprehensi__cpt4__2514527, gynecolog...     0.976   0.026    0.899       solid
+10   207  oocyte_recovery__procedure__4072862, culture_o...     0.977   0.033    0.879       solid
+11   160  infectious_agent_det__cpt4__2213162, infectiou...     0.804   0.363    0.018  suggestive
+
+bootstrap ARI of argmax labels: mean 0.803  sd 0.078  (Day 2 cut-offs: >=0.75 solid, >=0.60 suggestive)
+### CELL 43  t=60s
+wrote /Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/nmf_components_letrozole_k12_win12.xlsx (12 bundles)
+### CELL 44  t=60s
+saved nmf_k12_letrozole_win12_components.json  (k=12, 5,238 patients)
+
+comp      n     %  name  |  top tokens
+   0    489   9.3  (unnamed)  |  catheterization_and, estradiol_total, progesterone_measure, gonadotropin_chorion
+   1    870  16.6  (unnamed)  |  estradiol_2_mg_oral, progesterone_50_mgml, progesterone_200_mg, follicle_stimulating
+   2   1314  25.1  (unnamed)  |  amoxicillin_875_mg_c, 6_azithromycin_250_m, ibuprofen_800_mg_ora, fluconazole_150_mg_o
+   3    211   4.0  (unnamed)  |  cftr_cystic_fibrosis, hexa_hexosaminidase, smn1_survival_of_mot, ikbkap_inhibitor_of
+   4    272   5.2  (unnamed)  |  t4_free_measurement, vitamin_d_25hydroxy, hemoglobin_a1c_measu, thyroid_stimulating
+   5    479   9.1  (unnamed)  |  abo_typing, rh_blood_group_typin, serologic_test_for_r, rbc_antibody_detecti
+   6    249   4.8  (unnamed)  |  ondansetron_injectio, ketorolac_injectable, fentanyl_005_mgml_in, level_iv_surgical_pa
+   7    319   6.1  (unnamed)  |  single_live_birth_fr, ultrasound_pregnant, postnatal_maternal_e, active_or_passive_im
+   8    302   5.8  (unnamed)  |  therapeutic_procedur, manual_therapy_techn, low_back_pain, chiropractic_manipul
+   9    366   7.0  (unnamed)  |  periodic_comprehensi, gynecologic_examinat, general_examination, lipid_panel_this_pan
+  10    207   4.0  (unnamed)  |  oocyte_recovery, culture_of_oocytesem, extended_culture_of, ultrasonic_guidance
+  11    160   3.0  (unnamed)  |  infectious_agent_det, infectious_agent_det, bacterial_culture_ur, cytopathology_cervic
+
+# paste-ready DESCR (edit name / group / status, then re-run this cell):
+DESCR = {
+    0: dict(name=None, group=None),
+    1: dict(name=None, group=None),
+    2: dict(name=None, group=None),
+    3: dict(name=None, group=None),
+    4: dict(name=None, group=None),
+    5: dict(name=None, group=None),
+    6: dict(name=None, group=None),
+    7: dict(name=None, group=None),
+    8: dict(name=None, group=None),
+    9: dict(name=None, group=None),
+    10: dict(name=None, group=None),
+    11: dict(name=None, group=None),
+}
+### CELL 47  t=60s
+                                                 Overall No breast cancer dx Confirmed breast cancer dx
+N (% of cohort)                            5238 (100.0%)        5168 (98.7%)                  70 (1.3%)
+Age at first letrozole, mean (SD)             35.2 (6.9)          34.9 (6.6)                 51.8 (8.2)
+Female, n (%)                              5238 (100.0%)       5168 (100.0%)                70 (100.0%)
+Meets ICD-9 174.x, n (%)                        0 (0.0%)            0 (0.0%)                   0 (0.0%)
+Meets ICD-10 C50.x, n (%)                      70 (1.3%)            0 (0.0%)                70 (100.0%)
+Meets SNOMED 4162253, n (%)                    49 (0.9%)            0 (0.0%)                 49 (70.0%)
+Dx recorded before first letrozole, n (%)              -                   -                 43 (61.4%)
+breast_cancer, n (%)                           41 (0.8%)            0 (0.0%)                 41 (58.6%)
+dcis, n (%)                                    15 (0.3%)            4 (0.1%)                 11 (15.7%)
+infertility, n (%)                          1734 (33.1%)        1732 (33.5%)                   2 (2.9%)
+menopause_status, n (%)                        32 (0.6%)           21 (0.4%)                 11 (15.7%)
+pcos, n (%)                                  725 (13.8%)         724 (14.0%)                   1 (1.4%)
+pregnancy_outcome, n (%)                     903 (17.2%)         903 (17.5%)                   0 (0.0%)
+t2dm, n (%)                                    98 (1.9%)           90 (1.7%)                  8 (11.4%)
+curated diagnosis codesets shown: ['breast_cancer', 'dcis', 'infertility', 'menopause_status', 'pcos', 'pregnancy_outcome', 't2dm']
+### CELL 48  t=61s
+example timeline:
+oseltamivir_75_mg_or__clinical_drug__1799141 -> letrozole_25_mg_oral__clinical_drug__19022830 -> venipuncture_for_blo__procedure__4102442 -> drug_tests_presumpti__cpt4__42628602 -> urinalysis_by_dip_st__cpt4__2212168 -> infectious_agent_ant__cpt4__2213087 -> infectious_agent_det__cpt4__2213115 -> infectious_agent_det__cpt4__2213162 -> bacterial_culture_ur__procedure__4016363 -> blood_cell_count_aut__procedure__4035541 -> rh_blood_group_typin__procedure__4179840 -> syphilis_test_qualit__procedure__4218428
+
+median sequence length: 73
+### CELL 50  t=61s
+### CELL 52  t=61s
+component names loaded from nmf_k12_letrozole_win12_components.json
+top tokens per component:
+  c0: catheterization_and___cpt4__2110, estradiol_total__cpt4__2212320, progesterone_measure__procedure_, gonadotropin_chorion__cpt4__2212
+  c1: estradiol_2_mg_oral___clinical_d, progesterone_50_mgml__clinical_d, progesterone_200_mg___clinical_d, follicle_stimulating__branded_dr
+  c2: amoxicillin_875_mg_c__clinical_d, 6_azithromycin_250_m__clinical_p, ibuprofen_800_mg_ora__clinical_d, fluconazole_150_mg_o__clinical_d
+  c3: cftr_cystic_fibrosis__cpt4__4274, hexa_hexosaminidase___cpt4__4274, smn1_survival_of_mot__cpt4__9271, ikbkap_inhibitor_of___cpt4__4274
+  c4: t4_free_measurement__procedure__, vitamin_d_25hydroxy___procedure_, hemoglobin_a1c_measu__procedure_, thyroid_stimulating___procedure_
+  c5: abo_typing__procedure__4238568, rh_blood_group_typin__procedure_, serologic_test_for_r__procedure_, rbc_antibody_detecti__procedure_
+  c6: ondansetron_injectio__clinical_d, ketorolac_injectable__branded_dr, fentanyl_005_mgml_in__branded_dr, level_iv_surgical_pa__cpt4__2213
+  c7: single_live_birth_fr__clinical_f, ultrasound_pregnant___cpt4__2211, postnatal_maternal_e__procedure_, active_or_passive_im__procedure_
+  c8: therapeutic_procedur__cpt4__2314, manual_therapy_techn__cpt4__2314, low_back_pain__clinical_finding_, chiropractic_manipul__cpt4__2314
+  c9: periodic_comprehensi__cpt4__2514, gynecologic_examinat__procedure_, general_examination___procedure_, lipid_panel_this_pan__cpt4__2212
+  c10: oocyte_recovery__procedure__4072, culture_of_oocytesem__cpt4__2213, extended_culture_of___cpt4__2213, ultrasonic_guidance___procedure_
+  c11: infectious_agent_det__cpt4__2213, infectious_agent_det__cpt4__2213, bacterial_culture_ur__procedure_, cytopathology_cervic__cpt4__2213
+comp      n     %  group                    name
+   0    489   9.3  background               c0: catheterization_and, estradiol_total, progesterone_measure
+   1    870  16.6  background               c1: estradiol_2_mg_oral, progesterone_50_mgml, progesterone_200_mg
+   2   1314  25.1  background               c2: amoxicillin_875_mg_c, 6_azithromycin_250_m, ibuprofen_800_mg_ora
+   3    211   4.0  background               c3: cftr_cystic_fibrosis, hexa_hexosaminidase, smn1_survival_of_mot
+   4    272   5.2  background               c4: t4_free_measurement, vitamin_d_25hydroxy, hemoglobin_a1c_measu
+   5    479   9.1  background               c5: abo_typing, rh_blood_group_typin, serologic_test_for_r
+   6    249   4.8  background               c6: ondansetron_injectio, ketorolac_injectable, fentanyl_005_mgml_in
+   7    319   6.1  background               c7: single_live_birth_fr, ultrasound_pregnant, postnatal_maternal_e
+   8    302   5.8  background               c8: therapeutic_procedur, manual_therapy_techn, low_back_pain
+   9    366   7.0  background               c9: periodic_comprehensi, gynecologic_examinat, general_examination
+  10    207   4.0  background               c10: oocyte_recovery, culture_of_oocytesem, extended_culture_of
+  11    160   3.1  background               c11: infectious_agent_det, infectious_agent_det, bacterial_culture_ur
+### CELL 53  t=61s
+[Parallel(n_jobs=12)]: Using backend LokyBackend with 12 concurrent workers.
+[Parallel(n_jobs=12)]: Done  4 out of 12 | elapsed:    1.5s remaining:    3.0s
+[Parallel(n_jobs=12)]: Done  7 out of 12 | elapsed:    5.3s remaining:    3.8s
+[Parallel(n_jobs=12)]: Done 10 out of 12 | elapsed:   10.5s remaining:    2.1s
+[Parallel(n_jobs=12)]: Done 12 out of 12 | elapsed:   55.8s finished
+
+===== component 0 [background]: c0: catheterization_and, estradiol_total, progesterone_measure  (n=489)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  catheterization_and___cpt4__2110199 -> hystero...   0.411    0.083   4.5
+1  estradiol_total__cpt4__2212320 -> letrozole_25...   0.407    0.121   3.2
+2  transvaginal_echogra__procedure__4027510 -> es...   0.399    0.118   3.2
+3  estradiol_total__cpt4__2212320 -> follicle_sti...   0.454    0.139   3.1
+
+===== component 1 [background]: c1: estradiol_2_mg_oral, progesterone_50_mgml, progesterone_200_mg  (n=870)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.178    0.023   5.8
+1  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.222    0.030   5.8
+2  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.230    0.035   5.4
+3  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.231    0.035   5.4
+
+===== component 2 [background]: c2: amoxicillin_875_mg_c, 6_azithromycin_250_m, ibuprofen_800_mg_ora  (n=1314)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.392    0.389   1.0
+1  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.260    0.251   1.0
+
+===== component 3 [background]: c3: cftr_cystic_fibrosis, hexa_hexosaminidase, smn1_survival_of_mot  (n=211)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  fmr1_fragile_x_messe__cpt4__42742305 -> aspa_a...   0.867    0.000  87.7
+1  fmr1_fragile_x_messe__cpt4__42742305 -> hexa_h...   0.900    0.001  85.4
+2  cftr_cystic_fibrosis__cpt4__42742292 -> fmr1_f...   0.896    0.001  84.9
+3  cftr_cystic_fibrosis__cpt4__42742292 -> fmr1_f...   0.891    0.001  84.5
+
+===== component 4 [background]: c4: t4_free_measurement, vitamin_d_25hydroxy, hemoglobin_a1c_measu  (n=272)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  lipid_panel_this_pan__cpt4__2212095 -> vitamin...   0.482    0.055   7.5
+1  estradiol_total__cpt4__2212320 -> follicle_sti...   0.456    0.054   7.3
+2  follicle_stimulating__procedure__4149280 -> lu...   0.456    0.055   7.1
+3  hemoglobin_a1c_measu__procedure__4184637 -> t4...   0.445    0.055   7.0
+
+===== component 5 [background]: c5: abo_typing, rh_blood_group_typin, serologic_test_for_r  (n=479)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  infectious_agent_ant__cpt4__2213087 -> rh_bloo...   0.524    0.048   9.2
+1  infectious_agent_ant__cpt4__2213087 -> rh_bloo...   0.559    0.052   9.2
+2  infectious_agent_ant__cpt4__2213087 -> rbc_ant...   0.534    0.051   9.0
+3  infectious_agent_ant__cpt4__2213087 -> rh_bloo...   0.653    0.064   9.0
+
+===== component 6 [background]: c6: ondansetron_injectio, ketorolac_injectable, fentanyl_005_mgml_in  (n=249)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  dexamethasone_inject__clinical_drug_form__1719...   0.450    0.013  19.7
+1  dexamethasone_inject__clinical_drug_form__1719...   0.458    0.014  19.5
+2  dexamethasone_inject__clinical_drug_form__1719...   0.430    0.013  19.4
+3  dexamethasone_inject__clinical_drug_form__1719...   0.426    0.013  19.2
+
+===== component 7 [background]: c7: single_live_birth_fr, ultrasound_pregnant, postnatal_maternal_e  (n=319)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  immunization_adminis__cpt4__2213418 -> active_...   0.395    0.023  12.4
+1  active_or_passive_im__procedure__4132855 -> ul...   0.401    0.023  12.3
+2  immunization_adminis__cpt4__2213418 -> ultraso...   0.401    0.023  12.3
+3  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.389    0.023  12.2
+
+===== component 8 [background]: c8: therapeutic_procedur, manual_therapy_techn, low_back_pain  (n=302)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  therapeutic_procedur__cpt4__2314284 -> therape...   0.384    0.021  12.6
+1  manual_therapy_techn__cpt4__2314290 -> therape...   0.417    0.025  12.1
+2  therapeutic_procedur__cpt4__2314284 -> manual_...   0.417    0.025  12.1
+3  therapeutic_procedur__cpt4__2314284 -> manual_...   0.301    0.016  12.0
+
+===== component 9 [background]: c9: periodic_comprehensi, gynecologic_examinat, general_examination  (n=366)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  periodic_comprehensi__cpt4__2514527 -> general...   0.251    0.049   4.5
+1  periodic_comprehensi__cpt4__2514527 -> general...   0.219    0.042   4.4
+2  periodic_comprehensi__cpt4__2514527 -> venipun...   0.254    0.050   4.4
+3  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.287    0.062   4.1
+
+===== component 10 [background]: c10: oocyte_recovery, culture_of_oocytesem, extended_culture_of  (n=207)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  estradiol_total__cpt4__2212320 -> oocyte_recov...   0.792    0.006  50.1
+1  estradiol_total__cpt4__2212320 -> ultrasonic_g...   0.792    0.006  50.1
+2  oocyte_recovery__procedure__4072862 -> ultraso...   0.821    0.007  49.9
+3  oocyte_recovery__procedure__4072862 -> ultraso...   0.807    0.007  49.0
+
+===== component 11 [background]: c11: infectious_agent_det, infectious_agent_det, bacterial_culture_ur  (n=160)
+      draft triage: routine, indication unclear (use other evidence)
+                                             pattern  sup_in  sup_out  lift
+0  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.356    0.035   8.2
+1  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.356    0.035   8.2
+2  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.356    0.035   8.2
+3  infectious_agent_det__cpt4__2213115 -> infecti...   0.469    0.050   8.0
+### CELL 55  t=117s
+letrozole patients: 5238   labelled: 3596   both-evidence (dropped): 243   no-evidence (dropped): 1399
+letrozole patients: 5238   labelled: 3596    {np.str_('fertility'): np.int64(3537), np.str_('oncology'): np.int64(59), np.str_('unlabelled'): np.int64(1642)}
+
+=== fertility indication
+                                             pattern  sup_in  sup_out  lift
+0  venipuncture_for_blo__procedure__4102442 -> ve...   0.295    0.076   3.6
+1  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.269    0.071   3.5
+2  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.277    0.073   3.5
+3  venipuncture_for_blo__procedure__4102442 -> pr...   0.264    0.069   3.5
+
+=== oncology indication
+                                             pattern  sup_in  sup_out  lift
+0  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.542    0.254   2.1
+1  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.356    0.189   1.8
+2  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.695    0.396   1.7
+3  letrozole_25_mg_oral__clinical_drug__19022830 ...   0.305    0.190   1.6
+### CELL 57  t=144s
+{0: (100, 1989), 1: (100, 2370), 2: (2, 2814), 3: (100, 1711), 4: (100, 1772), 5: (100, 1979), 6: (100, 1749), 7: (100, 1819), 8: (100, 1802), 9: (100, 1866), 10: (100, 1707), 11: (100, 1660)}
+### CELL 58  t=145s
+bootstrap done: {0: 100, 1: 100, 2: 2, 3: 100, 4: 100, 5: 100, 6: 100, 7: 100, 8: 100, 9: 100, 10: 100, 11: 100} motifs per component
+### CELL 59  t=147s
+[Parallel(n_jobs=12)]: Using backend LokyBackend with 12 concurrent workers.
+[Parallel(n_jobs=12)]: Done 50 out of 60 | elapsed:   20.9s remaining:    4.2s
+[Parallel(n_jobs=12)]: Done 60 out of 60 | elapsed:   49.4s finished
+split-seed mining: 0.8 min
+### CELL 60  t=197s
+           group  motifs  solid  suggestive  unstable
+comp                                                 
+0     background     100     65          17        18
+1     background     100     66           7        27
+2     background       2      0           0         2
+3     background     100     48          20        32
+4     background     100     53          22        25
+5     background     100     88           9         3
+6     background     100     63          23        14
+7     background     100     67          13        20
+8     background     100     78          10        12
+9     background     100     40          14        46
+10    background     100     69          14        17
+11    background     100     53          21        26
+
+===== component 0 [background]: c0: catheterization_and, estradiol_total, progesterone_measure  (n=489)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  catheterization_and___cpt4__2110199 -> hysterosalpingograph__cpt4__2211565 -> letrozole_25_mg_oral__clinic...   0.411    0.083   4.5      3.8   
+1  estradiol_total__cpt4__2212320 -> letrozole_25_mg_oral__clinical_drug__19022830 -> progesterone_measure__p...   0.407    0.121   3.2      2.7   
+2  transvaginal_echogra__procedure__4027510 -> estradiol_total__cpt4__2212320 -> progesterone_measure__proced...   0.399    0.118   3.2      2.7   
+3  estradiol_total__cpt4__2212320 -> follicle_stimulating__procedure__4149280 -> luteinizing_hormone___proced...   0.454    0.139   3.1      2.7   
+
+   lift_hi  splits_found     verdict  
+0      5.5             3  suggestive  
+1      3.8             3  suggestive  
+2      3.8             3  suggestive  
+3      3.6             5       solid  
+
+===== component 1 [background]: c1: estradiol_2_mg_oral, progesterone_50_mgml, progesterone_200_mg  (n=870)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  letrozole_25_mg_oral__clinical_drug__19022830 -> 05_ml_ganirelix_acet__quant_clinical_drug__40162447 -> ch...   0.178    0.023   5.8      4.5   
+1  letrozole_25_mg_oral__clinical_drug__19022830 -> follicle_stimulating__branded_drug__19128370 -> 05_ml_gan...   0.222    0.030   5.8      4.6   
+2  letrozole_25_mg_oral__clinical_drug__19022830 -> follicle_stimulating__branded_drug__19128370 -> estradiol...   0.230    0.035   5.4      4.3   
+3  letrozole_25_mg_oral__clinical_drug__19022830 -> follicle_stimulating__branded_drug__19128370 -> progester...   0.231    0.035   5.4      4.3   
+
+   lift_hi  splits_found     verdict  
+0      7.6             3  suggestive  
+1      7.5             5       solid  
+2      6.9             5       solid  
+3      6.8             5       solid  
+
+===== component 2 [background]: c2: amoxicillin_875_mg_c, 6_azithromycin_250_m, ibuprofen_800_mg_ora  (n=1314)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  letrozole_25_mg_oral__clinical_drug__19022830 -> letrozole_25_mg_oral__clinical_drug__19022830 -> letrozol...   0.392    0.389   1.0      0.9   
+1  letrozole_25_mg_oral__clinical_drug__19022830 -> letrozole_25_mg_oral__clinical_drug__19022830 -> letrozol...   0.260    0.251   1.0      0.9   
+
+   lift_hi  splits_found   verdict  
+0      1.1             0  unstable  
+1      1.2             0  unstable  
+
+===== component 3 [background]: c3: cftr_cystic_fibrosis, hexa_hexosaminidase, smn1_survival_of_mot  (n=211)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  fmr1_fragile_x_messe__cpt4__42742305 -> aspa_aspartoacylase___cpt4__42742558 -> dmd_dystrophin_eg_du__cpt4...   0.867    0.000  87.7     83.0   
+1  fmr1_fragile_x_messe__cpt4__42742305 -> hexa_hexosaminidase___cpt4__42742310 -> aspa_aspartoacylase___cpt4...   0.900    0.001  85.4     73.9   
+2  cftr_cystic_fibrosis__cpt4__42742292 -> fmr1_fragile_x_messe__cpt4__42742305 -> aspa_aspartoacylase___cpt4...   0.896    0.001  84.9     73.7   
+3  cftr_cystic_fibrosis__cpt4__42742292 -> fmr1_fragile_x_messe__cpt4__42742305 -> gba_glucosidase_beta__cpt4...   0.891    0.001  84.5     73.1   
+
+   lift_hi  splits_found   verdict  
+0     92.0             2  unstable  
+1     93.9             5     solid  
+2     93.4             5     solid  
+3     92.9             5     solid  
+
+===== component 4 [background]: c4: t4_free_measurement, vitamin_d_25hydroxy, hemoglobin_a1c_measu  (n=272)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  lipid_panel_this_pan__cpt4__2212095 -> vitamin_d_25hydroxy___procedure__4007831 -> hemoglobin_a1c_measu__p...   0.482    0.055   7.5      6.1   
+1  estradiol_total__cpt4__2212320 -> follicle_stimulating__procedure__4149280 -> testosterone_measure__proced...   0.456    0.054   7.3      5.9   
+2  follicle_stimulating__procedure__4149280 -> luteinizing_hormone___procedure__4287388 -> testosterone_measu...   0.456    0.055   7.1      5.8   
+3  hemoglobin_a1c_measu__procedure__4184637 -> t4_free_measurement__procedure__4196969 -> letrozole_25_mg_ora...   0.445    0.055   7.0      5.6   
+
+   lift_hi  splits_found     verdict  
+0      9.3             3  suggestive  
+1      9.2             5       solid  
+2      8.9             5       solid  
+3      8.7             5       solid  
+
+===== component 5 [background]: c5: abo_typing, rh_blood_group_typin, serologic_test_for_r  (n=479)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  infectious_agent_ant__cpt4__2213087 -> rh_blood_group_typin__procedure__4179840 -> rbc_antibody_detecti__p...   0.524    0.048   9.2      7.5   
+1  infectious_agent_ant__cpt4__2213087 -> rh_blood_group_typin__procedure__4179840 -> rbc_antibody_detecti__p...   0.559    0.052   9.2      7.6   
+2  infectious_agent_ant__cpt4__2213087 -> rbc_antibody_detecti__procedure__4231581 -> abo_typing__procedure__...   0.534    0.051   9.0      7.4   
+3  infectious_agent_ant__cpt4__2213087 -> rh_blood_group_typin__procedure__4179840 -> rbc_antibody_detecti__p...   0.653    0.064   9.0      7.6   
+
+   lift_hi  splits_found verdict  
+0     11.2             4   solid  
+1     11.2             5   solid  
+2     11.0             5   solid  
+3     10.7             5   solid  
+
+===== component 6 [background]: c6: ondansetron_injectio, ketorolac_injectable, fentanyl_005_mgml_in  (n=249)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  dexamethasone_inject__clinical_drug_form__1719010 -> fentanyl_005_mgml_in__branded_drug__35603455 -> midaz...   0.450    0.013  19.7     15.0   
+1  dexamethasone_inject__clinical_drug_form__1719010 -> ondansetron_injectio__clinical_drug_form__35605480 ->...   0.458    0.014  19.5     14.9   
+2  dexamethasone_inject__clinical_drug_form__1719010 -> midazolam_injectable__branded_drug_form__40064208 -> ...   0.430    0.013  19.4     14.6   
+3  dexamethasone_inject__clinical_drug_form__1719010 -> fentanyl_005_mgml_in__branded_drug__35603455 -> ondan...   0.426    0.013  19.2     14.5   
+
+   lift_hi  splits_found     verdict  
+0     26.7             5       solid  
+1     26.3             4       solid  
+2     26.5             3  suggestive  
+3     26.2             2    unstable  
+
+===== component 7 [background]: c7: single_live_birth_fr, ultrasound_pregnant, postnatal_maternal_e  (n=319)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  immunization_adminis__cpt4__2213418 -> active_or_passive_im__procedure__4132855 -> ultrasound_pregnant___c...   0.395    0.023  12.4      9.8   
+1  active_or_passive_im__procedure__4132855 -> ultrasound_pregnant___cpt4__2211756 -> single_live_birth_fr__c...   0.401    0.023  12.3      9.7   
+2  immunization_adminis__cpt4__2213418 -> ultrasound_pregnant___cpt4__2211756 -> single_live_birth_fr__clinic...   0.401    0.023  12.3      9.9   
+3  letrozole_25_mg_oral__clinical_drug__19022830 -> immunization_adminis__cpt4__2213418 -> ultrasound_pregnan...   0.389    0.023  12.2      9.6   
+
+   lift_hi  splits_found     verdict  
+0     16.3             2    unstable  
+1     16.3             3  suggestive  
+2     16.2             2    unstable  
+3     16.0             1    unstable  
+
+===== component 8 [background]: c8: therapeutic_procedur, manual_therapy_techn, low_back_pain  (n=302)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  therapeutic_procedur__cpt4__2314284 -> therapeutic_procedur__cpt4__2314284 -> therapeutic_procedur__cpt4__...   0.384    0.021  12.6      9.7   
+1  manual_therapy_techn__cpt4__2314290 -> therapeutic_procedur__cpt4__2314284 -> manual_therapy_techn__cpt4__...   0.417    0.025  12.1      9.4   
+2  therapeutic_procedur__cpt4__2314284 -> manual_therapy_techn__cpt4__2314290 -> manual_therapy_techn__cpt4__...   0.417    0.025  12.1      9.3   
+3  therapeutic_procedur__cpt4__2314284 -> manual_therapy_techn__cpt4__2314290 -> letrozole_25_mg_oral__clinic...   0.301    0.016  12.0      8.9   
+
+   lift_hi  splits_found verdict  
+0     16.9             5   solid  
+1     15.9             5   solid  
+2     15.8             5   solid  
+3     16.3             4   solid  
+
+===== component 9 [background]: c9: periodic_comprehensi, gynecologic_examinat, general_examination  (n=366)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  periodic_comprehensi__cpt4__2514527 -> general_examination___procedure__4036803 -> lipid_panel_this_pan__c...   0.251    0.049   4.5      3.5   
+1  periodic_comprehensi__cpt4__2514527 -> general_examination___procedure__4036803 -> venipuncture_for_blo__p...   0.219    0.042   4.4      3.4   
+2  periodic_comprehensi__cpt4__2514527 -> venipuncture_for_blo__procedure__4102442 -> lipid_panel_this_pan__c...   0.254    0.050   4.4      3.5   
+3  letrozole_25_mg_oral__clinical_drug__19022830 -> periodic_comprehensi__cpt4__2514527 -> general_examinatio...   0.287    0.062   4.1      3.3   
+
+   lift_hi  splits_found   verdict  
+0      5.8             5     solid  
+1      5.8             1  unstable  
+2      5.7             5     solid  
+3      5.2             5     solid  
+
+===== component 10 [background]: c10: oocyte_recovery, culture_of_oocytesem, extended_culture_of  (n=207)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  estradiol_total__cpt4__2212320 -> oocyte_recovery__procedure__4072862 -> ultrasonic_guidance___procedure__...   0.792    0.006  50.1     39.9   
+1  estradiol_total__cpt4__2212320 -> ultrasonic_guidance___procedure__4214752 -> extended_culture_of___cpt4__...   0.792    0.006  50.1     39.9   
+2  oocyte_recovery__procedure__4072862 -> ultrasonic_guidance___procedure__4214752 -> culture_of_oocytesem__c...   0.821    0.007  49.9     39.5   
+3  oocyte_recovery__procedure__4072862 -> ultrasonic_guidance___procedure__4214752 -> extended_culture_of___c...   0.807    0.007  49.0     38.9   
+
+   lift_hi  splits_found verdict  
+0     65.7             4   solid  
+1     65.7             4   solid  
+2     65.6             5   solid  
+3     64.9             4   solid  
+
+===== component 11 [background]: c11: infectious_agent_det, infectious_agent_det, bacterial_culture_ur  (n=160)
+                                                                                                         pattern  sup_in  sup_out  lift  lift_lo  \
+0  letrozole_25_mg_oral__clinical_drug__19022830 -> infectious_agent_det__cpt4__2213115 -> infectious_agent_d...   0.356    0.035   8.2      5.9   
+1  letrozole_25_mg_oral__clinical_drug__19022830 -> infectious_agent_det__cpt4__2213115 -> infectious_agent_d...   0.356    0.035   8.2      5.9   
+2  letrozole_25_mg_oral__clinical_drug__19022830 -> infectious_agent_det__cpt4__2213162 -> infectious_agent_d...   0.356    0.035   8.2      5.9   
+3  infectious_agent_det__cpt4__2213115 -> infectious_agent_det__cpt4__2213162 -> infectious_agent_det__cpt4__...   0.469    0.050   8.0      6.2   
+
+   lift_hi  splits_found verdict  
+0     11.0             5   solid  
+1     11.0             5   solid  
+2     11.0             5   solid  
+3     10.4             5   solid  
+### CELL 63  t=197s
+held-out pass rate: 1 s
+### CELL 65  t=198s
+### CELL 67  t=198s
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:1073: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  fig.subplots_adjust(left=.22, right=.64, bottom=.2); plt.show()
+                        patients in group  with oncology evidence  coverage %  plotted n  median days    p25    p75  evidence first %
+lane                                                                                                                                 
+fertility comps, no dx                  0                       0         0.0          0          NaN    NaN    NaN               NaN
+oncology: confirmed dx                 70                      50        71.0         50        -70.0 -251.0   92.0              66.0
+other comps, no dx                   5168                     252         5.0         50         36.0 -110.0  343.0              44.0
+### CELL 69  t=198s
+5238 letrozole patients
+14 nodes, 83 edges
+nodes per group: {'background': 13, 'anchor': 1}
+### CELL 71  t=199s
+/Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/script_win12.py:1205: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+  plt.margins(x=.06); plt.tight_layout(); plt.show()
+{'background': 13, 'anchor': 1} nodes per lane; 0 without timing
+### CELL 74  t=199s
+wrote /Users/esteban.correaagudelo/codeprojects/ethos_foundation_llm/nb/sensitivity_letrozole/final_table_letrozole_k12_win12.xlsx  (12 bundles, 33 rows)
+### DONE
