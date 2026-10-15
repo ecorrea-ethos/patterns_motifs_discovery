@@ -15,7 +15,7 @@ Two threads sharing one repo:
 | `nb/repr_clmbr/meds_tutorial.ipynb` | Small exploratory notebook using **synthetic** MEDS sample data (`meds_testing_helpers`) — no Snowflake needed. Good for understanding the MEDS parquet layout before touching real data. |
 | `nb/repr_learn_chestpain/` | 5-day pattern-discovery course on the `dx_9487` (atypical chest pain) cohort — testing whether comorbid Dx/Rx history can triage cases into likely-benign vs needs-cardiac-workup. `Day1`–`Day5` notebooks + `ethos_omop.py` (extract/load) + `make_demo_extract.py` (synthetic extract, no Snowflake). See `nb/repr_learn_chestpain/README_repr_learn.md`. |
 | `nb/repr_learn_letrozole/` | Same 5-day course shape, applied to a letrozole cohort (clustering → sequence mining → PPMI embeddings → surrogate rules validated against the real `death` table). See `nb/repr_learn_letrozole/README_repr_learn.md`. |
-
+| `nb/repr_learn_mammography/` | Pattern discovery on the mammography cohort (`sql/mammography_cohort.sql`): one fused NMF + PrefixSpan notebook asking whether unsupervised structure separates breast-cancer from no-cancer patients. No classifier; filters are listed in the notebook ledger. |
 ### Data & extraction
 
 | Path | What it is |

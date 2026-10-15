@@ -1,0 +1,200 @@
+# Bitacora
+# v1 - mammography cohort (sql/mammography_cohort.sql). Ported from nb/repr_learn_letrozole/codesets.yaml (v5):
+#      * kept the oncology side (in-situ, invasive cancer, biopsy, surgery, chemo, radiation, receptor assays, metastasis,
+#        bone health, menopause) and the v5 pattern fixes (specific phrasings, exclusions, first-tag-wins ordering);
+#      * removed everything fertility-specific (clomiphene, gonadotropins, ART, follicle monitoring, ovarian reserve,
+#        pregnancy test, infertility, PCOS, GnRH agonists, metformin);
+#      * the cohort anchor is `mammography` (any screening / diagnostic mammography PROCEDURE, the same event the cohort SQL looks for);
+#      * added breast imaging, mammographic findings, benign breast disease and symptoms, BRCA testing, endocrine therapy,
+#        reconstruction, hormone exposures and preventive screening, so bundles and motifs have readable names.
+#
+#      Checked against real concept names (letrozole extract, 11.8k concepts): CPT4 is a STANDARD vocabulary in this OMOP, so
+#      mammography appears as CPT4 Procedure concepts. The Observation-domain mammography concepts ("Mammogram assessment
+#      category of ...", HCPCS "...results documented and reviewed") and the Condition-domain findings ("Mammographic breast
+#      density") must NOT be the anchor: the anchor patterns below are restricted to domain Procedure and start with the
+#      procedure name. Observation is not loaded by the notebook at all (noise).
+#
+#      NOTE ON ORDER: first tag wins in `tag_events()` for the single-valued `group` column (`groups` lists every match).
+#      Specific tags precede general ones: mammography_screening / _diagnostic before mammography, lumpectomy before mastectomy.
+#      Do not alphabetise this file.
+#
+# Spec shapes (same as the letrozole file):
+#   <tag>: {patterns: [...], vocabularies: [...], domain: ..., exclude: [...]}   # matched against concept_name by resolve()
+#   <tag>: {concept_ids: [...]}                                                  # literal
+# PATTERNS ARE UNANCHORED SUBSTRING REGEX joined with "|" (str.contains, case-insensitive). Anchor with ^ where the name starts with
+# the term. After editing, print the matched names of every changed tag (see the "codeset check" cell in the notebook).
+
+# ---- Anchor and breast imaging ----
+mammography_screening:
+  patterns: ["^screening mammography"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+mammography_diagnostic:
+  patterns: ["^diagnostic mammography"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+mammography:                       # COHORT ANCHOR: any mammography procedure (screening, diagnostic or unspecified)
+  patterns: ["^(?:screening |diagnostic |bilateral |unilateral )?mammography"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_tomosynthesis:
+  patterns: ["digital breast tomosynthesis", "digital tomosynthesis of .*breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_ultrasound:
+  patterns: ["^ultrasound, breast", "ultrasound of .*breast", "breast ultrasound"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_mri:
+  patterns: ["magnetic resonance imaging.*breast", "mri of .*breasts?"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_exam:
+  patterns: ["^examination of breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+mammographic_finding:              # findings are Condition rows; they are information BEFORE a diagnosis, so they stay features
+  patterns: ["mammograph", "abnormal findings on diagnostic imaging of breast"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+
+# ---- Benign breast disease and symptoms ----
+breast_symptom:
+  patterns: ["breast lump", "^lump (?:in|of) .*breast", "^mass of .*breast", "breast signs and symptoms", "^pain of breast", "nipple discharge"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+benign_breast_disease:
+  patterns: ["benign neoplasm of .*breast", "fibroadenosis", "fibrocystic", "benign mammary dysplasia", "solitary cyst of breast",
+             "fibrosclerosis of breast", "mammary duct ectasia"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+breast_uncertain_neoplasm:
+  patterns: ["neoplasm of uncertain behavior of .*breast"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+breast_cyst_procedure:
+  patterns: ["puncture aspiration of cyst of breast", "excision of cyst, fibroadenoma"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+
+# ---- Diagnosis workup ----
+breast_biopsy:
+  patterns: ["^biopsy, breast", "biopsy of breast", "breast biopsy", "needle biopsy of breast", "core biopsy of breast",
+             "fine needle aspiration.*breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_localization:
+  patterns: ["^placement of breast localization device"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+brca_testing:
+  patterns: ["^brca1", "^brca2", "^palb2", "hereditary breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS", "LOINC"]
+receptor_assay:
+  patterns: ["estrogen receptor", "progesterone receptor", "her2", "immunohistochemistry.*(?:breast|estrogen|progesterone)", "^oncology \\(breast"]   # not bare "immunohistochemistry": matches slide digitization
+  vocabularies: ["SNOMED", "LOINC", "CPT4"]
+
+# ---- Cancer: the label side ----
+# in_situ is defined BEFORE breast_cancer. The notebook excludes patients with in-situ disease only (ambiguous label).
+in_situ:
+  patterns: ["carcinoma in situ of .*breast", "ductal carcinoma in situ"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+# breast_cancer: the name-matched part of the cancer LABEL. The notebook unions it with the ICD-defined label concepts and drops
+# every one of them from the features (leakage). v1 uses "malignant neoplasm.*breast" because real names read "Primary malignant
+# neoplasm of lower inner quadrant of breast" / "Malignant neoplasm of overlapping sites of breast", which a literal
+# "malignant neoplasm of breast" misses.
+breast_cancer:
+  patterns:
+    - "malignant (?:neoplasm|tumou?r).*breast"
+    - "carcinoma of (?:the )?(?:female |male )?breast"
+    - "(?:infiltrating|invasive).*carcinoma.*breast"
+    - "breast cancer"
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["family history", "personal history", "history of", "screening", "at risk", "in situ",
+            "benign", "secondary", "uncertain", "hereditary"]
+
+# ---- Cancer: treatment and staging (strong proxies of the label; the notebook can drop them with DROP_LABEL_PROXIES) ----
+lumpectomy:                        # before mastectomy: "Partial mastectomy" belongs here first
+  patterns: ["lumpectomy", "partial mastectomy", "excision of breast lesion", "excision of lesion of breast", "breast conserving",
+             "quadrantectomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["radiotherapy", "afterloading"]          # "Placement of radiotherapy afterloading catheter ... following partial mastectomy"
+mastectomy:
+  patterns: ["mastectomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["partial", "postmastectomy"]
+lymph_node_procedure:
+  patterns: ["sentinel", "axillary lymph", "axillary node", "lymphatic mapping"]      # not bare "lymphadenectomy": matches mediastinal / chest wall surgery
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+chemotherapy:
+  patterns: ["chemotherapy administration", "administration of antineoplastic", "antineoplastic chemotherapy",
+             "chemotherapy by infusion", "intravenous chemotherapy", "chemotherapy session"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+antineoplastic_drug:
+  patterns: ["^trastuzumab", "^cyclophosphamide", "^doxorubicin", "^paclitaxel", "^docetaxel", "^carboplatin", "^capecitabine",
+             "^pertuzumab", "^palbociclib", "^ribociclib", "^abemaciclib"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+endocrine_therapy:                 # aromatase inhibitors, tamoxifen, fulvestrant: adjuvant breast-cancer drugs
+  patterns: ["^letrozole", "^anastrozole", "^exemestane", "^tamoxifen", "^fulvestrant", "^toremifene",
+             "femara", "arimidex", "aromasin", "nolvadex"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+radiation_therapy:
+  patterns: ["radiation therapy", "radiotherapy", "teletherapy", "radiation treatment delivery", "brachytherapy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+metastasis:
+  patterns: ["secondary malignant neoplasm", "metastasis", "metastatic", "secondary neoplasm", "malignant neoplasm.*metastatic"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+breast_reconstruction:             # after mastectomy, but also elective: NOT treated as a label proxy
+  patterns: ["reconstruction of breast", "insertion of breast prosthesis", "tissue expander", "breast implant"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+
+# ---- Risk context ----
+hormonal_contraceptive:            # includes intrauterine systems; norethindrone is also used for non-contraceptive indications
+  patterns: ["^ethinyl estradiol", "^levonorgestrel", "^norethindrone", "^norgestimate", "^drospirenone", "^desogestrel"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+menopausal_hormone_therapy:
+  patterns: ["^estradiol", "conjugated estrogens", "^estrogens, conjugated", "^esterified estrogens", "^medroxyprogesterone"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+menopause_status:
+  patterns: ["postmenopausal", "menopaus", "perimenopaus", "premature ovarian"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+pregnancy_outcome:                 # parity proxy
+  patterns: ["live birth", "delivery of", "normal delivery", "cesarean", "spontaneous abortion", "missed abortion",
+             "ectopic pregnancy", "stillbirth", "postpartum", "weeks gestation"]
+  vocabularies: ["SNOMED"]
+obesity:
+  patterns: ["^obesity", "morbid obesity"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+t2dm:
+  patterns: ["type 2 diabetes"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+bone_health:
+  patterns: ["bone density", "dual energy x-ray", "absorptiometry", "\\bdexa\\b", "^zoledronic", "^denosumab", "osteoporosis", "osteopenia"]
+  vocabularies: ["SNOMED", "RxNorm", "RxNorm Extension", "CPT4", "HCPCS"]
+
+# ---- Preventive care (utilisation context: who gets screened for what) ----
+cervical_screening:
+  patterns: ["papanicolaou", "pap smear", "screening cytopathology", "^cytopathology, cervical", "human papillomavirus"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4", "HCPCS"]
+colorectal_screening:             # every colonoscopy (screening and diagnostic) and fecal occult blood tests
+  patterns: ["^colonoscopy", "fecal occult", "occult blood", "stool dna"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4", "HCPCS"]
+
+# Family history of breast cancer, tobacco and alcohol use are OMOP Observation concepts: Observation is not loaded (noise), so they
+# are not available as codesets here.
+
+# ============================================================================
+# AFTER EDITING THIS FILE: print what every changed tag matched and read every name. A broken pattern resolves to a small NONZERO
+# number of concepts, so the n_concepts == 0 warning catches nothing. In particular check mammography, breast_cancer, in_situ and
+# the label proxies. The notebook's "codeset check" cell prints them.
+# ============================================================================

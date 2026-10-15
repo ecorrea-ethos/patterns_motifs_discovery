@@ -1,5 +1,46 @@
 # Handoff
 
+## Update 2026-10-14: chest pain literature, predicate engine, AHA codeset v2, k=8 comparison
+
+All paths below are under `nb/repr_learn_chestpain/` unless stated. Conda env for scripts and notebooks: `ethos_llm` (pandas, sklearn, nbformat, openpyxl). `omop_local` has matplotlib; the system python has no numpy.
+
+**Next step (yours): in `Chestpain_NMF_PrefixSpan_AHA.ipynb` run section "5 · Member table" (code cell 63), then re-run the final-table cell (65, now section 6).** The member cell writes `token_members_k8_chestpain_AHA.csv`: one row per concept with its group token, so a group-level entity becomes `concept_id IN (...)` for the predicate engine. The final-table cell reads that table and adds columns Q and R (members of the group tokens in the entities / in the pattern) to `final_table_chestpain_k8_AHA.xlsx`; it raises a NameError telling you to run the member cell first. Needs the Part B state (`K`, `H`, `hyb`): same kernel, or Run All. Both cells were tested on synthetic events at both token levels, not on the real extract. Then check the printed "group tokens among the top-5 loadings" list: those are the entities an engine on AHA c3 would be built from. Caution: re-running cell 65 overwrites the xlsx, so any Triage / Literature / PMIDs typed into `final_table_chestpain_k8_AHA.xlsx` by hand would be lost; save a copy first if you filled it.
+
+**Done earlier (kept for the method): `Chestpain_NMF_PrefixSpan_full_k8.ipynb` was run and compared (see `sanity_check_AHA.md`).**
+- It is a copy of `..._full` with `K_OVERRIDE = 8`, `VARIANT = 'full_k8'`, outputs cleared, same `codesets.yaml`, **concept-level tokens**. It writes `nmf_k8_chestpain_full_k8.npz`, `..._components.json`, `nmf_components_chestpain_k8_full_k8.xlsx`, `final_table_chestpain_k8_full_k8.xlsx`. About 25 min (PrefixSpan cell 50 is most of it).
+- First run gives auto-names. The k=5 `DESCR` is skipped by the `DESCR_K = 5` guard in cell 43. Send the printed bundle list and write a `DESCR` block, then set `DESCR_K = 8` and re-run cell 43.
+- Comparisons to make: `full_k8` vs AHA (same k: isolates codeset v2 + group tokens); `full_k8` vs `k5_full` (isolates k); `full_k8` vs `nmf_k8_chestpain_v2.npz` (older k=8 run). Method used so far: load both `.npz` (`pids`, `labels`), align on pids, `pd.crosstab`, ARI / NMI from sklearn; stability from the sweep table (cell 32) and bootstrap (cell 42); patterns from the final-table xlsx (columns 4-14).
+
+**What exists now**
+- `final_table_chestpain_k5_full.xlsx`: columns M (triage), O (literature), P (PMIDs) filled; Notes line A28 rewritten. Triage (draft): c0 Manual RUW, c1/c2/c4 Routine, c3 Unclear. Literature: `Partly` for 13 of 15 rows, `None` for r7 and r11 (`none found`), never `Yes` (no paper tests order). Titles only were read; a clinician should confirm each `Partly`. `final_table_chestpain_k5_full_literature_verified.csv` holds the 13 verified PMIDs. Searches and logs: `literature_search/`. APA reference list with PMIDs (it was only in chat before): `literature_search/references_apa.md`.
+- `Chestpain_Workup_Predicate_Engine.md` + `chestpain_c0_flag_flow.png`: predicate/composite engine in the letrozole format. Target is **k=5 c0 (acute/ED, 25,953 patients)**; flag = chest pain + at least 3 of 4 services (ECG, troponin, chest X-ray, IV push) within 1 day of a chest pain event + one of three chest pain → X-ray/ECG → troponin sequences. The 1-day window is a draft, not calibrated. Evaluation protocol is defined, not run. **It does not map to k=8** (ED bundle is AHA c3, n=17,250); re-derive if k=8 becomes the reference.
+- `codesets_v2.yaml` (70 tags, from Gulati et al., Circulation 2021;144:e368, read from the PDF pp. 1-48), `check_codesets.py` (prints matched names per tag, empties, overlaps, diff vs v4; 0 unexpected overlaps), README section. `codesets.yaml` and `ethos_omop.py` untouched; the 16 tests in `tests/` pass.
+- `Chestpain_NMF_PrefixSpan_AHA.ipynb`: clone of `..._full` with `VARIANT='AHA'`, `CODESETS_FILE='codesets_v2.yaml'`, `TOKEN_LEVEL='group'`; only cells 0, 1, 2, 7, 38, 43 differ. **Already run at k=8** (files `*_AHA*`). Its `DESCR` block (names, groups) was written by me from the k=8 top tokens: c0 outpatient cardiometabolic + elective cardiac testing, c1 prescriptions, c2 women's health, **c3 acute/ED workup**, c4 GI + cancer screening, c5 MSK/PT, c6 nutrition/endocrine labs, c7 acute respiratory infection. c4 and c7 are labelled `non-cardiac explanation`, c5 stays `background` (my choice, open).
+- `Chestpain_NMF_PrefixSpan_full.ipynb` shows as modified in git: it was already modified before this session; I did not edit it. `.gitignore` and `README.md` also were.
+
+**One-page UW summary of the three runs (full k=5, full k=8, AHA k=8, all run): `sanity_check_AHA.md`.** Conclusion there: full k=8 is unstable (do not use); AHA k=8 is the draft working reference, k=5 the fallback. It now embeds two Sankey diagrams (AHA k=8 → full k=8, AHA k=8 → full k=5; made by `sankey_runs.py`): the ED bundle is the only structure all runs share (91% of AHA c3 sits in k=5 c0, 58% in k=8 c0); the rest is how finely background care is split.
+
+**Findings: full k=5 (concept tokens) vs AHA k=8 (group tokens)** (the two differ in codeset, token level and k, so not all of it is the codeset)
+- Same 139,416 patients / 46,525,784 events. Tag coverage 9.2% → 16.0%; NMF columns 9,542 → 9,155. Label agreement between runs: ARI 0.40, NMI 0.44 (mostly k).
+- Stability at the same k favours AHA: k=5 ARI 0.861 → 0.935; k=8 ARI 0.712 (2/5 splits solid) → 0.851 (5/5). Bootstrap mean ARI 0.765 → 0.880. AHA's sweep rule picks k=8, full's picks 5.
+- ED bundle: full c0 (25,953) → AHA c3 (17,250); 91% of AHA c3 comes from full c0; troponin loads 60% there. ECG is no longer a top token (46% of `ekg` loads on the outpatient bundle). The old 39% outpatient bundle (full c2) splits into outpatient, GI/screening, PT, nutrition, respiratory.
+- AHA k=8 is almost the older Day 1 k=8 run (`nmf_k8_chestpain_v2.npz`, concept tokens, v4 codeset): ARI 0.907, sizes within about 1%. So at k=8 v2 mostly relabels existing bundles.
+- Outliers: `ppi_h2 → ppi_h2 → ppi_h2` is a top-lift motif in the prescriptions bundle (refills collapsed into one token); `methylprednisolone → chest pain → ECG` (lift 4.3, `Suggestive`) is new; bootstrap 5 of AHA k=8 has ARI 0.567; psych-vs-troponin timing is unchanged (57.2% psych first, median 108 d in both).
+
+**Gotchas for the next person**
+- `..._full` is concept-level (`token_level="concept"`, cell 7): codeset tags there only label events (anchor, weak labels, loadings table), they are not NMF tokens. To make a codeset change the bundles you need `TOKEN_LEVEL='group'`.
+- YAML order is load-bearing at group level (first matching tag wins the token); `stress_test` and `cad` are umbrellas and must stay last. Chest pain tag must stay `{77670, 134159, 42539051, 4168213}` (4168213 = R07.1 is in the tag, not in the cohort SQL; removing it changes NMF columns).
+- Cells 38/43/63 re-set `COHORT = 'chestpain'`, so changing `COHORT` in cell 2 does not rename the xlsx; change `VARIANT`. Cell 43 attaches `DESCR` by component index when `k == DESCR_K` with no signature check.
+- Group tokens have no concept_id or code in the components json / final table (`[code group]`); the member list is in `token_members_k{K}_{TAG}.csv` (AHA notebook, section 5) and in the final table's columns Q-R; the components json and the nmf components xlsx still do not show it. The `FOCUS` lists in cells 23/56/58 are hard-coded, so v2's new tags do not appear in the trajectory graph.
+- PubMed (`eutils.ncbi.nlm.nih.gov`) is blocked in the Claude sandbox and Python's TLS fails behind the corporate proxy; the scripts use `/usr/bin/curl` and need the sandbox off. Never switch certificate checks off. No PMID from memory.
+- The triage categories (Manual RUW / Routine / Unclear) in the skill are written for letrozole; for chest pain I mapped Manual RUW = acute/ED cardiac work-up bundle. Needs underwriter confirmation (earlier k=8 triage `chestpain_v2_bundles_triage.xlsx` also sent the acute/ED bundle to manual review).
+
+**Open decisions**
+1. Reference k for chest pain (5 vs 8) once `full_k8` is compared; then re-derive the predicate engine, flow image and literature ratings on the chosen run's ED bundle.
+2. Group labels for AHA c4, c5, c7 (see above).
+3. Same-k codeset test: AHA at k=5 vs full k=5 (not run; AHA sweep row k=5 has ARI 0.935).
+4. Clinical review of the `Partly` ratings and of the 1-day window / 3-of-4 threshold in the engine.
+
 ## Update 2026-10-01 (evening): Day 1 results for three cohorts; next is Day 3 MVP
 
 **Next session: Day 3 MVP (PrefixSpan / SPADE) for letrozole and chest pain.**

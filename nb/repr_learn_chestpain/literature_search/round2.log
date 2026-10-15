@@ -1,0 +1,116 @@
+
+## c0 CP+trop+ECG guideline  n=4
+    24724459 2014 Duodecim | [Update on current care guideline: diagnostics of acute myocardial infarction].
+    14680675 2003 J Clin Epidemiol | Diffusion of troponin testing in unstable angina patients: adoption prior to guideline release.
+    41619637 2026 J Emerg Med | Associations Between Sex, Race/Ethnicity, and HEART Score Guideline Implementation for Cardiac Testing in the 
+    22568771 2013 J Eval Clin Pract | Diagnosis and management of acute coronary syndrome in an outpatient setting: good guideline adherence in Swis
+
+## c0 CP+trop+ECG+CXR  n=70
+    32644384 2024  | Pleurisy.
+    28925655 2017 Am Fam Physician | Pleuritic Chest Pain: Sorting Through the Differential Diagnosis.
+    37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+    38473000 2024 Diagnostics (Basel) | Pediatric Chest Pain: A Review of Diagnostic Tools in the Pediatric Emergency Department.
+    29016088 2016 Practitioner | Early recognition vital in acute coronary syndrome.
+    36120210 2022 Cureus | A Systematic Review of COVID-19 and Pericarditis.
+
+## c0 CP+trop+ECG emergency department  n=725
+    28925655 2017 Am Fam Physician | Pleuritic Chest Pain: Sorting Through the Differential Diagnosis.
+    28765984 2017 Internist (Berl) | [Acute chest pain].
+    26547467 2015 JAMA | Does This Patient With Chest Pain Have Acute Coronary Syndrome?: The Rational Clinical Examination Systematic 
+    36379527 2022 Saudi Med J | Acute myocarditis after COVID-19 vaccination.
+    23075777 2012 Ned Tijdschr Geneeskd | [Cardiac troponin].
+    30428149 2019 Acad Emerg Med | Inter-rater Reliability of the HEART Score.
+
+## c0 CP+CXR+trop  n=88
+    32644384 2024  | Pleurisy.
+    28925655 2017 Am Fam Physician | Pleuritic Chest Pain: Sorting Through the Differential Diagnosis.
+    37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+    38473000 2024 Diagnostics (Basel) | Pediatric Chest Pain: A Review of Diagnostic Tools in the Pediatric Emergency Department.
+    29016088 2016 Practitioner | Early recognition vital in acute coronary syndrome.
+    36120210 2022 Cureus | A Systematic Review of COVID-19 and Pericarditis.
+
+## c1 CP+women (pelvic/gyn)  n=4
+    22041192 2011 Int J Emerg Med | Thrombolysis for massive pulmonary embolism in pregnancy: a case report.
+    23560120 2013 Pan Afr Med J | Unusual case of cavitary lung metastasis from squamous cell carcinoma of the uterine cervix.
+    20715664 2010 Acta Cytol | Pleural liposarcoma mimicking carcinoma in pleural effusion cytology: a case report.
+    41755954 2026 Cureus | Haemophilus influenzae Bacteremia With Polyarthritis and Uterine Fibroids in a 31-Year-Old Woman: A Case Repor
+
+## c1 CP+pregnancy test  n=11
+    12279915 1985 Contracept Technol Update | Instructions for minipill users.
+    39077298 2024 Cureus | A Case Report on Primary Pulmonary Choriocarcinoma.
+    24034807 2013 World J Surg Oncol | BetaHCG secretion by a pulmonary adenocarcinoma.
+    12279914 1985 Contracept Technol Update | Instructions for combined pill users.
+    30385208 2019 J Obstet Gynaecol Can | An Atypical Presentation of Ectopic Pregnancy With Unicornuate Uterus and Undescended Fallopian Tube.
+    22738859 2012 Gynecol Obstet Invest | Primary pulmonary choriocarcinoma: case report and review of the literature.
+
+## c1 CP+cervical screening  n=6
+    15018432 2004 J Reprod Med | Complications of outpatient LLETZ procedures.
+    23804176 2012 J Prim Care Community Health | Know your audience: analysis of chief complaints at clinica esperanza, a student-run free clinic in memphis, t
+    12264279 1982 Contracept Technol Update | How to use mini-pills: helpful patient instructions.
+    42548469 2024 CHEST Pulm | A 28-Year-Old Woman With Chest Pain, Abdominal Pain, and Right Pleural Effusion.
+    26881550 2015 J Cancer Res Ther | Mesothelioma with superior vena cava obstruction in young female following short latency of asbestos exposure.
+    6945010 1981 Acta Cytol | Pleuritis by radiation: reports of two cases.
+
+## c2 CP+lipid+A1c+cardiovascular risk  n=2
+    30684966 2019 Lipids Health Dis | Association of 25-hydroxyvitamin D with HDL-cholesterol and other cardiovascular risk biomarkers in subjects w
+    29942726 2018 Cureus | Armour® Thyroid Rage - A Dangerous Mixture.
+
+## c2 CP+risk factors+outpatient preventive  n=61
+    35301875 2022 J Am Heart Assoc | Long-Term Cardiovascular Risk and Management of Patients Recorded in Primary Care With Unattributed Chest Pain
+    36895179 2023 Eur J Prev Cardiol | Determining cardiovascular risk in patients with unattributed chest pain in UK primary care: an electronic hea
+    36550420 2022 BMC Prim Care | Non-acute chest pain in primary care; referral rates, communication and guideline adherence: a cohort study us
+    30278913 2018 Heart Lung Circ | Rapid Access Cardiology (RAC) Services Within a Large Tertiary Referral Centre-First Year in Review.
+    33323438 2020 BMJ Open | Cardiovascular imaging of women and men visiting the outpatient clinic with chest pain or discomfort: design a
+    20380951 2010 Med Clin North Am | Nonacute coronary syndrome anginal chest pain.
+
+## c2 atypical CP+primary care+risk factors guideline  n=0
+
+## c3 CP+corticosteroid/antibiotic+acute  n=465
+    30726692 2019 N Engl J Med | Omadacycline for Community-Acquired Bacterial Pneumonia.
+    32310380 2024  | Lung Abscess.
+    38195185 2024 BMJ Case Rep | Pericardial actinomycosis.
+    39726927 2024 World J Clin Cases | Secondary organizing pneumonia after infection.
+    28763554 2017 JAMA | Does This Child Have Pneumonia?: The Rational Clinical Examination Systematic Review.
+    9195678 1997 Semin Respir Infect | Ascariasis and hookworm.
+
+## c3 noncardiac CP+NSAID (costochondritis)  n=21
+    30422526 2024  | Costochondritis.
+    19817327 2009 Am Fam Physician | Costochondritis: diagnosis and treatment.
+    32965866 2025  | Mastalgia.
+    16096727 2005 Med Klin (Munich) | [Acute chest pain].
+    34966216 2022 Proc (Bayl Univ Med Cent) | Severe post-COVID-19 costochondritis in children.
+    19827277 2009 G Ital Med Lav Ergon | Stretching exercises for costochondritis pain.
+
+## c3 CP+pleuritic/pericarditis steroid NSAID  n=169
+    39235771 2024 JAMA | Diagnosis, Risk Stratification, and Treatment of Pericarditis: A Review.
+    37474539 2023 Nat Rev Dis Primers | Cardiac tamponade.
+    28185680 2017 Rev Med Interne | Recurrent pericarditis.
+    27761786 2016 Curr Cardiol Rep | Post-pericardiotomy Syndrome.
+    26461998 2015 JAMA | Evaluation and Treatment of Pericarditis: A Systematic Review.
+    32644384 2024  | Pleurisy.
+
+## c4 musculoskeletal CP+physical therapy  n=27
+    8519080 1993 Baillieres Clin Rheumatol | Ankylosing spondylitis.
+    24209723 2013 Prim Care | Evaluation and treatment of musculoskeletal chest pain.
+    37646901 2023 Curr Oncol Rep | Interventional Treatment Options for Post-mastectomy Pain.
+    41643844 2026 Ann Vasc Surg | Current Perspectives on Pectoralis Minor Syndrome: A Narrative Review.
+    11429669 2001 Can J Gastroenterol | Muscoloskeletal manifestations in inflammatory bowel disease.
+    9742344 1998 Chest Surg Clin N Am | Pathogenesis and management of persistent postthoracotomy pain.
+
+## c4 noncardiac CP+exercise/manual therapy  n=37
+    33085308 2023  | Cardiac Stress Imaging (Archived).
+    15754156 2005 Herz | Psychosocial factors associated with noncardiac chest pain and cardiac syndrome X.
+    25363358 2015 Int J Clin Pract | A multidisciplinary, biopsychosocial treatment for non-cardiac chest pain.
+    40860980 2025 Pain Res Manag | Effect of Diaphragmatic Breathing Exercise, Jacobson's Relaxation Technique and Dynamic Neuromuscular Stabiliz
+    32595282 2020 Clin Med Insights Cardiol | Is Noncardiac Chest Pain Truly Noncardiac?
+    38549833 2024 Turk J Phys Med Rehabil | Efficacy of trigger point injection therapy in noncardiac chest pain: A randomized controlled trial.
+
+## c4 CP+LBP+PT  n=0
+
+## c4 musculoskeletal CP guideline/review  n=83
+    35781990 2022 Semin Intervent Radiol | Intercostal Cryoneurolysis.
+    21541647 2011 Indian J Pediatr | Acute chest pain.
+    8024967 1994 Curr Opin Rheumatol | Chest wall syndromes.
+    34967407 2022 Mod Rheumatol | SAPHO syndrome and pustulotic arthro-osteitis.
+    8519080 1993 Baillieres Clin Rheumatol | Ankylosing spondylitis.
+    19390451 2009 J Clin Rheumatol | Non-popliteal synovial rupture.

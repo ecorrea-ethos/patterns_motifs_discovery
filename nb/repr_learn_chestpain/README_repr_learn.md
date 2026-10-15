@@ -130,3 +130,41 @@ past manual-review behaviour, and a secondary check against real mortality.
 
 Day 3. It produces the actual deliverable — discrete, nameable, countable ordered patterns
 that can be written as a triage rule — and it needs nothing but the extract and a laptop.
+
+## Codeset v2 (2021 AHA/ACC chest pain guideline) and the AHA notebook
+
+`codesets_v2.yaml` is a guideline rewrite of `codesets.yaml` (Gulati et al., *Circulation* 2021;144:e368,
+doi:10.1161/CIR.0000000000001029). `codesets.yaml` is untouched, so the `k5_full` results stay reproducible.
+
+| What | Where |
+|---|---|
+| New code sets: anchor equivalents, test ladder (ECG, cTn, CXR, TTE/TEE, stress ECG / echo / SPECT / PET, CMR, CCTA, CAC, FFR-CT, ICA, D-dimer, V/Q), cardiac causes, noncardiac causes (Table 9), CAD risk factors, therapy | `codesets_v2.yaml` (70 tags; every v4 tag name kept; `chest_pain` identical) |
+| Check a codeset against the extract's `concept.csv` (matched names, empty tags, overlaps, diff vs v4) | `python check_codesets.py [codesets_v2.yaml] [--tags a,b] [--names N] [--details]` (conda env `ethos_llm`) |
+| Notebook that runs on v2 (clone of `Chestpain_NMF_PrefixSpan_full`, outputs cleared) | `Chestpain_NMF_PrefixSpan_AHA.ipynb`, settings in cell 2 |
+| Sankey of patients between the bundles of two runs (AHA k=8 vs full k=8, vs full k=5) | `python sankey_runs.py [LEFT RIGHT]` (conda env `ethos_llm`; run labels `AHA`, `full_k8`, `full`); writes `sankey_AHA_k8_vs_full_k8.png`, `sankey_AHA_k8_vs_full_k5.png` |
+| Member table: which concepts sit behind each token (needed to turn a group token into `concept_id IN (...)` for the predicate engine) | section "5 · Member table" of the AHA notebook (cells 62-63, just before the final table); writes `token_members_k{K}_{TAG}.csv` |
+
+How to switch: cell 2 of the AHA notebook has `CODESETS_FILE` (`codesets_v2.yaml` or `codesets.yaml`) and `TOKEN_LEVEL`.
+
+- `TOKEN_LEVEL='concept'` keeps one NMF token per concept, as `k5_full`. The NMF is then identical to `k5_full`; v2 only changes
+  anchors, labels, the loadings check and coverage. Use it as the regression check (139,416 patients, same bundle sizes and top-5 tokens).
+- `TOKEN_LEVEL='group'` makes each codeset tag the NMF token (38 ECG / monitor concepts become `ekg` and `ecg_ambulatory`, etc.). This is
+  the real test of v2. YAML order is load-bearing: at group level a concept belongs to the FIRST tag that lists it, so the umbrella
+  tags `stress_test` and `cad` are last.
+- Files written by the AHA notebook carry the `AHA` label (`nmf_k5_chestpain_AHA.npz`, `..._components.json`,
+  `nmf_components_chestpain_k5_AHA.xlsx`, `final_table_chestpain_k5_AHA.xlsx`). `DESCR` is empty: read the printed top tokens, paste the
+  printed block, run the cell again.
+- Member table (`token_members_k8_chestpain_AHA.csv` for the k=8 run): one row per OMOP concept, the token it carries, `groups` (every tag
+  it belongs to; the token is the first one in YAML order), `n_events` / `n_patients` for the concept, `token_n_concepts` /
+  `token_n_patients` for the token, `in_nmf`, `nmf_owner`, `owner_share`, `n_motifs`. It also lists codeset members never seen in the
+  cohort (`in_cohort` False, `n_events` 0) so an entity defined on this cohort still covers them. Run it before the final-table cell
+  (it reads `K`, `H`, `hyb` from Part B; the final table reads its result). Works at both token levels; at `'concept'` every token has
+  one row. Freeze this file when a predicate engine is written on a group-level run: the yaml can change later, the table cannot.
+- Final table (`final_table_chestpain_k{K}_{VARIANT}.xlsx`) has two extra columns at the end, Q and R: "Members of the group tokens in the
+  entities" (bundle level, merged) and "... in the pattern" (per row). For each group token: concept count, how many occur in the cohort,
+  and its 3 most frequent members with concept_id and patient count; the rest are in the csv. Columns A-P are unchanged, so the manual
+  Triage / Literature / PMIDs columns (M, O, P) keep their letters. Rows grow when there is members text; at concept level the columns
+  are empty.
+
+Limits of this extract (claims-coded; LOINC has 51 unrelated concepts): hs-cTn cannot be told from conventional cTn, obstructive from
+nonobstructive CAD cannot be told at all, and the guideline's advice to stop saying "atypical" chest pain is a naming point only.

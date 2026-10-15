@@ -1,0 +1,381 @@
+# Bitacora
+# v5 (this file, "codesets_v2.yaml") - guideline rewrite of codesets.yaml (v4), written beside it; codesets.yaml is untouched.
+#     Source: Gulati M, et al. 2021 AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR Guideline for the Evaluation and Diagnosis of Chest Pain.
+#     Circulation 2021;144:e368-e454. doi:10.1161/CIR.0000000000001029. Section numbers below refer to that document.
+#     What changed against v4:
+#       * every v4 tag name is kept (ethos_omop.PSYCH_TAGS / CARDIAC_TAGS, the FOCUS sets of the notebooks and cell 13/14
+#         lookups read them by name), and `chest_pain` is byte-identical to v4 ({77670, 134159, 42539051, 4168213}).
+#       * v4 defects fixed: `ekg` no longer holds Holter / event monitors, bronchospasm exercise tests or the Condition
+#         "Electrocardiogram abnormal"; `stress_test` keeps every v4 member and gains cardiac PET (7 concepts v4 missed),
+#         and is now also split by modality (stress ECG / echo / SPECT / PET); `cad` / MI patterns drop complications of MI
+#         ("due to and following ...", "not resulting in ..."); `panic_attack` drops agoraphobia;
+#         `gerd` is restricted to Conditions (a reflux *study* was matching); `ed_visit` is restricted to the Visit vocabulary
+#         (14 Observation-domain CPT4/HCPCS concepts were matching).
+#       * new families: anchor equivalents (S1.4.2), the test ladder (S2.3, S3, S4), cardiac causes (S4.1-4.2), noncardiac
+#         causes (Table 9, S4.3), CAD risk factors / history (S5) and therapy.
+#     Not possible in this extract (claims-coded; LOINC holds 51 unrelated concepts): hs-cTn vs conventional cTn (only CPT4
+#     84484 / qualitative exist), obstructive vs nonobstructive CAD (no stenosis-level concepts), "atypical" chest pain
+#     (the guideline says to stop using that word; the cohort tag stays `chest_pain`).
+#
+# ORDER IS LOAD-BEARING. tag_events() gives every concept to the FIRST tag that lists it (`group`; at token_level="group" that
+# is also the NMF token). `groups` (multi_group=True) still lists all tags, so group_mask / index_dates / label functions see
+# overlaps. Therefore: fine-grained tags first, umbrella tags (`stress_test`, `cad`) LAST. Do not alphabetise this file.
+# Patterns are regex, case-insensitive, UNANCHORED substring matches on concept_name of STANDARD concepts. After any edit run
+#     python check_codesets.py          (prints matched names per tag, empties, overlaps, v4 diff)
+# Literal `concept_ids` skip every filter; they are used only for the psych sets carried over from v4.
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 1. Anchor and chest-pain equivalents (S1.4.2: chest pain includes referred pain; dyspnea, palpitations, syncope are equivalents)
+# ----------------------------------------------------------------------------------------------------------------------
+chest_pain:
+  # unchanged from v4. "angina" alone is wrong (Herpangina, angina pectoris is I20.x, not R07.x); nothing matches R07.82
+  # without "intercostal space". 4168213 (R07.1) is in the tag but not in sql/chest_pain_cohort.sql; it stays so v2 is
+  # comparable with v4 (removing it changes the NMF columns, see Chestpain_NMF_PrefixSpan_full.ipynb cell 25).
+  patterns: ["chest pain", "precordial pain", "intercostal space"]
+  vocabularies: ["SNOMED"]
+pleuritic_pain:
+  # R07.81 / R07.0 map here and are NOT in the cohort SQL. Sharp, pleuritic, positional pain lowers the odds of ischemia (Fig 2, Table 3).
+  patterns: ["pleuritic pain", "pleurodynia"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["epidemic"]
+dyspnea:
+  patterns: ["dyspnea", "shortness of breath"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+palpitations:
+  patterns: ["palpitation"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+syncope:
+  patterns: ["syncope"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["heat", "tussive", "micturition"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 2. Test ladder (S2.3 initial tests, S3 cardiac testing, S4 pathways). Fine-grained tags first, umbrella `stress_test` last.
+# ----------------------------------------------------------------------------------------------------------------------
+ekg:
+  # Resting 12-lead ECG only (S2.3.2: obtain within 10 minutes). CPT4 93000/93005/93010 and the HCPCS screening ECGs.
+  patterns: ["electrocardiogram, routine"]
+  vocabularies: ["CPT4", "HCPCS"]
+ecg_ambulatory:
+  # Holter, event recorders, mobile cardiac telemetry. Not an acute chest pain test.
+  patterns: ["external electrocardiographic recording", "external patient and, when performed, auto activated",
+             "external mobile cardiovascular telemetry", "holter", "implantable loop recorder", "signal-averaged"]
+  vocabularies: ["CPT4", "HCPCS", "SNOMED"]
+troponin:
+  # S2.3.4: cTn I or T. hs-cTn is not separable in this extract. LOINC kept for portability to other extracts.
+  patterns: ["troponin"]
+  vocabularies: ["LOINC", "SNOMED", "CPT4"]
+ck_mb_myoglobin:
+  # S2.3.4 recommendation 4: Class 3 (no benefit) once cTn is available. A pattern here lets the NMF show who still gets them.
+  patterns: ["creatine kinase mb", "creatine kinase.*isoenzyme", "^myoglobin"]
+  exclude: ["myoglobinuria"]
+bnp:
+  # S2.3.4: natriuretic peptides do not have sufficient diagnostic accuracy for myocardial injury.
+  patterns: ["natriuretic peptide"]
+chest_xray:
+  # S2.3.3: chest radiograph in acute chest pain.
+  patterns: ["radiologic examination, chest", "plain radiography of chest", "radiography of chest"]
+  vocabularies: ["CPT4", "SNOMED", "HCPCS"]
+echo_tte:
+  # S4.2: TTE is the first test for nonischemic cardiac causes. Stress and congenital codes are separate.
+  patterns: ["echocardiography, transthoracic", "transthoracic echocardiography"]
+  vocabularies: ["CPT4", "HCPCS"]
+  exclude: ["stress", "congenital", "fetal"]
+echo_tee:
+  patterns: ["echocardiography, transesophageal", "transesophageal echocardiography"]
+  vocabularies: ["CPT4", "HCPCS"]
+  exclude: ["guidance", "monitoring", "congenital"]
+stress_ecg:
+  # S3.2.1 exercise ECG (treadmill / bicycle).
+  patterns: ["cardiovascular stress test using maximal or submaximal"]
+  vocabularies: ["CPT4", "HCPCS"]
+stress_echo:
+  patterns: ["during rest and cardiovascular stress", "echocardiographic contrast agent during stress",
+             "myocardial contrast perfusion echocardiography"]
+  vocabularies: ["CPT4", "HCPCS"]
+stress_spect:
+  patterns: ["myocardial perfusion imaging, tomographic", "myocardial perfusion imaging, planar"]
+  vocabularies: ["CPT4", "HCPCS"]
+stress_pet:
+  patterns: ["myocardial imaging, positron", "absolute quantitation of myocardial blood flow", "pet myocardial"]
+  vocabularies: ["CPT4", "SNOMED"]
+cmr:
+  patterns: ["cardiac magnetic resonance", "magnetic resonance imaging.*heart"]
+  vocabularies: ["CPT4", "SNOMED", "HCPCS"]
+ccta:
+  # S3.1.1 coronary CT angiography. Cardiac CT for structure (75572/75573) is not a chest pain test.
+  patterns: ["computed tomographic angiography, heart, coronary"]
+  vocabularies: ["CPT4"]
+cac_score:
+  patterns: ["calcium scoring", "coronary calcium"]
+  vocabularies: ["CPT4", "SNOMED"]
+ffr_ct:
+  patterns: ["noninvasive estimate.*coronary fractional flow reserve"]
+  vocabularies: ["CPT4"]
+coronary_angio:
+  # S3.1.2 invasive coronary angiography. Anesthesia, thermodilution output and thrombolysis are not diagnostic angiography.
+  patterns: ["coronary angiograph", "coronary arteriograph", "cardiac catheteri"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  exclude: ["anesthesia", "thrombolysis", "cardiac output"]
+d_dimer:
+  # S4.2.2: D-dimer in low / intermediate pretest probability PE.
+  patterns: ["d-dimer"]
+vq_scan:
+  patterns: ["ventilation.*perfusion", "lung perfusion"]
+  vocabularies: ["CPT4", "SNOMED", "LOINC"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 3. Cardiac causes (S4.1 ACS, S4.2 nonischemic cardiac)
+# ----------------------------------------------------------------------------------------------------------------------
+acs_mi:
+  # Acute MI (STEMI / NSTEMI), unstable angina, ACS. Complications of MI and "not resulting in" concepts are excluded.
+  patterns: ["acute myocardial infarction", "myocardial infarction", "unstable angina", "acute coronary syndrome",
+             "acute ischemic heart disease"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["old myocardial", "history of", "due to and following", "following acute myocardial", "not resulting in",
+            "family history"]
+old_mi:
+  patterns: ["old myocardial infarction"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+angina_stable:
+  patterns: ["angina pectoris", "angina co-occurrent", "post infarct angina", "refractory angina"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["unstable", "family history", "without angina"]
+cad_chronic:
+  # Chronic CAD / coronary atherosclerosis. The guideline's obstructive vs nonobstructive split (>=50% stenosis) needs a
+  # stenosis level that does not exist as a concept here.
+  patterns: ["coronary arteriosclerosis", "atherosclerosis of coronary", "coronary atherosclerosis", "coronary artery disease",
+             "chronic ischemic heart disease", "arteriosclerotic heart"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["family history", "history of", "angina co-occurrent", "due to and following"]
+inoca_cmd:
+  # S5.2.3: ischemia and no obstructive CAD, microvascular dysfunction, vasospasm.
+  patterns: ["coronary microvascular dysfunction", "vasospastic angina", "prinzmetal", "variant angina", "coronary artery spasm",
+             "coronary vasospasm", "microvascular angina"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+aortic_syndrome:
+  # S4.2.1. Dissection concepts may be absent from the extract; the check script reports an empty tag instead of failing.
+  patterns: ["aortic dissection", "dissection of aorta", "dissecting aneurysm", "intramural hematoma of aorta",
+             "thoracic aortic aneurysm"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+pe:
+  patterns: ["pulmonary embolism"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["history of"]
+pericarditis_myocarditis:
+  # S4.2.3.
+  patterns: ["pericarditis", "myocarditis", "pericardial effusion", "cardiac tamponade"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["rheumatic", "lupus", "neoplasm"]
+valvular_hd:
+  # S4.2.4.
+  patterns: ["aortic valve stenosis", "aortic stenosis", "mitral valve stenosis", "aortic regurgitation", "aortic valve insufficiency",
+             "mitral regurgitation", "mitral valve insufficiency", "mitral valve prolapse"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["congenital"]
+cardiomyopathy:
+  patterns: ["cardiomyopathy"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["family history"]
+heart_failure:
+  patterns: ["heart failure"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["history of"]
+arrhythmia:
+  patterns: ["atrial fibrillation", "atrial flutter", "supraventricular tachycardia", "ventricular tachycardia",
+             "ventricular fibrillation"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 4. Noncardiac causes (Table 9, S4.3). Kept disjoint from each other.
+# ----------------------------------------------------------------------------------------------------------------------
+pneumonia_pleural:
+  patterns: ["pneumonia", "pleural effusion", "pleurisy", "pleuritis", "empyema"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["pneumoniae", "vaccin", "history of"]
+pneumothorax:
+  patterns: ["pneumothorax", "hemothorax"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+gerd:
+  # v4 patterns, restricted to Conditions (S4.3.1).
+  patterns: ["gastroesophageal reflux", "gastro-esophageal reflux", "heartburn"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+peptic_ulcer_gastritis:
+  patterns: ["peptic ulcer", "gastric ulcer", "duodenal ulcer", "gastritis", "esophagitis", "esophageal spasm", "dyspepsia",
+             "hiatal hernia", "hiatus hernia"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["reflux", "history of"]
+biliary_pancreatic:
+  patterns: ["cholecystitis", "cholelithiasis", "gallstone", "biliary colic", "pancreatitis"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+costochondritis:
+  # v4 patterns unchanged (S4.3 chest wall).
+  patterns: ["costochondritis", "costal chondritis", "tietze"]
+  vocabularies: ["SNOMED"]
+chest_wall:
+  patterns: ["fracture of rib", "fracture of one rib", "fracture of sternum", "flail chest", "contusion of chest wall",
+             "thoracic outlet syndrome", "chest wall.*(?:strain|injury|pain)"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+herpes_zoster:
+  patterns: ["herpes zoster"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["vaccin", "conjunctivitis", "iridocyclitis", "scleritis", "keratitis", "encephalitis", "myelitis", "meningitis",
+            "auricularis", "ophthalmicus"]
+anxiety:
+  # unchanged from v4.
+  patterns: ["anxiety"]
+  vocabularies: ["SNOMED"]
+panic_attack:
+  # v4: "panic" alone false-positives on tympanic membrane and Papanicolaou. v5 also drops agoraphobia.
+  patterns: ["panic disorder"]
+  vocabularies: ["SNOMED"]
+  exclude: ["agoraphobia"]
+depression_somatic:
+  # Table 9 psychological: clinical depression, somatization disorder, hypochondriasis.
+  patterns: ["major depress", "recurrent depress", "depressive disorder", "depressive episode", "^depression$", "somatiz",
+             "somatoform", "hypochondria"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["bipolar", "due to general medical condition"]
+hyperventilation:
+  patterns: ["hyperventilation"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+sickle_cell:
+  # S4.3.3.
+  patterns: ["sickle cell", "sickle-cell"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["trait", "retinopathy"]
+cocaine_meth:
+  # S4.1.6: cocaine and methamphetamine use as a cause. Conditions only (RxNorm nasal solution and lab CPT excluded).
+  patterns: ["cocaine", "methamphetamine"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["anxiety", "methylenedioxy"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 5. CAD risk factors and history (S5, pretest probability, S4.1.4 prior CABG, S4.1.5 dialysis)
+# ----------------------------------------------------------------------------------------------------------------------
+htn:
+  patterns: ["essential hypertension", "hypertensive disorder", "hypertensive heart"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["heart failure", "pregnan", "gestational", "pulmonary", "portal", "intracranial", "ocular", "mother", "complicating"]
+hyperlipidemia:
+  patterns: ["hyperlipidemia", "hypercholesterolemia", "hypertriglyceridemia", "dyslipidemia"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["family history"]
+tobacco:
+  patterns: ["tobacco", "nicotine dependence", "smoker"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["accident", "inhalation", "burn", "fire"]
+t2dm:
+  patterns: ["type 2 diabetes", "type ii diabetes"]
+  vocabularies: ["SNOMED"]
+hba1c:
+  patterns: ["hemoglobin a1c", "glycated haemoglobin", "hba1c"]
+  vocabularies: ["LOINC", "SNOMED"]
+ckd_dialysis:
+  patterns: ["chronic kidney disease", "end-stage renal", "end stage renal", "hemodialysis", "dialysis care"]
+  vocabularies: ["SNOMED", "CPT4"]
+  exclude: ["catheter", "angiography", "infection", "peritoneal", "family history", "history of", "hypertensive heart", "mother",
+            "complicating", "duplex", "thrombectomy", "cannula", "hypotension"]
+prior_revasc:
+  # Prior CABG / PCI / stent (S4.1.4, S5.2.1.1).
+  patterns: ["coronary artery bypass", "percutaneous transluminal coronary", "percutaneous coronary", "coronary stent",
+             "coronary angioplasty", "coronary atherectomy"]
+  exclude: ["anesthesia", "arteriosclerosis of coronary artery bypass graft", "harvest", "fluoroscopy"]
+neuropathy:
+  patterns: ["neuropathy"]
+  vocabularies: ["SNOMED"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 6. Therapy
+# ----------------------------------------------------------------------------------------------------------------------
+nitrate_antianginal:
+  patterns: ["nitroglycerin", "isosorbide", "ranolazine"]
+  vocabularies: ["RxNorm"]
+  exclude: ["rectal", "ointment", "hydralazine"]
+antiplatelet:
+  patterns: ["clopidogrel", "prasugrel", "ticagrelor", "aspirin 81"]
+  vocabularies: ["RxNorm"]
+beta_blocker:
+  patterns: ["metoprolol", "atenolol", "carvedilol", "bisoprolol", "propranolol"]
+statin:
+  patterns: ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin"]
+ppi_h2:
+  patterns: ["omeprazole", "esomeprazole", "pantoprazole", "lansoprazole", "rabeprazole", "famotidine", "ranitidine", "cimetidine"]
+  vocabularies: ["RxNorm"]
+ssri:
+  patterns: ["sertraline", "fluoxetine", "escitalopram", "citalopram", "paroxetine"]
+benzodiazepine:
+  patterns: ["alprazolam", "lorazepam", "diazepam", "clonazepam", "temazepam"]
+# Psych evaluation / treatment procedures (CPT4 + HCPCS). Evidence of psychiatric CARE, not of anxiety specifically.
+# Literal ids carried over from v4 (patterns would also catch unrelated names).
+psych_eval_therapy:
+  concept_ids: [
+    43527984,  # 90791 Psychiatric diagnostic evaluation
+    43527985,  # 90792 Psychiatric diagnostic evaluation with medical services
+    43527986,  # 90832 Psychotherapy, 30 min
+    43527987,  # 90833 Psychotherapy, 30 min, with E/M
+    43527904,  # 90834 Psychotherapy, 45 min
+    43527988,  # 90836 Psychotherapy, 45 min, with E/M
+    43527905,  # 90837 Psychotherapy, 60 min
+    43527989,  # 90838 Psychotherapy, 60 min, with E/M
+    43527990,  # 90839 Psychotherapy for crisis, first 60 min
+    2213545,   # 90846 Family psychotherapy (patient not present)
+    2213546,   # 90847 Family psychotherapy (patient present)
+    2213548,   # 90853 Group psychotherapy
+    725122,    # 99492 Psychiatric collaborative care, initial
+    725123,    # 99493 Psychiatric collaborative care, subsequent
+    725124,    # 99494 Psychiatric collaborative care, additional 30 min
+  ]
+# Screening / brief assessment: shows someone was SCREENED, not that they have anxiety. Do not pool with psych_eval_therapy.
+psych_screen:
+  concept_ids: [
+    46257498,  # 96127 Brief emotional/behavioral assessment
+  ]
+ed_visit:
+  # v4 matched 14 Observation-domain CPT4/HCPCS concepts as well as the one Visit concept.
+  patterns: ["emergency room", "emergency department"]
+  vocabularies: ["Visit"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# 7. Umbrella tags (v4 semantics, kept so CARDIAC_TAGS / FOCUS keep working). LAST on purpose: at token_level="group" the
+#    fine-grained tag above wins the token; `groups` still lists the umbrella, so group_mask(events, "stress_test") and
+#    group_mask(events, "cad") see every member.
+# ----------------------------------------------------------------------------------------------------------------------
+stress_test:
+  patterns: ["cardiovascular stress test", "myocardial perfusion imaging", "during rest and cardiovascular stress",
+             "myocardial imaging, positron", "absolute quantitation of myocardial blood flow"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+cad:
+  patterns: ["coronary artery disease", "coronary arteriosclerosis", "myocardial infarction", "ischemic heart"]
+  vocabularies: ["SNOMED"]
+  exclude: ["due to and following", "following acute myocardial", "not resulting in", "family history", "history of"]

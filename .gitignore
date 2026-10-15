@@ -24,3 +24,4 @@ nb/repr_learn_chestpain/tests/
 nb/repr_learn_letrozole/tests/
 nb/repr_learn_letrozole/outputs/
 *.csv
+nb/repr_learn_mammography/outputs/

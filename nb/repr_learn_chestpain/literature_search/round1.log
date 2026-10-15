@@ -1,0 +1,180 @@
+ent3     c0    n=146     ecg+trop+cxr
+       39556629 2024 Am Fam Physician | Diabetic Ketoacidosis: Evaluation and Treatment.
+       32644384 2024  | Pleurisy.
+       39976933 2025 JAMA | Out-of-Hospital Cardiac Arrest in Apparently Healthy, Young Adults.
+ent3     c0    n=6       ecg+trop+inj
+       36286046 2022 Curr Issues Mol Biol | Beneficial Effects of RNS60 in Cardiac Ischemic Injury.
+       38619239 2024 J Vis Exp | A Murine Model of Hyperlipidemia-Induced Heart Failure with Preserved Ejection Fraction.
+       29477947 2018 Pharmacol Rep | Cardioprotective effect of N-methylnicotinamide salt of pyruvate in experimental model of cardiac hypoxia.
+ent3     c0    n=4       ecg+cxr+inj
+       8295360 1993 Nihon Ronen Igakkai Zasshi | [Gadolinium-DTPA magnetic resonance imaging in the diagnosis of left atrial myxoma in the elderly].
+       24162462 2014 Anesthesiology | A phase I, dose-escalation trial evaluating the safety and efficacy of emulsified isoflurane in healthy human 
+       12964518 2003 J Cardiol | [Factors for successful conversion of atrial fibrillation using intravenous injection of pilsicainide hydrochl
+ent3     c0    n=0       trop+cxr+inj
+ent_all  c0    n=0       ecg+trop+cxr+inj
+ent3     c1    n=2       gyn+naat+pap
+       18159423 2003 Can J Infect Dis | Reasons for testing women for genital Chlamydia trachomatis infection in the Calgary region.
+       23965776 2013 Sex Transm Dis | High-risk human papillomavirus messenger RNA testing in physician- and self-collected specimens for cervical l
+ent3     c1    n=0       gyn+naat+upt
+ent3     c1    n=0       gyn+naat+uc
+ent3     c1    n=2       gyn+pap+upt
+       12345153 1993 Contracept Technol Update | Silicone rubber Femcap proves desirable to women.
+       15466684 2004 Arch Pediatr Adolesc Med | Adolescent and young adult women's misunderstanding of the term Pap smear.
+ent3     c1    n=3       gyn+pap+uc
+       9742354 1998 Clin Obstet Gynecol | Ambulatory management of multiple gestation.
+       10838378 1998 Prim Care Update Ob Gyns | The "Femassist": a new device for the treatment of female urinary incontinence.
+       10880730 2000 Arch Med Res | Leukocyturia in women with diabetes and its clinical implications.
+ent3     c1    n=0       gyn+upt+uc
+ent3     c1    n=0       naat+pap+upt
+ent3     c1    n=0       naat+pap+uc
+ent3     c1    n=0       naat+upt+uc
+ent3     c1    n=0       pap+upt+uc
+ent_all  c1    n=0       gyn+naat+pap+upt+uc
+ent3     c2    n=42      lipid+phys+venip
+       35451294 2022 Pril (Makedon Akad Nauk Umet Odd Med Nauki) | Antioxidative Effects of Rosuvastatin in Low-to-Moderate Cardiovascular Risk Subjects.
+       33419463 2021 J Med Case Rep | Familial chylomicronemia syndrome: a case report.
+       26691390 2016 J Sports Sci | Cardiovascular risk and fitness in veteran football players.
+ent3     c2    n=148     lipid+phys+A1c
+       39067975 2024 Prim Care | Obesity.
+       20301687 1993  | Werner Syndrome.
+       28948451 2017 Curr Treat Options Cardiovasc Med | A Diagnostic Approach to Stroke in Young Adults.
+ent3     c2    n=39      lipid+phys+prev
+       14567003 2003 Clin Geriatr Med | Menopause.
+       31868718 2020 Work | Risk factors for obstructive sleep apnea among train drivers.
+       34475488 2021 Sci Rep | Association of visual impairment with cognitive decline among older adults in Taiwan.
+ent3     c2    n=59      lipid+venip+A1c
+       37649539 2023 Pract Lab Med | Capillary blood stability and analytical accuracy of 12 analytes stored in Microtainers®.
+       39576692 2024 Interact J Med Res | Whole-Body Cryotherapy Reduces Systemic Inflammation in Healthy Adults: Pilot Cohort Study.
+       34960079 2021 Nutrients | Well-Balanced Lunch Reduces Risk of Lifestyle-Related Diseases in Middle-Aged Japanese Working Men.
+ent3     c2    n=1       lipid+venip+prev
+       30290551 2007 Ir J Psychol Med | High prevalence of risk factors for physical illness in a long-stay psychiatric unit.
+ent3     c2    n=76      lipid+A1c+prev
+       37914709 2023 Nat Commun | Development and validation of an age-sex-ethnicity-specific metabolic syndrome score in the Chinese adults.
+       36260778 2023 Prehosp Emerg Care | Emergency Medical Services Clinicians Have a High Prevalence of Metabolic Syndrome.
+       32028524 2020 Med Care | Changes in Preventative Health Care After Medicaid Expansion.
+ent3     c2    n=7       phys+venip+A1c
+       35583495 2022 Microbiol Spectr | Worsening Glycemia Increases the Odds of Intermittent but Not Persistent Staphylococcus aureus Nasal Carriage 
+       28593616 2018 Endocrine | New insights on diabetes in Turner syndrome: results from an observational study in adulthood.
+       21775563 2011 Am J Clin Nutr | Intake of fish oil during pregnancy and adiposity in 19-y-old offspring: follow-up on a randomized controlled 
+ent3     c2    n=2       phys+venip+prev
+       29417371 2018 Endocrine | A randomized general population study of the effects of repeated health checks on incident diabetes.
+       30290551 2007 Ir J Psychol Med | High prevalence of risk factors for physical illness in a long-stay psychiatric unit.
+ent3     c2    n=8       phys+A1c+prev
+       25966070 2015 Genet Mol Res | Promotive effect of comprehensive management on achieving blood glucose control in senile type 2 diabetics.
+       10728145 2000 Postgrad Med | Finger 'pebbles'. A dermatologic sign of diabetes mellitus.
+       30290551 2007 Ir J Psychol Med | High prevalence of risk factors for physical illness in a long-stay psychiatric unit.
+ent3     c2    n=1       venip+A1c+prev
+       30290551 2007 Ir J Psychol Med | High prevalence of risk factors for physical illness in a long-stay psychiatric unit.
+ent_all  c2    n=1       lipid+phys+venip+A1c+prev
+       30290551 2007 Ir J Psychol Med | High prevalence of risk factors for physical illness in a long-stay psychiatric unit.
+ent3     c3    n=0       mpred+amox+azithro
+ent3     c3    n=0       mpred+amox+pred
+ent3     c3    n=0       mpred+amox+ibu
+ent3     c3    n=7       mpred+azithro+pred
+       33451758 2021 Transplant Proc | Kidney Transplantation and COVID-19: Two Case Reports.
+       32961675 2020 Int J Environ Res Public Health | Differences between Clinical Protocols for the Treatment of Coronavirus Disease 2019 (COVID-19) in Andalusia, 
+       27847518 2016 Case Rep Med | Adult Onset Still's Disease Associated with Mycoplasma pneumoniae Infection and Hemophagocytic Lymphohistiocyt
+ent3     c3    n=1       mpred+azithro+ibu
+       27747691 2016 Drug Saf Case Rep | Hypersensitivity Eosinophilic Myocarditis in a Patient Receiving Multiple Drug Therapy: Challenges in Diagnosi
+ent3     c3    n=11      mpred+pred+ibu
+       37871110 2023 Med Lett Drugs Ther | Drugs for gout.
+       30845096 2019 Med Lett Drugs Ther | Drugs for gout.
+       12428432 2002 Methods Find Exp Clin Pharmacol | Gateways to Clinical Trials.
+ent3     c3    n=1       amox+azithro+pred
+       38003898 2023 J Pers Med | The Impact of Antibiotics and Steroids on the Nasal Microbiome in Patients with Chronic Rhinosinusitis: A Syst
+ent3     c3    n=1       amox+azithro+ibu
+       35134049 2022 Med Lett Drugs Ther | Drugs for acute otitis media in children.
+ent3     c3    n=0       amox+pred+ibu
+ent3     c3    n=0       azithro+pred+ibu
+ent_all  c3    n=0       mpred+amox+azithro+pred+ibu
+ent3     c4    n=53      ther_ex+manual+LBP
+       34580864 2021 Cochrane Database Syst Rev | Exercise therapy for chronic low back pain.
+       40325660 2025 J Bodyw Mov Ther | Does the addition of manual therapy to exercise therapy improve pain and disability outcomes in chronic low ba
+       40747709 2025 Eur J Pain | Exercise Therapy Versus Manual Therapy for the Management of Pain Intensity, Disability, and Physical Function
+ent3     c4    n=4       ther_ex+manual+ther_act
+       31665420 2020 Mil Med | Occupational Therapy Practice Patterns for Military Service Members With Upper Limb Amputation.
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+       34152897 2022 Physiother Theory Pract | Physical therapist guided active intervention of chronic temporomandibular disorder presenting as ear pain: A 
+ent3     c4    n=230     ther_ex+manual+pt
+       34397403 2022 J Back Musculoskelet Rehabil | Physiotherapy treatment of lateral epicondylitis: A systematic review.
+       34580864 2021 Cochrane Database Syst Rev | Exercise therapy for chronic low back pain.
+       32723399 2020 Trials | Manual therapy versus therapeutic exercise in non-specific chronic neck pain: a randomized controlled trial.
+ent3     c4    n=0       ther_ex+LBP+ther_act
+ent3     c4    n=221     ther_ex+LBP+pt
+       34580864 2021 Cochrane Database Syst Rev | Exercise therapy for chronic low back pain.
+       38574213 2024 Am Fam Physician | Chronic Low Back Pain in Adults: Evaluation and Management.
+       40325660 2025 J Bodyw Mov Ther | Does the addition of manual therapy to exercise therapy improve pain and disability outcomes in chronic low ba
+ent3     c4    n=12      ther_ex+ther_act+pt
+       15712463 2004 Clin Tech Small Anim Pract | Rehabilitation of fractures in small animals: maximize outcomes, minimize complications.
+       36196290 2022 Cureus | Superior Replacement of Medicinal Gel With Ayurvedic Nanogel as a Coupling Medium for Electrotherapeutic Treat
+       34152897 2022 Physiother Theory Pract | Physical therapist guided active intervention of chronic temporomandibular disorder presenting as ear pain: A 
+ent3     c4    n=1       manual+LBP+ther_act
+       29805422 2018 Pak J Med Sci | Role of posterior-anterior vertebral mobilization versus thermotherapy in non specific lower back pain.
+ent3     c4    n=197     manual+LBP+pt
+       34580864 2021 Cochrane Database Syst Rev | Exercise therapy for chronic low back pain.
+       40325660 2025 J Bodyw Mov Ther | Does the addition of manual therapy to exercise therapy improve pain and disability outcomes in chronic low ba
+       31630089 2020 Br J Sports Med | Cognitive functional therapy compared with a group-based exercise and education intervention for chronic low b
+ent3     c4    n=11      manual+ther_act+pt
+       29308949 2018 Physiother Theory Pract | A comparison of two manual physical therapy approaches and electrotherapy modalities for patients with knee os
+       39128165 2024 Injury | Key components of rehabilitation programmes for adults with complex fractures following traumatic injury: A sc
+       10721508 2000 J Orthop Sports Phys Ther | Comparison of supervised exercise with and without manual physical therapy for patients with shoulder impingem
+ent3     c4    n=13      LBP+ther_act+pt
+       33369625 2021 JAMA Neurol | Effect of Motor Skill Training in Functional Activities vs Strength and Flexibility Exercise on Function in Pe
+       40761716 2025 Indian J Occup Environ Med | Effect of Postural Training and Core Strengthing Exercise Anlong with Interferential Therapy on Low Back Pain 
+       22430540 2012 Eur Spine J | How well do observed functional limitations explain the variance in Roland Morris scores in patients with chro
+ent_all  c4    n=0       ther_ex+manual+LBP+ther_act+pt
+pattern  r2    n=88      CP+cxr+trop
+       32644384 2024  | Pleurisy.
+       28925655 2017 Am Fam Physician | Pleuritic Chest Pain: Sorting Through the Differential Diagnosis.
+       37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+pattern  r3    n=1983    CP+ecg+trop
+       33331950 2021 Internist (Berl) | [Chest pain].
+       32644384 2024  | Pleurisy.
+       36803002 2023 Radiology | Case 315.
+pattern  r4    n=1983    CP+ecg+trop
+       33331950 2021 Internist (Berl) | [Chest pain].
+       32644384 2024  | Pleurisy.
+       36803002 2023 Radiology | Case 315.
+pattern  r5    n=79      CP+venip
+       41222525 2025 J Am Coll Cardiol | Incremental Value of Cardiac Myosin-Binding Protein C for the Early Diagnosis of Acute Myocardial Infarction.
+       27899427 2017 Heart | A 56-year-old woman with breathlessness.
+       33964547 2021 Am J Emerg Med | EMS blood collection from patients with acute chest pain reduces emergency department length of stay.
+pattern  r6    n=79      venip+CP
+       27899427 2017 Heart | A 56-year-old woman with breathlessness.
+       33964547 2021 Am J Emerg Med | EMS blood collection from patients with acute chest pain reduces emergency department length of stay.
+       41222525 2025 J Am Coll Cardiol | Incremental Value of Cardiac Myosin-Binding Protein C for the Early Diagnosis of Acute Myocardial Infarction.
+pattern  r7    n=1       CP+venip+CBC
+       21534844 2011 Clin Chem Lab Med | Blood cells characteristics as determinants of acute myocardial infarction.
+pattern  r8    n=5       venip+lipid+CP
+       34336947 2021 Front Cardiovasc Med | Predictive Added Value of Selected Plasma Lipids to a Re-estimated Minimal Risk Tool.
+       28448601 2017 PLoS One | Determinants of coronary flow reserve in non-diabetic patients with chest pain without myocardial perfusion de
+       38162099 2023 Cardiovasc Diagn Ther | Clinical significance of carotid intima-media thickness and plasma homocysteine in acute ST-segment elevation 
+pattern  r9    n=17      CP+lipid+A1c
+       38348080 2023 Maedica (Bucur) | Association of Vitamin D with Risk Factors for Coronary Artery Disease.
+       31864310 2019 BMC Cardiovasc Disord | Glycated hemoglobin predicts coronary artery disease in non-diabetic adults.
+       29942726 2018 Cureus | Armour® Thyroid Rage - A Dangerous Mixture.
+pattern  r10   n=5       CP+venip+lipid
+       34336947 2021 Front Cardiovasc Med | Predictive Added Value of Selected Plasma Lipids to a Re-estimated Minimal Risk Tool.
+       28448601 2017 PLoS One | Determinants of coronary flow reserve in non-diabetic patients with chest pain without myocardial perfusion de
+       38162099 2023 Cardiovasc Diagn Ther | Clinical significance of carotid intima-media thickness and plasma homocysteine in acute ST-segment elevation 
+pattern  r11   n=7       CP+CMP+CBC
+       39078295 2024 Radiology | Case 331.
+       37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+       39589241 2024 Radiology | Case 331: Cardiac Sarcoidosis.
+pattern  r12   n=1983    CP+ecg+trop
+       33331950 2021 Internist (Berl) | [Chest pain].
+       32644384 2024  | Pleurisy.
+       36803002 2023 Radiology | Case 315.
+pattern  r13   n=19      CP+ecg+trop+CBC
+       39078295 2024 Radiology | Case 331.
+       36803002 2023 Radiology | Case 315.
+       37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+pattern  r14   n=12      CP+manual
+       27921113 2017 Internist (Berl) | [Musculoskeletal-related chest pain].
+       24209723 2013 Prim Care | Evaluation and treatment of musculoskeletal chest pain.
+       25111147 2014 PLoS One | Treatment efficacy for non-cardiovascular chest pain: a systematic review and meta-analysis.
+pattern  r15   n=3       CP+ther_ex
+       40086653 2025 Trends Cardiovasc Med | Management of angina pectoris.
+       29596007 2019 Physiother Theory Pract | Outpatient physical therapy cardiovascular assessment: Physical therapist perspective and experience.
+       37609768 2023 J Acupunct Meridian Stud | Investigation of the Effects of Acupuncture on Post-Operative Chest Pain after Open Heart Surgery.
+pattern  r16   n=0       CP+ther_ex+manual
