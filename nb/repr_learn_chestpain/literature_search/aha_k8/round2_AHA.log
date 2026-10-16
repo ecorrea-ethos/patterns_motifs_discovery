@@ -1,0 +1,225 @@
+
+## c0/c3 2021 chest pain guideline (title)  n=0
+
+## c0 CP+stress/CCTA+stable/outpatient  n=323
+    38227869 2024 Am Fam Physician | Acute Coronary Syndrome: Diagnosis and Initial Management.
+    33320506 2020 Am Fam Physician | Acute Chest Pain in Adults: Outpatient Evaluation.
+    30145934 2018 N Engl J Med | Coronary CT Angiography and 5-Year Risk of Myocardial Infarction.
+    38692827 2024 J Am Coll Cardiol | Association of Lipoprotein(a) Levels With Myocardial Infarction in Patients With Low-Attenuation Plaque.
+    33047297 2020 Radiol Med | Prognostic value of cardiac CT.
+    30819357 2019 J Am Coll Cardiol | Coronary CT Angiography in New-Onset Stable Chest Pain: Time for U.S. Guidelines to Be NICEr.
+
+## c0 CP+lipid+cardiovascular risk+outpatient  n=5
+    18787675 2008 Prim Care Companion J Clin Psychiatry | The association between panic disorder and coronary artery disease among primary care patients presenting with
+    42835658 2026 Front Cardiovasc Med | Coronary heart disease in young women: risk factors, mechanistic phenotypes, and implications for primary care
+    40844402 2025 Crit Pathw Cardiol | Initiating Preventive Care for Hyperlipidemia in the Emergency Department: The Emergency Medicine Cardiovascul
+    20298558 2010 BMC Public Health | Central blood pressure and pulse wave velocity: relationship to target organ damage and cardiovascular morbidi
+    17393345 2007 Dtsch Med Wochenschr | [Chance finding of a bilateral central pulmonary embolism while using cardiac computed tomography for the clar
+
+## c0 CP+ECG+primary care evaluation  n=53
+    33331950 2021 Internist (Berl) | [Chest pain].
+    33320506 2020 Am Fam Physician | Acute Chest Pain in Adults: Outpatient Evaluation.
+    14620600 2003 Am Fam Physician | Acute dyspnea in the office.
+    23418761 2013 Am Fam Physician | Outpatient diagnosis of acute chest pain in adults.
+    31378324 2019 Med Clin North Am | The Electrocardiogram: Still a Useful Tool in the Primary Care Office.
+    12243422 2001 J Med Liban | Chest pain evaluation.
+
+## c0 CP+hyperlipidemia+ECG  n=195
+    38227869 2024 Am Fam Physician | Acute Coronary Syndrome: Diagnosis and Initial Management.
+    40750173 2025 JACC Case Rep | Cholesterol Pericarditis.
+    29520510 2018 Curr Cardiol Rep | Variant Angina and Aborted Sudden Cardiac Death.
+    3853511 1985 Dis Mon | Exercise testing in suspected coronary artery disease.
+    28875096 2017 Cureus | Narrow Complex Ventricular Tachycardia.
+    29861276 2018 Heart Lung | Asymptomatic ST elevation myocardial infarction.
+
+## c1 CP+corticosteroid/antibiotic+respiratory infection  n=465
+    32310380 2024  | Lung Abscess.
+    38195185 2024 BMJ Case Rep | Pericardial actinomycosis.
+    39726927 2024 World J Clin Cases | Secondary organizing pneumonia after infection.
+    28763554 2017 JAMA | Does This Child Have Pneumonia?: The Rational Clinical Examination Systematic Review.
+    9195678 1997 Semin Respir Infect | Ascariasis and hookworm.
+    31142911 2019 Indian J Psychiatry | Haloperidol-related neutropenia.
+
+## c1 noncardiac CP+PPI  n=119
+    35123084 2022 Clin Gastroenterol Hepatol | AGA Clinical Practice Update on the Personalized Approach to the Evaluation and Management of GERD: Expert Rev
+    11743240 2002 J Clin Gastroenterol | Noncardiac chest pain.
+    32119349 2025  | Gastroesophageal Reflux Disease (GERD).
+    15929749 2005 Am J Gastroenterol | Diagnostic and therapeutic use of proton pump inhibitors in non-cardiac chest pain: a metaanalysis.
+    17710075 2005 Rev Cardiovasc Med | Noncardiac chest pain.
+    19918693 2009 Arq Gastroenterol | [Non-cardiac chest pain].
+
+## c1 CP+pericarditis/pleurisy+steroid/NSAID  n=135
+    39235771 2024 JAMA | Diagnosis, Risk Stratification, and Treatment of Pericarditis: A Review.
+    37474539 2023 Nat Rev Dis Primers | Cardiac tamponade.
+    28185680 2017 Rev Med Interne | Recurrent pericarditis.
+    27761786 2016 Curr Cardiol Rep | Post-pericardiotomy Syndrome.
+    32644384 2024  | Pleurisy.
+    26461998 2015 JAMA | Evaluation and Treatment of Pericarditis: A Systematic Review.
+
+## c2 CP+pelvic/gyn exam  n=4
+    22041192 2011 Int J Emerg Med | Thrombolysis for massive pulmonary embolism in pregnancy: a case report.
+    23560120 2013 Pan Afr Med J | Unusual case of cavitary lung metastasis from squamous cell carcinoma of the uterine cervix.
+    20715664 2010 Acta Cytol | Pleural liposarcoma mimicking carcinoma in pleural effusion cytology: a case report.
+    41755954 2026 Cureus | Haemophilus influenzae Bacteremia With Polyarthritis and Uterine Fibroids in a 31-Year-Old Woman: A Case Repor
+
+## c2 CP+pregnancy evaluation  n=325
+    38804758 2024 Am Fam Physician | Acute Pericarditis: Rapid Evidence Review.
+    20301647 1993  | Dopamine Beta-Hydroxylase Deficiency.
+    20301405 1993  | Familial Mediterranean Fever.
+    22487110 2012 Emerg Med Clin North Am | Pulmonary embolism.
+    39470428 2024 Radiology | Case 334.
+    29763080 2025  | Anemia Screening.
+
+## c2 CP+cervical screening  n=6
+    15018432 2004 J Reprod Med | Complications of outpatient LLETZ procedures.
+    23804176 2012 J Prim Care Community Health | Know your audience: analysis of chief complaints at clinica esperanza, a student-run free clinic in memphis, t
+    12264279 1982 Contracept Technol Update | How to use mini-pills: helpful patient instructions.
+    42548469 2024 CHEST Pulm | A 28-Year-Old Woman With Chest Pain, Abdominal Pain, and Right Pleural Effusion.
+    26881550 2015 J Cancer Res Ther | Mesothelioma with superior vena cava obstruction in young female following short latency of asbestos exposure.
+    6945010 1981 Acta Cytol | Pleuritis by radiation: reports of two cases.
+
+## c3 CP+trop+CXR+ED  n=38
+    28925655 2017 Am Fam Physician | Pleuritic Chest Pain: Sorting Through the Differential Diagnosis.
+    37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+    38473000 2024 Diagnostics (Basel) | Pediatric Chest Pain: A Review of Diagnostic Tools in the Pediatric Emergency Department.
+    18775237 2008 Rev Esp Cardiol | Chest pain in the emergency department: incidence, clinical characteristics and risk stratification.
+    35100774 2022 Pediatr Emerg Care | Pediatric Myopericarditis Presenting to the Emergency Department as Chest Pain: A Comparative Study With Myoca
+    37575411 2023 J Educ Teach Emerg Med | Acute Pulmonary Edema and NSTEMI.
+
+## c3 CP+trop+ED+blood tests (CBC/CMP/BMP)  n=54
+    39078295 2024 Radiology | Case 331.
+    28765984 2017 Internist (Berl) | [Acute chest pain].
+    37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+    34092429 2021 Vaccine | Myocarditis following COVID-19 mRNA vaccination.
+    35154981 2022 Cureus | COVID-19 mRNA Vaccine-Associated Myocarditis.
+    39589241 2024 Radiology | Case 331: Cardiac Sarcoidosis.
+
+## c3 chest pain ED guideline/consensus  n=14
+    34709879 2021 Circulation | 2021 AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR Guideline for the Evaluation and Diagnosis of Chest Pain: A Report of th
+    36241466 2022 J Am Coll Cardiol | 2022 ACC Expert Consensus Decision Pathway on the Evaluation and Disposition of Acute Chest Pain in the Emerge
+    34756653 2021 J Am Coll Cardiol | 2021 AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR Guideline for the Evaluation and Diagnosis of Chest Pain: A Report of th
+    34709928 2021 Circulation | 2021 AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR Guideline for the Evaluation and Diagnosis of Chest Pain: Executive Summ
+    15911720 2005 Circulation | Practical implementation of the guidelines for unstable angina/non-ST-segment elevation myocardial infarction 
+    20660809 2010 Circulation | Testing of low-risk patients presenting to the emergency department with chest pain: a scientific statement fr
+
+## c3 CP+lipase (abdominal/pancreatic mimic)  n=15
+    41436219 2025 BMJ Case Rep | Pancreatopleural fistula in childhood.
+    29629700 2018 Indian Pediatr | Isolated Mediastinal Pseudocyst of the Pancreas.
+    41473887 2026 Clin Case Rep | Pancreatic Pseudocyst With Thoracic Extension: A Clinicoradiological Case Report.
+    33757444 2021 BMC Gastroenterol | Takotsubo cardiomyopathy complicating acute pancreatitis: a case report.
+    35749943 2022 Int J Surg Case Rep | The uncommon diagnosis of hiatal hernia associated pancreatitis: A case report.
+    34987687 2022 Radiol Case Rep | Diaphragmatic hernia a rare cause of acute pancreatitis: Case report.
+
+## c4 noncardiac CP+GERD+endoscopy  n=93
+    37634495 2024 Digestion | Esophageal Motility Disorders: Diagnosis and Treatment Strategies.
+    32119349 2025  | Gastroesophageal Reflux Disease (GERD).
+    35123084 2022 Clin Gastroenterol Hepatol | AGA Clinical Practice Update on the Personalized Approach to the Evaluation and Management of GERD: Expert Rev
+    11743240 2002 J Clin Gastroenterol | Noncardiac chest pain.
+    15181137 2004 J Nucl Med | Radionuclide gastroesophageal motor studies.
+    29642692 2018 Minerva Cardioangiol | Non-cardiac chest pain: a 2018 update.
+
+## c4 noncardiac CP guideline/review  n=272
+    34709879 2021 Circulation | 2021 AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR Guideline for the Evaluation and Diagnosis of Chest Pain: A Report of th
+    37634495 2024 Digestion | Esophageal Motility Disorders: Diagnosis and Treatment Strategies.
+    35605234 2022 Spec Care Dentist | Gastroesophageal reflux disease and oral health: A narrative review.
+    29888236 2018 Visc Med | Non-Cardiac Chest Pain.
+    35123084 2022 Clin Gastroenterol Hepatol | AGA Clinical Practice Update on the Personalized Approach to the Evaluation and Management of GERD: Expert Rev
+    11743240 2002 J Clin Gastroenterol | Noncardiac chest pain.
+
+## c4 CP+esophageal biopsy/eosinophilic esophagitis  n=120
+    31690395 2019 Allergy Asthma Proc | Eosinophilic esophagitis.
+    29888236 2018 Visc Med | Non-Cardiac Chest Pain.
+    27144625 2016 Gastroenterology | Functional Esophageal Disorders.
+    28723041 2023  | Esophagitis.
+    35295702 2022 Front Pediatr | Dysmotility in Eosinophilic Esophagitis.
+    29129303 2018 Gastrointest Endosc Clin N Am | Endoscopic Treatment of Eosinophilic Esophagitis.
+
+## c5 musculoskeletal CP+physical therapy/manual  n=27
+    8519080 1993 Baillieres Clin Rheumatol | Ankylosing spondylitis.
+    24209723 2013 Prim Care | Evaluation and treatment of musculoskeletal chest pain.
+    37646901 2023 Curr Oncol Rep | Interventional Treatment Options for Post-mastectomy Pain.
+    41643844 2026 Ann Vasc Surg | Current Perspectives on Pectoralis Minor Syndrome: A Narrative Review.
+    11429669 2001 Can J Gastroenterol | Muscoloskeletal manifestations in inflammatory bowel disease.
+    9742344 1998 Chest Surg Clin N Am | Pathogenesis and management of persistent postthoracotomy pain.
+
+## c5 noncardiac CP+exercise/manual therapy  n=37
+    33085308 2023  | Cardiac Stress Imaging (Archived).
+    15754156 2005 Herz | Psychosocial factors associated with noncardiac chest pain and cardiac syndrome X.
+    25363358 2015 Int J Clin Pract | A multidisciplinary, biopsychosocial treatment for non-cardiac chest pain.
+    32595282 2020 Clin Med Insights Cardiol | Is Noncardiac Chest Pain Truly Noncardiac?
+    40860980 2025 Pain Res Manag | Effect of Diaphragmatic Breathing Exercise, Jacobson's Relaxation Technique and Dynamic Neuromuscular Stabiliz
+    38549833 2024 Turk J Phys Med Rehabil | Efficacy of trigger point injection therapy in noncardiac chest pain: A randomized controlled trial.
+
+## c5 CP+LBP+PT  n=0
+
+## c5 musculoskeletal CP guideline/review  n=83
+    35781990 2022 Semin Intervent Radiol | Intercostal Cryoneurolysis.
+    21541647 2011 Indian J Pediatr | Acute chest pain.
+    8024967 1994 Curr Opin Rheumatol | Chest wall syndromes.
+    34967407 2022 Mod Rheumatol | SAPHO syndrome and pustulotic arthro-osteitis.
+    8519080 1993 Baillieres Clin Rheumatol | Ankylosing spondylitis.
+    19390451 2009 J Clin Rheumatol | Non-popliteal synovial rupture.
+
+## c6 CP+vitamin D+coronary  n=14
+    38348080 2023 Maedica (Bucur) | Association of Vitamin D with Risk Factors for Coronary Artery Disease.
+    36205377 2023 Clin Nurs Res | The Association Between Vitamin D Level and Chest Pain, Anxiety, and Fatigue in Patients With Coronary Artery 
+    30684966 2019 Lipids Health Dis | Association of 25-hydroxyvitamin D with HDL-cholesterol and other cardiovascular risk biomarkers in subjects w
+    23151909 2013 Eur J Nucl Med Mol Imaging | 1,25-Dihydroxy vitamin D and coronary microvascular function.
+    28958142 2017 J Biol Regul Homeost Agents | Serum 25-hydroxy vitamin D concentration in acute coronary syndrome.
+    30581189 2018 Med Sci Monit | Vitamin D Deficiency Harms Patients with Coronary Heart Disease by Enhancing Inflammation.
+
+## c6 CP+iron deficiency/anemia  n=509
+    32644559 2024  | Fanconi Anemia.
+    29763080 2025  | Anemia Screening.
+    30021096 2018 N Engl J Med | A Phase 3 Trial of l-Glutamine in Sickle Cell Disease.
+    38084255 2023 J Blood Med | Paroxysmal Nocturnal Hemoglobinuria: Current Management, Unmet Needs, and Recommendations.
+    20301647 1993  | Dopamine Beta-Hydroxylase Deficiency.
+    32119349 2025  | Gastroesophageal Reflux Disease (GERD).
+
+## c6 CP+thyroid function  n=308
+    16236967 2005 Chest | Tumors of the mediastinum.
+    28613692 2023  | Panic Disorder.
+    29763191 2024  | Tracheal Trauma.
+    38651945 2024 Pediatr Pulmonol | Unusual chest pain and dyspnea.
+    36793833 2023 Cureus | Pre-workout Induced Demand Ischemia.
+    36377023 2022 J Coll Physicians Surg Pak | Hyperthyroidism Presenting with Coronary Vasospasm.
+
+## c6 CP+vitamin B12  n=22
+    36097512 2022 Case Rep Med | Pseudo-Thrombotic Microangiopathy Secondary to Vitamin B12 Deficiency.
+    29938442 2018 J Ayub Med Coll Abbottabad | Low hba1c; Is It Dapsone?
+    39314220 2024 SAGE Open Med Case Rep | Esophageal involvement in Bullous pemphigoid: Case report.
+    28936998 2017 Natl Med J India | Venous thromboembolism due to hyperhomocysteinaemia and tuberculosis.
+    34373795 2021 Case Rep Hematol | Chronic Atrophic Gastritis Presenting as Hemolytic Anemia due to Severe Vitamin B12 Deficiency.
+    25880056 2015 Anatol J Cardiol | Homocysteine levels in normotensive children of hypertensive parents.
+
+## c7 CP+respiratory infection+ECG  n=17
+    21597547 2011 Aust Fam Physician | Just a sore throat?
+    33552427 2021 J Community Hosp Intern Med Perspect | Haemophilus influenzae purulent pericarditis in an immunocompetent individual.
+    34044547 2021 Ann Palliat Med | Myocarditis combined with hypertrophic cardiomyopathy: a case report.
+    33644654 2021 Eur Heart J Case Rep | Quadruple episodes of takotsubo cardiomyopathy: a case report.
+    40755592 2025 Cureus | Unmasking Myopericarditis Behind an ST-Segment Elevation Myocardial Infarction (STEMI) Presentation.
+    32733623 2020 Can J Infect Dis Med Microbiol | Cardiac Tamponade Caused by Cutibacterium acnes: An Updated and Comprehensive Review of the Literature.
+
+## c7 CP+acute bronchitis/cough  n=95
+    39078295 2024 Radiology | Case 331.
+    37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+    29535231 2018 J Am Board Fam Med | Real-Life Observational Studies Provide Actionable Data for Family Medicine.
+    39589241 2024 Radiology | Case 331: Cardiac Sarcoidosis.
+    30726003 2025  | Prescription of Controlled Substances: Benefits and Risks (Archived).
+    33428370 2022  | Florida Controlled Substance Prescribing.
+
+## c7 CP+pharyngitis  n=269
+    10382561 1999 J Toxicol Clin Toxicol | Vanadium.
+    34533807 2021 Eur Rev Med Pharmacol Sci | "LONG COVID": an insight.
+    37753488 2023 Discoveries (Craiova) | Cardiac Involvement in Monkeypox Outbreak.
+    9090522 1997 Heart Lung | Postpericardiotomy syndrome.
+    40968336 2025 Clin Rheumatol | Syndrome of undifferentiated recurrent fever (SURF): a multicenter real-world experience from Türkiye.
+    26855340 2017 Pediatr Emerg Care | Pediatric Spontaneous Pneumomediastinum: Narrative Literature Review.
+
+## c7 CP+COVID-19+ECG/troponin  n=281
+    36161056 2022 World J Cardiol | COVID-19 vaccine-associated myocarditis.
+    36749541 2023 Curr Cardiol Rep | Pediatric Pericarditis: Update.
+    34527626 2021 Eur J Case Rep Intern Med | Post-mRNA COVID-19 Vaccination Myocarditis.
+    34281357 2021 Circulation | Myocarditis With COVID-19 mRNA Vaccines.
+    34650349 2021 Eur Heart J Suppl | Long COVID: long-term effects?
+    34239379 2021 Ochsner J | Suspected COVID-19-Induced Myopericarditis.

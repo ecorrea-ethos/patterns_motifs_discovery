@@ -2,6 +2,8 @@
 
 *Working Draft — October 2026*
 
+> **Superseded by `Chestpain_Workup_Predicate_Engine_v2.md`** (NMF k=8 on the validated AHA/ACC code lists, care pattern c3, plain-English Annex A and B). This k=5 version (care pattern c0) is kept for comparison and is not updated.
+
 ---
 
 ## Overview

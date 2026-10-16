@@ -1,0 +1,465 @@
+# Plain-English layer for the chest pain engine (Annex A and B of Chestpain_Workup_Predicate_Engine_v2.md).
+# One reviewable file for the UW team. build_plain_english_annex.py reads it with codesets_v2.yaml's member table
+# (token_members_k8_chestpain_AHA.csv) and writes chestpain_plain_english_omop_map.csv plus the two annexes.
+# Rules for the wording: say the test, procedure, medicine or diagnosis a UW person would say; use an abbreviation only when it is in
+# `abbreviations` below; never use the data-team words (bundle, token, codeset, concept) in a label.
+# Keys under `code_lists` are the tag names of codesets_v2.yaml, in that file's order.
+
+abbreviations:        # alphabetical; only abbreviations that appear in a label or in the engine text
+  ACC: "American College of Cardiology"
+  ACS: "acute coronary syndrome (heart attack or unstable angina)"
+  AF: "atrial fibrillation (irregular heart rhythm)"
+  AHA: "American Heart Association; AHA/ACC is the 2021 chest pain guideline the lists of codes follow"
+  BMP: "basic metabolic panel (blood chemistry: electrolytes, kidney function, glucose)"
+  BNP: "B-type natriuretic peptide (blood marker of heart strain)"
+  CABG: "coronary artery bypass graft (heart bypass surgery)"
+  CAC: "coronary artery calcium (score from a CT scan)"
+  CAD: "coronary artery disease (narrowed heart arteries)"
+  CBC: "complete blood count"
+  CCTA: "coronary CT angiogram (CT scan of the heart arteries)"
+  CK-MB: "creatine kinase MB (older blood marker of heart injury)"
+  CKD: "chronic kidney disease"
+  CMP: "comprehensive metabolic panel (BMP plus liver tests and protein)"
+  CMR: "cardiac magnetic resonance (heart MRI)"
+  CPT4: "Current Procedural Terminology, the billing code system for procedures and tests"
+  CXR: "chest X-ray"
+  ECG: "electrocardiogram (heart tracing; also written EKG)"
+  ED: "emergency department"
+  FFR-CT: "fractional flow reserve from CT (estimate of how much an artery narrowing limits blood flow)"
+  GERD: "gastroesophageal reflux disease (acid reflux)"
+  GI: "gastrointestinal (stomach and bowel)"
+  H2: "H2 blocker (acid-reducing medicine such as famotidine)"
+  HbA1c: "hemoglobin A1c (blood test of average blood sugar)"
+  HCPCS: "Healthcare Common Procedure Coding System, a billing code system (here for screening ECGs)"
+  HTN: "hypertension (high blood pressure)"
+  ICA: "invasive coronary angiogram (cardiac catheterisation)"
+  INOCA: "ischemia with no obstructive coronary arteries"
+  IV: "intravenous (into a vein)"
+  MI: "myocardial infarction (heart attack)"
+  NMF: "non-negative matrix factorization, the method that finds the care patterns"
+  OMOP: "the standard data model the codes are stored in; each code has an OMOP ID"
+  PCI: "percutaneous coronary intervention (stent or balloon)"
+  PE: "pulmonary embolism (blood clot in the lung)"
+  PET: "positron emission tomography (nuclear scan)"
+  PMID: "PubMed number of a published paper"
+  PPI: "proton pump inhibitor (acid-reducing medicine such as omeprazole)"
+  PT: "prothrombin time (clotting test)"
+  RUW: "the underwriting review step; Manual RUW is the route to manual review"
+  SNOMED: "SNOMED CT, a medical terminology used for diagnoses, tests and procedures"
+  SPECT: "single-photon emission CT (nuclear heart scan)"
+  SSRI: "selective serotonin reuptake inhibitor (a class of antidepressant)"
+  T2DM: "type 2 diabetes mellitus"
+  T4: "thyroxine (thyroid hormone; free T4 is a thyroid blood test)"
+  TEE: "transesophageal echocardiogram (heart ultrasound through the food pipe)"
+  TTE: "transthoracic echocardiogram (heart ultrasound through the chest wall)"
+  UW: "underwriting / underwriter"
+  V/Q: "ventilation-perfusion (lung scan for clots)"
+
+uw_vs_data:           # [UW wording, what the data team calls it, plain explanation]
+  - ["care pattern", "bundle, NMF component, c0 to c7", "a group of services that tend to appear together in the same patients; the data method finds them, nobody chose them"]
+  - ["service", "entity, token", "one test, procedure or medicine that the rule looks for"]
+  - ["diagnosis", "entity, condition concept", "a diagnosis code on a claim"]
+  - ["list of codes", "codeset, tag, code group, [code group]", "a hand-built list of billing and medical codes that mean the same thing for this purpose (for example every troponin code)"]
+  - ["code", "OMOP concept, concept_id", "one billing or medical code as stored in the data, with an OMOP ID that only the data team needs"]
+  - ["billing or medical code", "vocabulary code (CPT4 84484, SNOMED 29857009)", "the code a provider or system used on the claim"]
+  - ["yes/no check", "predicate, `*_present`, `*_in_window`", "a single question about one applicant's history that has a yes or no answer"]
+  - ["combined check", "composite", "several yes/no checks put together"]
+  - ["chest pain date", "anchor, `first_chest_pain_date`, index date", "the date of a chest pain diagnosis; everything else is measured from it"]
+  - ["within 1 day", "`workup_window_days = 1`", "the service is dated no more than one day before or after a chest pain date"]
+  - ["same-day order rule", "tie-break, `tie_ordered`, DOMAIN_ORDER", "claims have a date but no time; steps on the same day are put in a fixed order (diagnosis, procedure, lab test), then by code ID"]
+  - ["this care pattern compared with all the others", "one versus all", "how the rule is scored: the ED care pattern against the seven other care patterns"]
+  - ["times as common", "lift", "how many times more common the pattern is inside the care pattern than outside it"]
+  - ["re-test on half the patients", "held-out check", "the pattern is looked for again on a random half of the patients that was not used to find it"]
+  - ["Manual RUW trigger", "flag, `composite_c3_manual_ruw`", "the rule result that sends the applicant to manual review"]
+
+# family -> order of the sections in Annex A and B
+families:
+  - "Chest pain and look-alike symptoms"
+  - "Tests used in the chest pain work-up"
+  - "Heart and blood-vessel diagnoses"
+  - "Other diagnoses that can explain chest pain"
+  - "Risk factors and history"
+  - "Medicines and visits"
+  - "Combined lists (umbrellas)"
+
+code_lists:
+  chest_pain:
+    label: "Chest pain diagnosis"
+    abbr: ""
+    family: "Chest pain and look-alike symptoms"
+    what: "Any diagnosis of chest pain, precordial pain, pain of the intercostal space or chest pain on breathing. Defines who is in the cohort and the chest pain date."
+  pleuritic_pain:
+    label: "Pain on breathing (pleuritic) diagnosis"
+    abbr: ""
+    family: "Chest pain and look-alike symptoms"
+    what: "Sharp pain that changes with breathing or position; makes a heart cause less likely."
+  dyspnea:
+    label: "Shortness of breath diagnosis"
+    abbr: ""
+    family: "Chest pain and look-alike symptoms"
+    what: "Breathlessness, which the guideline treats as a possible equivalent of chest pain."
+  palpitations:
+    label: "Palpitations diagnosis"
+    abbr: ""
+    family: "Chest pain and look-alike symptoms"
+    what: "Awareness of the heartbeat (racing, pounding or skipping)."
+  syncope:
+    label: "Fainting diagnosis"
+    abbr: ""
+    family: "Chest pain and look-alike symptoms"
+    what: "Passing out; can accompany a heart cause."
+  ekg:
+    label: "ECG (resting 12-lead)"
+    abbr: "ECG"
+    family: "Tests used in the chest pain work-up"
+    what: "The standard heart tracing, billed as tracing only, interpretation only, or both together. Not the long-term monitors."
+  ecg_ambulatory:
+    label: "Long-term heart rhythm monitor (Holter or event recorder)"
+    abbr: ""
+    family: "Tests used in the chest pain work-up"
+    what: "Heart rhythm recorded for days or weeks, or by an implanted recorder. Not an emergency chest pain test."
+  troponin:
+    label: "Troponin blood test"
+    abbr: ""
+    family: "Tests used in the chest pain work-up"
+    what: "The blood test for heart muscle injury, quantitative or qualitative. The data cannot tell high-sensitivity troponin from the standard test."
+  ck_mb_myoglobin:
+    label: "CK-MB or myoglobin blood test"
+    abbr: "CK-MB"
+    family: "Tests used in the chest pain work-up"
+    what: "Older heart-injury markers; the guideline sees no benefit once troponin is available."
+  bnp:
+    label: "BNP blood test"
+    abbr: "BNP"
+    family: "Tests used in the chest pain work-up"
+    what: "Blood marker of heart strain, used mainly for heart failure."
+  chest_xray:
+    label: "Chest X-ray"
+    abbr: "CXR"
+    family: "Tests used in the chest pain work-up"
+    what: "Chest X-ray of 1, 2, 3 or 4 or more views, in the hospital or clinic."
+  echo_tte:
+    label: "Heart ultrasound through the chest wall"
+    abbr: "TTE"
+    family: "Tests used in the chest pain work-up"
+    what: "Standard echocardiogram; first test for non-ischemic heart causes. Stress and congenital echocardiograms are listed separately."
+  echo_tee:
+    label: "Heart ultrasound through the food pipe"
+    abbr: "TEE"
+    family: "Tests used in the chest pain work-up"
+    what: "Echocardiogram with the probe in the esophagus; used for aortic and valve questions."
+  stress_ecg:
+    label: "Exercise stress test with ECG (treadmill)"
+    abbr: ""
+    family: "Tests used in the chest pain work-up"
+    what: "Heart tracing while the patient exercises."
+  stress_echo:
+    label: "Stress echocardiogram"
+    abbr: ""
+    family: "Tests used in the chest pain work-up"
+    what: "Heart ultrasound at rest and under stress."
+  stress_spect:
+    label: "Nuclear stress scan (SPECT)"
+    abbr: "SPECT"
+    family: "Tests used in the chest pain work-up"
+    what: "Heart blood-flow images with a radioactive tracer at rest and under stress."
+  stress_pet:
+    label: "PET heart scan"
+    abbr: "PET"
+    family: "Tests used in the chest pain work-up"
+    what: "Nuclear heart scan that measures blood flow."
+  cmr:
+    label: "Heart MRI"
+    abbr: "CMR"
+    family: "Tests used in the chest pain work-up"
+    what: "Magnetic resonance imaging of the heart."
+  ccta:
+    label: "Coronary CT angiogram"
+    abbr: "CCTA"
+    family: "Tests used in the chest pain work-up"
+    what: "CT scan with contrast that shows the heart arteries."
+  cac_score:
+    label: "Coronary calcium score"
+    abbr: "CAC"
+    family: "Tests used in the chest pain work-up"
+    what: "CT scan that counts calcium in the heart arteries."
+  ffr_ct:
+    label: "CT-based flow estimate for artery narrowing"
+    abbr: "FFR-CT"
+    family: "Tests used in the chest pain work-up"
+    what: "Computer estimate from a CT scan of how much a narrowing limits blood flow."
+  coronary_angio:
+    label: "Invasive coronary angiogram (catheterisation)"
+    abbr: "ICA"
+    family: "Tests used in the chest pain work-up"
+    what: "X-ray of the heart arteries through a catheter. Anesthesia and clot-dissolving codes are not included."
+  d_dimer:
+    label: "D-dimer blood test"
+    abbr: ""
+    family: "Tests used in the chest pain work-up"
+    what: "Blood marker of clotting, used when a lung clot is possible."
+  vq_scan:
+    label: "Lung ventilation-perfusion scan"
+    abbr: "V/Q"
+    family: "Tests used in the chest pain work-up"
+    what: "Nuclear lung scan to look for blood clots."
+  acs_mi:
+    label: "Heart attack or unstable angina diagnosis"
+    abbr: "ACS"
+    family: "Heart and blood-vessel diagnoses"
+    what: "Acute heart attack (MI), unstable angina or acute coronary syndrome. Complications of a heart attack are not included."
+  old_mi:
+    label: "Old heart attack diagnosis"
+    abbr: "MI"
+    family: "Heart and blood-vessel diagnoses"
+    what: "History of a past heart attack."
+  angina_stable:
+    label: "Angina diagnosis (stable or other)"
+    abbr: ""
+    family: "Heart and blood-vessel diagnoses"
+    what: "Chest pain from the heart that comes with effort; unstable angina is under heart attack or unstable angina."
+  cad_chronic:
+    label: "Coronary artery disease diagnosis (chronic)"
+    abbr: "CAD"
+    family: "Heart and blood-vessel diagnoses"
+    what: "Narrowed heart arteries or chronic ischemic heart disease. The data cannot say how severe the narrowing is."
+  inoca_cmd:
+    label: "Angina with open arteries (small-vessel disease or spasm)"
+    abbr: "INOCA"
+    family: "Heart and blood-vessel diagnoses"
+    what: "Microvascular dysfunction, vasospastic or variant angina, coronary spasm."
+  aortic_syndrome:
+    label: "Aortic dissection or aortic aneurysm diagnosis"
+    abbr: ""
+    family: "Heart and blood-vessel diagnoses"
+    what: "Tear or bulge of the main artery from the heart; a life-threatening cause of chest pain."
+  pe:
+    label: "Blood clot in the lung diagnosis"
+    abbr: "PE"
+    family: "Heart and blood-vessel diagnoses"
+    what: "Pulmonary embolism."
+  pericarditis_myocarditis:
+    label: "Inflammation of the heart sac or heart muscle diagnosis"
+    abbr: ""
+    family: "Heart and blood-vessel diagnoses"
+    what: "Pericarditis, myocarditis, fluid around the heart, tamponade."
+  valvular_hd:
+    label: "Heart valve disease diagnosis"
+    abbr: ""
+    family: "Heart and blood-vessel diagnoses"
+    what: "Narrowed or leaking aortic or mitral valve, mitral prolapse. Congenital valve disease is not included."
+  cardiomyopathy:
+    label: "Heart muscle disease diagnosis"
+    abbr: ""
+    family: "Heart and blood-vessel diagnoses"
+    what: "Cardiomyopathy of any type."
+  heart_failure:
+    label: "Heart failure diagnosis"
+    abbr: ""
+    family: "Heart and blood-vessel diagnoses"
+    what: "The heart does not pump well enough."
+  arrhythmia:
+    label: "Abnormal heart rhythm diagnosis"
+    abbr: "AF"
+    family: "Heart and blood-vessel diagnoses"
+    what: "Atrial fibrillation or flutter, supraventricular tachycardia, ventricular tachycardia or fibrillation."
+  pneumonia_pleural:
+    label: "Pneumonia or fluid around the lung diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Pneumonia, pleural effusion, pleurisy, empyema."
+  pneumothorax:
+    label: "Collapsed lung or blood in the chest cavity diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Pneumothorax or hemothorax."
+  gerd:
+    label: "Acid reflux or heartburn diagnosis"
+    abbr: "GERD"
+    family: "Other diagnoses that can explain chest pain"
+    what: "Diagnosis codes only; a reflux test is not included."
+  peptic_ulcer_gastritis:
+    label: "Stomach or food-pipe irritation, ulcer or hernia diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Ulcer, gastritis, esophagitis, esophageal spasm, indigestion, hiatal hernia."
+  biliary_pancreatic:
+    label: "Gallbladder or pancreas diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Gallstones, gallbladder inflammation, biliary colic, pancreatitis."
+  costochondritis:
+    label: "Rib-cartilage inflammation diagnosis (costochondritis)"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Chest wall pain from inflamed rib cartilage."
+  chest_wall:
+    label: "Chest wall injury or strain diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Rib or breastbone fracture, flail chest, bruised chest wall, thoracic outlet syndrome, chest wall strain."
+  herpes_zoster:
+    label: "Shingles diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Herpes zoster; the pain can come before the rash."
+  anxiety:
+    label: "Anxiety diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Any anxiety diagnosis."
+  panic_attack:
+    label: "Panic disorder diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Panic disorder; agoraphobia alone is not included."
+  depression_somatic:
+    label: "Depression or somatic-symptom disorder diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Major or recurrent depression, somatization, hypochondriasis."
+  hyperventilation:
+    label: "Hyperventilation diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Overbreathing, often with anxiety."
+  sickle_cell:
+    label: "Sickle cell disease diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Sickle cell disease (not the trait); can cause chest pain crises."
+  cocaine_meth:
+    label: "Cocaine or methamphetamine use diagnosis"
+    abbr: ""
+    family: "Other diagnoses that can explain chest pain"
+    what: "Use or dependence diagnoses; a recognised cause of chest pain."
+  htn:
+    label: "High blood pressure diagnosis"
+    abbr: "HTN"
+    family: "Risk factors and history"
+    what: "Essential or hypertensive heart disease; pregnancy-related and lung-artery types are not included."
+  hyperlipidemia:
+    label: "High cholesterol or blood fat diagnosis"
+    abbr: ""
+    family: "Risk factors and history"
+    what: "Hyperlipidemia, hypercholesterolemia, hypertriglyceridemia, dyslipidemia."
+  tobacco:
+    label: "Tobacco or nicotine use diagnosis"
+    abbr: ""
+    family: "Risk factors and history"
+    what: "Smoker, tobacco use, nicotine dependence."
+  t2dm:
+    label: "Type 2 diabetes diagnosis"
+    abbr: "T2DM"
+    family: "Risk factors and history"
+    what: "Type 2 diabetes in any form."
+  hba1c:
+    label: "HbA1c blood test"
+    abbr: "HbA1c"
+    family: "Risk factors and history"
+    what: "Blood test of average blood sugar."
+  ckd_dialysis:
+    label: "Chronic kidney disease or dialysis"
+    abbr: "CKD"
+    family: "Risk factors and history"
+    what: "Chronic or end-stage kidney disease and dialysis care."
+  prior_revasc:
+    label: "Prior heart bypass or stent procedure"
+    abbr: "CABG / PCI"
+    family: "Risk factors and history"
+    what: "Bypass surgery, balloon angioplasty, stent, atherectomy."
+  neuropathy:
+    label: "Nerve damage (neuropathy) diagnosis"
+    abbr: ""
+    family: "Risk factors and history"
+    what: "Kept from the first code list version as a diabetes marker."
+  nitrate_antianginal:
+    label: "Angina medicines (nitrates, ranolazine)"
+    abbr: ""
+    family: "Medicines and visits"
+    what: "Nitroglycerin, isosorbide, ranolazine; rectal and ointment forms are not included."
+  antiplatelet:
+    label: "Antiplatelet medicines"
+    abbr: ""
+    family: "Medicines and visits"
+    what: "Clopidogrel, prasugrel, ticagrelor and low-dose aspirin (81 mg)."
+  beta_blocker:
+    label: "Beta-blocker medicines"
+    abbr: ""
+    family: "Medicines and visits"
+    what: "Metoprolol, atenolol, carvedilol, bisoprolol, propranolol."
+  statin:
+    label: "Statin medicines"
+    abbr: ""
+    family: "Medicines and visits"
+    what: "Atorvastatin, simvastatin, rosuvastatin, pravastatin."
+  ppi_h2:
+    label: "Acid-reducing medicines (PPI or H2 blocker)"
+    abbr: "PPI / H2"
+    family: "Medicines and visits"
+    what: "Omeprazole, esomeprazole, pantoprazole, lansoprazole, rabeprazole, famotidine, ranitidine, cimetidine."
+  ssri:
+    label: "SSRI antidepressant medicines"
+    abbr: "SSRI"
+    family: "Medicines and visits"
+    what: "Sertraline, fluoxetine, escitalopram, citalopram, paroxetine."
+  benzodiazepine:
+    label: "Benzodiazepine (sedative) medicines"
+    abbr: ""
+    family: "Medicines and visits"
+    what: "Alprazolam, lorazepam, diazepam, clonazepam, temazepam."
+  psych_eval_therapy:
+    label: "Psychiatric evaluation or psychotherapy visit"
+    abbr: ""
+    family: "Medicines and visits"
+    what: "Shows psychiatric care took place, not that anxiety was the reason."
+  psych_screen:
+    label: "Brief mental-health screening"
+    abbr: ""
+    family: "Medicines and visits"
+    what: "Shows a screening took place, not that anyone has anxiety. Kept apart from psychotherapy visits."
+  ed_visit:
+    label: "Emergency department visit"
+    abbr: "ED"
+    family: "Medicines and visits"
+    what: "A visit record for an emergency room or emergency department. Visit records are removed before the analysis, so the patient count is 0 here."
+  stress_test:
+    label: "Any heart stress test (combined list)"
+    abbr: ""
+    family: "Combined lists (umbrellas)"
+    what: "Everything in the exercise ECG, stress echo, nuclear (SPECT) and PET lists. Its codes are shown under those lists."
+  cad:
+    label: "Any coronary artery disease or heart attack diagnosis (combined list)"
+    abbr: "CAD"
+    family: "Combined lists (umbrellas)"
+    what: "Everything in the chronic CAD and heart attack lists. Its codes are shown under those lists."
+
+# Single codes that the engine uses but that are not in a codesets_v2.yaml list. Keys are OMOP IDs (data team).
+engine_concepts:
+  4021288: {label: "Lipase blood test (pancreas marker)", abbr: "", role: "rule service"}
+  2314215: {label: "IV push, first drug", abbr: "IV", role: "rule service (IV push)"}
+  2314216: {label: "IV push, each additional drug", abbr: "IV", role: "rule service (IV push)"}
+  3661905: {label: "Comprehensive metabolic panel (CMP)", abbr: "CMP", role: "sequence step"}
+  4319466: {label: "Complete blood count (CBC)", abbr: "CBC", role: "sequence step"}
+  2212090: {label: "Basic metabolic panel (BMP)", abbr: "BMP", role: "other top code of the ED care pattern, not in the rule"}
+  35605480: {label: "Ondansetron injection (anti-nausea)", abbr: "", role: "other top code of the ED care pattern, not in the rule"}
+  40048832: {label: "Ketorolac injection (pain medicine, Toradol)", abbr: "", role: "other top code of the ED care pattern, not in the rule"}
+  4245261: {label: "Prothrombin time (clotting test)", abbr: "PT", role: "other top code of the ED care pattern, not in the rule"}
+
+# Short plain description of each code inside a list the engine uses (key = OMOP ID). Blank elsewhere.
+details:
+  2212605: "quantitative (measures the level)"
+  2212610: "qualitative (positive or negative)"
+  725068: "1 view"
+  725069: "2 views"
+  724942: "3 views"
+  724943: "4 or more views"
+  2313814: "tracing and interpretation together"
+  2313815: "tracing only"
+  2313816: "interpretation only"
+  2617470: "screening ECG with interpretation (preventive visit)"
+  2617471: "screening ECG, tracing only (preventive visit)"
+  77670: "chest pain"
+  134159: "precordial pain (pain over the heart)"
+  4168213: "chest pain on breathing"
+  42539051: "pain of the intercostal space (between the ribs)"

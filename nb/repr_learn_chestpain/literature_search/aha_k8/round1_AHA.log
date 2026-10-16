@@ -1,0 +1,280 @@
+ent3     c0    n=42      lipid+venip+phys
+       35451294 2022 Pril (Makedon Akad Nauk Umet Odd Med Nauki) | Antioxidative Effects of Rosuvastatin in Low-to-Moderate Cardiovascular Risk Subjects.
+       33419463 2021 J Med Case Rep | Familial chylomicronemia syndrome: a case report.
+       26691390 2016 J Sports Sci | Cardiovascular risk and fitness in veteran football players.
+ent3     c0    n=6       lipid+venip+ecg
+       26691390 2016 J Sports Sci | Cardiovascular risk and fitness in veteran football players.
+       11549644 2001 J Clin Endocrinol Metab | Cardiac malformations and hypertension, but not metabolic risk factors, are common in Turner syndrome.
+       27194642 2016 Ann Noninvasive Electrocardiol | Heart Rate-Corrected QT and JT Intervals in Electrocardiograms in Physically Fit Students and Student Athletes
+ent3     c0    n=2       lipid+venip+CMP
+       42206470 2026 J Appl Lab Med | Feasibility of Capillary Self-Collected Blood Specimens for Routine Outpatient Laboratory Testing.
+       26131436 2015 J Diabetes Metab Disord | Consequences of AphanizomenonFlos-aquae(AFA) extract (Stemtech (TM) ) on metabolic profile of patients with ty
+ent3     c0    n=135     lipid+phys+ecg
+       15606063 2004 Am Fam Physician | Diagnosis of heart failure in adults.
+       28613755 2022  | Pilot Cardiac Evaluation For Fitness for Duty.
+       25311509 2014 Pol Arch Med Wewn | Cardiovascular disease and kidney transplantation‑evaluation of potential transplant recipient.
+ent3     c0    n=2       lipid+phys+CMP
+       39067975 2024 Prim Care | Obesity.
+       15554091 2004 J La State Med Soc | Pathology case of the month. 39-year-old woman with abdominal pain and weight loss. Takayasu's arteritis (TA).
+ent3     c0    n=6       lipid+ecg+CMP
+       25490795 2014 S D Med | Stroke: current concepts.
+       29885277 2018 Med Sci Monit | Association Between Blood Lipid Profiles and Atrial Fibrillation: A Case-Control Study.
+       40394871 2025 Am J Hypertens | Adherence to Recommended Laboratory Testing for Hypertension: Insights from a Nationwide Cohort.
+ent3     c0    n=22      venip+phys+ecg
+       33360109 2021 J Vet Cardiol | Asymmetric dimethylarginine-A potential cardiac biomarker in horses.
+       26691390 2016 J Sports Sci | Cardiovascular risk and fitness in veteran football players.
+       27899427 2017 Heart | A 56-year-old woman with breathlessness.
+ent3     c0    n=0       venip+phys+CMP
+ent3     c0    n=0       venip+ecg+CMP
+ent3     c0    n=8       phys+ecg+CMP
+       39078295 2024 Radiology | Case 331.
+       33382560 2021 Am Fam Physician | Eating Disorders in Primary Care: Diagnosis and Management.
+       37465444 2022 J Educ Teach Emerg Med | 3rd-Degree Atrioventricular Block.
+ent_all  c0    n=0       lipid+venip+phys+ecg+CMP
+ent3     c1    n=0       mpred+amox+azithro
+ent3     c1    n=0       mpred+amox+ppi
+ent3     c1    n=0       mpred+amox+pred
+ent3     c1    n=0       mpred+azithro+ppi
+ent3     c1    n=7       mpred+azithro+pred
+       33451758 2021 Transplant Proc | Kidney Transplantation and COVID-19: Two Case Reports.
+       32961675 2020 Int J Environ Res Public Health | Differences between Clinical Protocols for the Treatment of Coronavirus Disease 2019 (COVID-19) in Andalusia, 
+       27847518 2016 Case Rep Med | Adult Onset Still's Disease Associated with Mycoplasma pneumoniae Infection and Hemophagocytic Lymphohistiocyt
+ent3     c1    n=4       mpred+ppi+pred
+       42137921 2026 EuroIntervention | Glucocorticoids to reduce permanent pacemaker implantation after TAVI: the GLUCO-TAVI randomised trial.
+       18265995 2008 Eur Arch Otorhinolaryngol | Treating common problems of the nose and throat in pregnancy: what is safe?
+       34720954 2021 Case Rep Neurol | Case Report: Ulcerative Colitis with Multiple Dural Venous Thrombosis.
+ent3     c1    n=0       amox+azithro+ppi
+ent3     c1    n=1       amox+azithro+pred
+       38003898 2023 J Pers Med | The Impact of Antibiotics and Steroids on the Nasal Microbiome in Patients with Chronic Rhinosinusitis: A Syst
+ent3     c1    n=0       amox+ppi+pred
+ent3     c1    n=1       azithro+ppi+pred
+       26598102 2015 Pharmacotherapy | Azithromycin-Induced, Biopsy-Proven Acute Interstitial Nephritis in an Adult Successfully Treated with Low-Dos
+ent_all  c1    n=0       mpred+amox+azithro+ppi+pred
+ent3     c2    n=2       gyn+naat+pap
+       18159423 2003 Can J Infect Dis | Reasons for testing women for genital Chlamydia trachomatis infection in the Calgary region.
+       23965776 2013 Sex Transm Dis | High-risk human papillomavirus messenger RNA testing in physician- and self-collected specimens for cervical l
+ent3     c2    n=0       gyn+naat+upt
+ent3     c2    n=2       gyn+pap+upt
+       12345153 1993 Contracept Technol Update | Silicone rubber Femcap proves desirable to women.
+       15466684 2004 Arch Pediatr Adolesc Med | Adolescent and young adult women's misunderstanding of the term Pap smear.
+ent3     c2    n=0       naat+pap+upt
+ent_all  c2    n=0       gyn+naat+pap+upt
+ent3     c3    n=1       trop+inj+lipase
+       38619239 2024 J Vis Exp | A Murine Model of Hyperlipidemia-Induced Heart Failure with Preserved Ejection Fraction.
+ent3     c3    n=0       trop+inj+cxr
+ent3     c3    n=2       trop+lipase+cxr
+       39556629 2024 Am Fam Physician | Diabetic Ketoacidosis: Evaluation and Treatment.
+       37868670 2023 J Community Hosp Intern Med Perspect | Hemophagocytic Lymphohistiocytosis and Pancreatic Cancer: A Rare Association.
+ent3     c3    n=0       inj+lipase+cxr
+ent_all  c3    n=0       trop+inj+lipase+cxr
+ent3     c4    n=1115    path+cscreen+endo
+       35316477 2022 Curr Treat Options Oncol | Optimal Strategies for Colorectal Cancer Screening.
+       40455622 2025 JAMA | Clinical Validation of a Circulating Tumor DNA-Based Blood Test to Screen for Colorectal Cancer.
+       16093773 2005 Curr Opin Gastroenterol | Endoscopic confocal microscopy.
+ent3     c4    n=15      path+cscreen+gerd
+       25208463 2015 Dig Endosc | Current status of capsule endoscopy through a whole digestive tract.
+       24759345 2014 Gastroenterol Rep (Oxf) | Kayexalate-induced colonic ulcer.
+       40831875 2025 Cureus | Intestinal Sarcoidosis: A Diagnostic Conundrum.
+ent3     c4    n=19      path+cscreen+prev
+       41648648 2024 ESMO Real World Data Digit Oncol | Artificial intelligence for cancer screening and surveillance.
+       42265755 2026 BJU Int | The 'Prostate Cancer Screening for People at Genetic Risk of Aggressive Disease' (PATROL) study.
+       40011415 2025 J Gen Intern Med | Housing Status and Cancer Screening in US Veterans.
+ent3     c4    n=654     path+endo+gerd
+       37516505 2023 Prim Care | Dysphagia.
+       37463709 2023 Saudi Med J | Eosinophilic esophagitis.
+       35972481 2022 JAMA | Barrett Esophagus: A Review.
+ent3     c4    n=2       path+endo+prev
+       25199861 2014 Mayo Clin Proc | Ulcerative colitis: epidemiology, diagnosis, and management.
+       31537576 2019 BMJ Open | Accuracy of endoscopic staging and targeted biopsies for routine gastric intestinal metaplasia and gastric atr
+ent3     c4    n=0       path+gerd+prev
+ent3     c4    n=63      cscreen+endo+gerd
+       28075104 2017 Am Fam Physician | Esophageal Cancer.
+       33399684 2020 Rev Med Chil | [Classifications and scores used in digestive endoscopy].
+       24759345 2014 Gastroenterol Rep (Oxf) | Kayexalate-induced colonic ulcer.
+ent3     c4    n=19      cscreen+endo+prev
+       23035301 1993  | MUTYH Polyposis.
+       35531944 2022 Scand J Gastroenterol | Gastric cancer screening: a systematic review and meta-analysis.
+       25547206 2015 J Geriatr Oncol | Preventive care in older cancer survivors.
+ent3     c4    n=0       cscreen+gerd+prev
+ent3     c4    n=3       endo+gerd+prev
+       42436443 2026 BMC Oral Health | Impact of gastroesophageal reflux disease severity on dental caries and erosive tooth wear: a case control stu
+       30928919 2019 BMJ Open | Risk factors associated with oral manifestations and oral health impact of gastro-oesophageal reflux disease: 
+       21299618 2011 J Gastroenterol Hepatol | Old age and male sex are associated with increased risk of asymptomatic erosive esophagitis: analysis of data 
+ent_all  c4    n=0       path+cscreen+endo+gerd+prev
+ent3     c5    n=4       ther_ex+manual+ther_act
+       31665420 2020 Mil Med | Occupational Therapy Practice Patterns for Military Service Members With Upper Limb Amputation.
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+       34152897 2022 Physiother Theory Pract | Physical therapist guided active intervention of chronic temporomandibular disorder presenting as ear pain: A 
+ent3     c5    n=55      ther_ex+manual+LBP
+       34580864 2021 Cochrane Database Syst Rev | Exercise therapy for chronic low back pain.
+       40325660 2025 J Bodyw Mov Ther | Does the addition of manual therapy to exercise therapy improve pain and disability outcomes in chronic low ba
+       40747709 2025 Eur J Pain | Exercise Therapy Versus Manual Therapy for the Management of Pain Intensity, Disability, and Physical Function
+ent3     c5    n=8       ther_ex+manual+neuro_re
+       28053200 2017 Br J Sports Med | Treatment and prevention of acute and recurrent ankle sprain: an overview of systematic reviews with meta-anal
+       31728373 2019 Ann Transl Med | Evidence based treatment options for common knee injuries in runners.
+       40887656 2025 Eur J Med Res | Knee osteoarthritis rehabilitation: an integrated framework of exercise, nutrition, biomechanics, and physical
+ent3     c5    n=0       ther_ex+ther_act+LBP
+ent3     c5    n=1       ther_ex+ther_act+neuro_re
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+ent3     c5    n=1       ther_ex+LBP+neuro_re
+       36850539 2023 Sensors (Basel) | Mobility Analysis of the Lumbar Spine with a Dynamic Spine-Correction Device.
+ent3     c5    n=1       manual+ther_act+LBP
+       29805422 2018 Pak J Med Sci | Role of posterior-anterior vertebral mobilization versus thermotherapy in non specific lower back pain.
+ent3     c5    n=1       manual+ther_act+neuro_re
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+ent3     c5    n=1       manual+LBP+neuro_re
+       41662208 2026 J Back Musculoskelet Rehabil | Diaphragmatic dysfunction and activation interventions for chronic nonspecific low back pain: A systematic rev
+ent3     c5    n=0       ther_act+LBP+neuro_re
+ent_all  c5    n=0       ther_ex+manual+ther_act+LBP+neuro_re
+ent3     c6    n=30      b12+vitd+t4
+       35440339 2022 Endocr Metab Immune Disord Drug Targets | Role of Dietary Supplements in Thyroid Diseases.
+       35743024 2022 Int J Mol Sci | Metabolic Characteristics of Hashimoto's Thyroiditis Patients and the Role of Microelements and Diet in the Di
+       39107936 2024 J Cosmet Dermatol | A comprehensive investigation of biochemical status in patients with telogen effluvium: Analysis of Hb, ferrit
+ent3     c6    n=567     b12+vitd+iron
+       35365361 2022 Clin Nutr | ESPEN micronutrient guideline.
+       41549912 2026 Clin Obes | Micronutrient and Nutritional Deficiencies Associated With GLP-1 Receptor Agonist Therapy: A Narrative Review.
+       35010904 2021 Nutrients | Nutrient Intake and Status in Adults Consuming Plant-Based Diets Compared to Meat-Eaters: A Systematic Review.
+ent3     c6    n=213     b12+vitd+ferr
+       41549912 2026 Clin Obes | Micronutrient and Nutritional Deficiencies Associated With GLP-1 Receptor Agonist Therapy: A Narrative Review.
+       34130207 2021 Nutr Res | Nutrient status and growth in vegan children.
+       41382333 2026 Crit Rev Food Sci Nutr | Lacto-ovo-vegetarian and vegan diets in children and adolescents: a systematic review and meta-analysis of nut
+ent3     c6    n=31      b12+t4+iron
+       39125376 2024 Nutrients | The Role of Nutrition on Thyroid Function.
+       35440339 2022 Endocr Metab Immune Disord Drug Targets | Role of Dietary Supplements in Thyroid Diseases.
+       35743024 2022 Int J Mol Sci | Metabolic Characteristics of Hashimoto's Thyroiditis Patients and the Role of Microelements and Diet in the Di
+ent3     c6    n=44      b12+t4+ferr
+       32869910 2020 J Clin Lab Anal | The impact of pre-analytical variations on biochemical analytes stability: A systematic review.
+       39107936 2024 J Cosmet Dermatol | A comprehensive investigation of biochemical status in patients with telogen effluvium: Analysis of Hb, ferrit
+       39950230 2025 J Cosmet Dermatol | Retrospective Review of 2851 Female Patients With Telogen Effluvium: A Single-Center Experience.
+ent3     c6    n=622     b12+iron+ferr
+       41549912 2026 Clin Obes | Micronutrient and Nutritional Deficiencies Associated With GLP-1 Receptor Agonist Therapy: A Narrative Review.
+       30252420 2018 Am Fam Physician | Anemia in Older Adults.
+       34130207 2021 Nutr Res | Nutrient status and growth in vegan children.
+ent3     c6    n=47      vitd+t4+iron
+       32545596 2020 Nutrients | Thyroid-Gut-Axis: How Does the Microbiota Influence Thyroid Function?
+       35440339 2022 Endocr Metab Immune Disord Drug Targets | Role of Dietary Supplements in Thyroid Diseases.
+       28290237 2017 Thyroid | Multiple Nutritional Factors and the Risk of Hashimoto's Thyroiditis.
+ent3     c6    n=43      vitd+t4+ferr
+       20301489 1993  | Glycogen Storage Disease Type I.
+       39107936 2024 J Cosmet Dermatol | A comprehensive investigation of biochemical status in patients with telogen effluvium: Analysis of Hb, ferrit
+       37385530 2023 Endocr Pract | Changes in Urinary Iodine Levels Following Bariatric Surgery.
+ent3     c6    n=493     vitd+iron+ferr
+       41549912 2026 Clin Obes | Micronutrient and Nutritional Deficiencies Associated With GLP-1 Receptor Agonist Therapy: A Narrative Review.
+       30547302 2019 Dermatol Ther (Heidelb) | The Role of Vitamins and Minerals in Hair Loss: A Review.
+       34130207 2021 Nutr Res | Nutrient status and growth in vegan children.
+ent3     c6    n=144     t4+iron+ferr
+       32869910 2020 J Clin Lab Anal | The impact of pre-analytical variations on biochemical analytes stability: A systematic review.
+       38004184 2023 Nutrients | Relationship between Iron Deficiency and Thyroid Function: A Systematic Review and Meta-Analysis.
+       20301489 1993  | Glycogen Storage Disease Type I.
+ent_all  c6    n=5       b12+vitd+t4+iron+ferr
+       39107936 2024 J Cosmet Dermatol | A comprehensive investigation of biochemical status in patients with telogen effluvium: Analysis of Hb, ferrit
+       26547400 2016 J Pediatr | Complementary Serologic Investigations in Children with Celiac Disease Is Unnecessary during Follow-Up.
+       32844185 2020 Am J Clin Nutr | Newborn micronutrient status biomarkers in a cluster-randomized trial of antenatal multiple micronutrient comp
+ent3     c7    n=152     cough+uri+pharyng
+       30429181 2018 Can Fam Physician | What are the most common conditions in primary care? Systematic review.
+       38719213 2024 Cochrane Database Syst Rev | Zinc for prevention and treatment of the common cold.
+       32586739 2020 Auris Nasus Larynx | ENT manifestation in COVID-19 patients.
+ent3     c7    n=15      cough+uri+antigen
+       11997308 2002 Br Med Bull | Acute upper airway infections.
+       38348152 2023 Newborn (Clarksville) | Respiratory Syncytial Virus Infections in Neonates: A Persisting Problem.
+       32898124 2022 Pediatr Emerg Care | Group A Streptococcal Pharyngitis Testing Appropriateness in Pediatric Acute Care Settings.
+ent3     c7    n=74      cough+pharyng+antigen
+       38648833 2024 Am Fam Physician | Streptococcal Pharyngitis: Rapid Evidence Review.
+       32644433 2024  | Acute Pharyngitis.
+       25229278 2014 Rev Soc Bras Med Trop | Streptococcal acute pharyngitis.
+ent3     c7    n=12      uri+pharyng+antigen
+       26785402 2016 Ann Intern Med | Appropriate Antibiotic Use for Acute Respiratory Tract Infection in Adults: Advice for High-Value Care From th
+       11997308 2002 Br Med Bull | Acute upper airway infections.
+       30642770 2019 J Infect Chemother | Association between rapid antigen detection tests and antibiotics for acute pharyngitis in Japan: A retrospect
+ent_all  c7    n=7       cough+uri+pharyng+antigen
+       11997308 2002 Br Med Bull | Acute upper airway infections.
+       32898124 2022 Pediatr Emerg Care | Group A Streptococcal Pharyngitis Testing Appropriateness in Pediatric Acute Care Settings.
+       39184708 2024 Cureus | Stratification of Group A Streptococcal Pharyngitis Children Using Unsupervised Learning.
+pattern  r2    n=195     CP+ecg+hyperl
+       38227869 2024 Am Fam Physician | Acute Coronary Syndrome: Diagnosis and Initial Management.
+       40750173 2025 JACC Case Rep | Cholesterol Pericarditis.
+       29520510 2018 Curr Cardiol Rep | Variant Angina and Aborted Sudden Cardiac Death.
+pattern  r3    n=11      CP+phys+lipid
+       9107535 1997 Curr Probl Cardiol | Evaluation of chest pain in the emergency department.
+       8746644 1995 J Hum Hypertens | Results of long-term medical treatment of patients with arterial hypertension complicated by aortic dissection
+       9362987 1997 Arch Neurol | Characteristics and determinants of sumatriptan-associated chest pain.
+pattern  r4    n=379     CP+ecg+phys
+       33331950 2021 Internist (Berl) | [Chest pain].
+       29431384 2017 Am Fam Physician | Cardiomyopathy: An Overview.
+       17508531 2007 Am Fam Physician | Pleurisy.
+pattern  r5    n=30      mpred+CP+ecg
+       34854348 2021 J Prim Care Community Health | COVID-19 Infection and Myocarditis: A State-of-the-Art Systematic Review.
+       30310723 2017 J Adv Pract Oncol | Brentuximab Vedotin Infusion Reaction Management: A Case Study.
+       39221377 2024 Cureus | Acute Pericarditis Triggered by Severe Thyrotoxicosis.
+pattern  r6    n=7       azithro+CP+ecg
+       34854348 2021 J Prim Care Community Health | COVID-19 Infection and Myocarditis: A State-of-the-Art Systematic Review.
+       38736126 2024 J Assoc Physicians India | Legionella Serositis: A Rare Presentation.
+       39350846 2024 Cureus | Campylobacter-Associated Myocarditis in a 17-Year-Old Male.
+pattern  r7    n=30      CP+ecg+mpred
+       34854348 2021 J Prim Care Community Health | COVID-19 Infection and Myocarditis: A State-of-the-Art Systematic Review.
+       30310723 2017 J Adv Pract Oncol | Brentuximab Vedotin Infusion Reaction Management: A Case Study.
+       39221377 2024 Cureus | Acute Pericarditis Triggered by Severe Thyrotoxicosis.
+pattern  r8    n=1       CP+CBC+venip
+       21534844 2011 Clin Chem Lab Med | Blood cells characteristics as determinants of acute myocardial infarction.
+pattern  r9    n=80      CP+venip
+       41222525 2025 J Am Coll Cardiol | Incremental Value of Cardiac Myosin-Binding Protein C for the Early Diagnosis of Acute Myocardial Infarction.
+       33964547 2021 Am J Emerg Med | EMS blood collection from patients with acute chest pain reduces emergency department length of stay.
+       27899427 2017 Heart | A 56-year-old woman with breathlessness.
+pattern  r10   n=23      venip+CP+ecg
+       27899427 2017 Heart | A 56-year-old woman with breathlessness.
+       21534844 2011 Clin Chem Lab Med | Blood cells characteristics as determinants of acute myocardial infarction.
+       20652662 2010 J Med Toxicol | Phenelzine-induced myocardial injury: a case report.
+pattern  r11   n=3       CP+cxr+trop+CMP
+       37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+       29355072 2019 J Pharm Pract | Topiramate-Induced Chest Pain: A Case Report.
+       36397918 2022 Cureus | An Unusual Presentation of Tuberculosis With Dysphagia.
+pattern  r12   n=7       CP+ecg+trop+CMP
+       39078295 2024 Radiology | Case 331.
+       37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+       39589241 2024 Radiology | Case 331: Cardiac Sarcoidosis.
+pattern  r13   n=5       CP+trop+CMP+CBC
+       39078295 2024 Radiology | Case 331.
+       37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+       39589241 2024 Radiology | Case 331: Cardiac Sarcoidosis.
+pattern  r14   n=275     CP+gerd+endo
+       37634495 2024 Digestion | Esophageal Motility Disorders: Diagnosis and Treatment Strategies.
+       39523069 2025 Surg Clin North Am | Achalasia: Diagnosis and Management.
+       32119349 2025  | Gastroesophageal Reflux Disease (GERD).
+pattern  r15   n=94      CP+path+endo
+       40550542 2025 Korean J Helicobacter Up Gastrointest Res | Infective Esophagitis.
+       30860925 2019 Br J Hosp Med (Lond) | Overview of eosinophilic oesophagitis.
+       35295702 2022 Front Pediatr | Dysmotility in Eosinophilic Esophagitis.
+pattern  r16   n=44      CP+gerd+path
+       16678559 2006 Gastroenterology | Functional esophageal disorders.
+       30860925 2019 Br J Hosp Med (Lond) | Overview of eosinophilic oesophagitis.
+       33632997 2021 Korean J Gastroenterol | [Pharmacological Treatments of Esophageal Dysphagia].
+pattern  r17   n=0       CP+manual+ther_ex
+pattern  r18   n=12      CP+manual
+       27921113 2017 Internist (Berl) | [Musculoskeletal-related chest pain].
+       24209723 2013 Prim Care | Evaluation and treatment of musculoskeletal chest pain.
+       25111147 2014 PLoS One | Treatment efficacy for non-cardiovascular chest pain: a systematic review and meta-analysis.
+pattern  r19   n=0       CP+ther_ex+manual
+pattern  r20   n=3       CP+lipid+vitd
+       38348080 2023 Maedica (Bucur) | Association of Vitamin D with Risk Factors for Coronary Artery Disease.
+       30684966 2019 Lipids Health Dis | Association of 25-hydroxyvitamin D with HDL-cholesterol and other cardiovascular risk biomarkers in subjects w
+       744575 1978 Horm Metab Res | Vitamin D and ischaemic heart disease.
+pattern  r21   n=17      CP+lipid+A1c
+       38348080 2023 Maedica (Bucur) | Association of Vitamin D with Risk Factors for Coronary Artery Disease.
+       30684966 2019 Lipids Health Dis | Association of 25-hydroxyvitamin D with HDL-cholesterol and other cardiovascular risk biomarkers in subjects w
+       31864310 2019 BMC Cardiovasc Disord | Glycated hemoglobin predicts coronary artery disease in non-diabetic adults.
+pattern  r22   n=91      CP+ecg+lipid
+       25638347 2015 Cell Biochem Biophys | Myocardial Infarction: Symptoms and Treatments.
+       40750173 2025 JACC Case Rep | Cholesterol Pericarditis.
+       15336583 2004 Am J Med | Bedside diagnosis of coronary artery disease: a systematic review.
+pattern  r23   n=27      pharyng+CP+ecg
+       35735799 2022 J Cardiovasc Dev Dis | From Streptococcal Pharyngitis/Tonsillitis to Myocarditis: A Systematic Review.
+       14620600 2003 Am Fam Physician | Acute dyspnea in the office.
+       32850069 2020 J Community Hosp Intern Med Perspect | Brugada syndrome unmasked by fever: a comprehensive review of literature.
+pattern  r24   n=17      CP+ecg+uri
+       21597547 2011 Aust Fam Physician | Just a sore throat?
+       33552427 2021 J Community Hosp Intern Med Perspect | Haemophilus influenzae purulent pericarditis in an immunocompetent individual.
+       34044547 2021 Ann Palliat Med | Myocarditis combined with hypertrophic cardiomyopathy: a case report.
+pattern  r25   n=124     cough+CP+ecg
+       39078295 2024 Radiology | Case 331.
+       37465032 2023 J Educ Teach Emerg Med | Acute Chest Syndrome.
+       37721767 2023 JAMA Intern Med | Hidden Fatal ECG Manifestations.
