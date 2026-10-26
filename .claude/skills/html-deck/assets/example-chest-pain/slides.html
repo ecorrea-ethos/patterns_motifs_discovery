@@ -10,12 +10,11 @@
   <aside class="notes">Welcome. This is a validation session, not a results talk. We found eight care patterns in the records of {{cohort.n|int}} chest pain applicants, and we need you to tell us which are clinically meaningful for underwriting and which are only database correlation. We speak for about twenty minutes, then take questions. Keys: arrows move, S shows these notes, O opens the overview, T cycles the themes, F goes full screen, the question mark opens help. The appendix holds one backup page per pattern.</aside>
 </section>
 
-<!-- 2 · the ask -->
-<section class="slide statement" data-sec="The ask" data-chip="none">
-  <div class="st"><div class="kicker">The ask</div>
-    <p class="big">We need you to separate what matters <em>clinically</em> from what is only a database correlation.</p>
-    <p class="cap">{{cohort.patterns}} patterns and {{cohort.sequences}} ordered sequences are drafts. Your judgment decides what stays.</p></div>
-  <aside class="notes">Here is the ask, up front. We found patterns in the records of {{cohort.n|int}} applicants. Some are clinically real. Some are only things that happen to be recorded together. We cannot tell which is which from the data alone, and we hold no confirmed outcome to test against. So we would like Dr. Z and the underwriters to sort them. Nothing in this deck recommends an underwriting decision. Next, the problem we started from.</aside>
+<!-- 2 · the goal -->
+<section class="slide statement" data-sec="Goal" data-chip="none">
+  <div class="st"><div class="kicker">Goal</div>
+    <p class="big">We need you to separate what matters <em>clinically</em> from what is only a database correlation.</p></div>
+  <aside class="notes">Here is the goal, up front. We found patterns in the records of {{cohort.n|int}} applicants. Some are clinically real. Some are only things that happen to be recorded together. We cannot tell which is which from the data alone, and we hold no confirmed outcome to test against. So we would like Dr. Z and the underwriters to sort them. Nothing in this deck recommends an underwriting decision. Next, the problem we started from.</aside>
 </section>
 
 <!-- 3 · problem -->
@@ -42,7 +41,7 @@
   <div class="head"><div class="kicker">02 · How we find them</div>
     <h1>Six steps take a guideline and raw records to checked care patterns.</h1>
     <p class="lede">{{cohort.n|int}} applicants, {{cohort.patterns}} patterns, {{cohort.sequences}} ordered sequences.</p></div>
-  <svg class="full" viewBox="0 0 1920 1080" data-g="pipeline" data-d="method" role="img" aria-label="Six stations: a language model turns the guideline into code lists; {{cohort.n|int}} applicants with a chest pain code and their records; a bag of codes per applicant; {{cohort.patterns}} stable care patterns; ordered sequences re-tested on unseen halves; a PubMed literature search. Three data rules sit underneath."></svg>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="pipeline" data-d="method" role="img" aria-label="Six stations: a language model turns the guideline into code lists; {{cohort.n|int}} applicants with a chest pain code and their records; a bag of codes per applicant; {{cohort.patterns}} stable care patterns; ordered sequences re-tested on unseen halves; a PubMed literature search. Each station has a picture: a guideline paper, a crowd of applicants, a bag of coded events, clusters, a chain of care steps, the PubMed logo."></svg>
   <aside class="notes">This is the whole method in six steps. First, a retrieval-augmented generation (RAG) language model reads the 2021 chest pain guideline of the American Heart Association and the American College of Cardiology and writes the code lists. Second, we take the {{cohort.n|int}} applicants with a chest pain code and pull their records from the Observational Medical Outcomes Partnership (OMOP) tables. Third, each applicant becomes a bag of codes. Fourth, non-negative matrix factorization (NMF) finds {{cohort.patterns}} care patterns, and we keep only those that survive re-runs. Fifth, we mine ordered sequences around chest pain and re-test them on unseen halves. Sixth, a language model searches PubMed for support; the literature can back an event but cannot test its order. Three data rules shape what you will see: visits are removed, refills are collapsed, and same-day steps follow a fixed order. Next, four terms.</aside>
 </section>
 
@@ -51,8 +50,8 @@
   <div class="head"><div class="kicker">02 · How we find them</div>
     <h1>Four terms carry the whole talk.</h1>
     <p class="lede">Each is defined once here and used the same way afterwards.</p></div>
-  <svg class="full" viewBox="0 0 1920 1080" data-g="cards" data-d="terms" role="img" aria-label="Four term cards: care pattern, sequence, times as common, held-out check."></svg>
-  <aside class="notes">Four terms, defined once. A care pattern is a group of codes that tend to appear together in the same applicants' records. A sequence is a list of codes in the order they appear around chest pain; we keep the top {{cohort.perPattern}} per pattern. Times as common compares the share of a pattern's applicants who have a sequence with the share among everyone else. A held-out check re-tests a sequence on a random half it was not built from, {{cohort.heldRuns}} times. Each card ends with what the term does not mean. Next, the eight patterns.</aside>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="cards" data-d="terms" role="img" aria-label="Four term cards: care pattern, sequence, times as common, validation."></svg>
+  <aside class="notes">Four terms, defined once. A care pattern is a group of codes that tend to appear together in the same applicants' records. A sequence is a list of codes in the order they appear around chest pain; we keep the top {{cohort.perPattern}} per pattern. Times as common compares the share of a pattern's applicants who have a sequence with the share among everyone else. Validation re-tests a sequence on a random half it was not built from, {{cohort.heldRuns}} times. Each card ends with what the term does not mean. Next, the eight patterns.</aside>
 </section>
 
 <!-- 7 · eight patterns -->
@@ -70,7 +69,7 @@
     <h1>One pattern looks like an emergency work-up.</h1>
     <p class="lede">Share of applicants with each ordered sequence: inside the pattern, and among everyone else.</p></div>
   <svg class="full" viewBox="0 0 1920 1080" data-g="seqStrip" data-d="patterns" data-o='{"i":3}' role="img" aria-label="In the acute emergency work-up pattern, {{patterns.rows.3.seqs.0.inB|pct0}} of applicants have chest pain, then chest X-ray, then troponin, then a metabolic panel, against {{patterns.rows.3.seqs.0.out|pct0}} of everyone else, {{patterns.rows.3.seqs.0.lift|x1}} as common."></svg>
-  <aside class="notes">This is the pattern clinicians should recognize. {{patterns.rows.3.n|int}} applicants sit here. Troponin appears in {{patterns.rows.3.ents.0.share|pct0}} of them and a chest X-ray in {{patterns.rows.3.ents.3.share|pct0}}. The top sequence runs chest pain, chest X-ray, troponin, then a comprehensive metabolic panel. {{patterns.rows.3.seqs.0.inB|pct0}} of the pattern follows it, against {{patterns.rows.3.seqs.0.out|pct0}} of everyone else. All three top sequences hold on held-out halves, but all are same-day, so the order is a tie-break and not clock time. Next, when these events happen relative to chest pain.</aside>
+  <aside class="notes">This is the pattern clinicians should recognize. {{patterns.rows.3.n|int}} applicants sit here. Troponin appears in {{patterns.rows.3.ents.0.share|pct0}} of them and a chest X-ray in {{patterns.rows.3.ents.3.share|pct0}}. The top sequence runs chest pain, chest X-ray, troponin, then a comprehensive metabolic panel. {{patterns.rows.3.seqs.0.inB|pct0}} of the pattern follows it, against {{patterns.rows.3.seqs.0.out|pct0}} of everyone else. All three top sequences hold in validation, but all are same-day, so the order is a tie-break and not clock time. Next, when these events happen relative to chest pain.</aside>
 </section>
 
 <!-- 9 · timing -->
@@ -93,7 +92,7 @@
 <!-- 11 · verdicts -->
 <section class="slide" data-sec="What we found">
   <div class="head"><div class="kicker">03 · What we found</div>
-    <h1>{{verdicts.hold}} of {{verdicts.total}} sequences hold on held-out halves; {{verdicts.unstable}} do not.</h1>
+    <h1>{{verdicts.hold}} of {{verdicts.total}} sequences hold in validation; {{verdicts.unstable}} do not.</h1>
     <p class="lede">The top {{cohort.perPattern}} sequences of each pattern, colored by verdict, with times as common in each cell.</p></div>
   <svg class="full" viewBox="0 0 1920 1080" data-g="verdictGrid" data-d="patterns" role="img" aria-label="Grid of {{verdicts.total}} sequences: {{verdicts.solid}} solid, {{verdicts.suggestive}} suggestive, {{verdicts.unstable}} unstable."></svg>
   <aside class="notes">Every pattern has three top sequences, so there are {{verdicts.total}} cells. We re-tested each on random halves of the pattern. {{verdicts.solid}} are solid: they hold, and the order shows in the dates. {{verdicts.suggestive}} are suggestive: they hold, but the steps happen on the same day, so order is not evidence. {{verdicts.unstable}} are unstable and should not be used. Check-up and women's health care carry most of the unstable ones. Repeatable does not mean clinically true. Next, four limits of what a code can tell us.</aside>
@@ -114,12 +113,12 @@
     <h1>Each pattern becomes one yes-or-no rule built from three parts.</h1>
     <p class="lede">Example: the emergency work-up. The window and the counts are drafts with no calibration yet.</p></div>
   <svg class="full" viewBox="0 0 1920 1080" data-g="layers" data-d="rule" role="img" aria-label="A pattern rule is true when chest pain is present, {{rule.minEntities}} or more of {{rule.entityCount}} events fall within {{rule.windowDays}} day of chest pain, and one of {{rule.sequences}} ordered sequences is present."></svg>
-  <aside class="notes">To be usable, a pattern has to become a rule. Each rule is a yes-or-no question with three parts: chest pain is present, at least {{rule.minEntities}} of the pattern's main events fall within {{rule.windowDays}} day of chest pain, and at least one of {{rule.sequences}} ordered sequences is present. For the emergency work-up the main events are troponin, intravenous push, lipase and chest X-ray. The window and the count are drafts. We have not calibrated them, and for several patterns the main events sit months before chest pain, so the window may not fit. That is one of your questions. Next, where you come in.</aside>
+  <aside class="notes">To be usable, a pattern has to become a rule. Each rule is a yes-or-no question with three parts: chest pain is present, at least {{rule.minEntities}} of the pattern's main events fall within {{rule.windowDays}} day of chest pain, and at least one of {{rule.sequences}} ordered sequences is present. For the emergency work-up the main events are troponin, intravenous push, lipase and chest X-ray. The window and the count are drafts. We have not calibrated them, and for several patterns the main events sit months before chest pain, so the window may not fit. That is one of your questions. Next, where underwriting sign-off comes in.</aside>
 </section>
 
 <!-- 14 · quadrant -->
-<section class="slide" data-sec="Where you come in">
-  <div class="head"><div class="kicker">06 · Where you come in</div>
+<section class="slide" data-sec="Where underwriting sign-off comes in?">
+  <div class="head"><div class="kicker">06 · Where underwriting sign-off comes in?</div>
     <h1>Is it clinically real? Would it change what an underwriter looks at?</h1>
     <p class="lede">We leave the grid empty on purpose. The eight patterns wait on the left for your placement.</p></div>
   <svg class="full" viewBox="0 0 1920 1080" data-g="quadrant" data-d="quad" data-o='{"chips":"patterns"}' role="img" aria-label="Empty two-by-two grid: clinically real against database correlation, and changes the review against does not. Eight patterns wait to be placed."></svg>
@@ -127,8 +126,8 @@
 </section>
 
 <!-- 15 · asks -->
-<section class="slide" data-sec="Where you come in">
-  <div class="head"><div class="kicker">06 · Where you come in</div>
+<section class="slide" data-sec="Where underwriting sign-off comes in?">
+  <div class="head"><div class="kicker">06 · Where underwriting sign-off comes in?</div>
     <h1>Five questions we need answered.</h1>
     <p class="lede">Each one maps to a slide. Your answers decide what stays in the rules.</p></div>
   <svg class="full" viewBox="0 0 1920 1080" data-g="askList" data-d="asks" role="img" aria-label="Five questions about patterns, sequences, events, gaps in the data, and the draft rule settings."></svg>
@@ -170,7 +169,7 @@
     <h1>c0: check-up labs sit months before chest pain, and no sequence holds.</h1>
     <p class="lede">{{patterns.rows.0.n|int}} applicants ({{patterns.rows.0.pct|pct1}}); {{patterns.rows.0.cp}} of {{patterns.rows.0.scored}} scored sequences contain chest pain.</p></div>
   <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":0}' role="img" aria-label="Pattern c0, outpatient check-up and elective cardiac testing: five main events and three sequences, all unstable."></svg>
-  <aside class="notes">Pattern c0, outpatient check-up and elective cardiac testing, holds {{patterns.rows.0.n|int}} applicants. Its lipid panel, blood draw and general examination come about {{patterns.rows.0.ents.0.med|absmonths}} before chest pain, which is routine care. All three top sequences are unstable on held-out halves, so we would not rely on them.</aside>
+  <aside class="notes">Pattern c0, outpatient check-up and elective cardiac testing, holds {{patterns.rows.0.n|int}} applicants. Its lipid panel, blood draw and general examination come about {{patterns.rows.0.ents.0.med|absmonths}} before chest pain, which is routine care. All three top sequences are unstable in validation, so we would not rely on them.</aside>
 </section>
 
 <section class="slide" data-sec="Appendix">

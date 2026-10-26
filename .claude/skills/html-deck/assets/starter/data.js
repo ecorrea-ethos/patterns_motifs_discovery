@@ -1,7 +1,7 @@
 /* ===== 5. DATA [CONTENT] ===== */
 /* The ONLY place numbers live. Text, notes and aria-labels cite them as {{dataset.path|fmt}}. Shares are fractions (0 to 1). */
 const DECK = { name: 'Review time case', people: [{ key: 'ab', name: 'Alex Brown', role: 'Product lead' }] };
-const PHOTO = {};   // key -> photo as a data URI (scripts/photo_to_datauri.py, injected as /*INJECT:photo*/{}) or a relative path; a missing key means an initials avatar
+const PHOTO = {};   // key -> photo as a data URI (made by scripts/photo_to_datauri.py, see engine.md) or a relative path; a missing key means an initials avatar
 const DATA = {
   kpi: { id: 'kpi', title: 'Median review time', unit: 'hours', kind: 'illustrative', window: 'fictional quarter', denominator: 'fictional requests, no real count', exclusions: '', source: 'Invented for the starter deck', formula: 'cut = (before − after) ÷ before',
     values: { before: 20, after: 10, cut: 0.5 } },

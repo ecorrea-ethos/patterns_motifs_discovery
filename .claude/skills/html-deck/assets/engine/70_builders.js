@@ -61,10 +61,11 @@ G.lanes = function (svg, ds) {
   T(svg, 960, 930, v.bag, { size: S.body, fill: P.ink2, a: 'middle' });
 };
 
-/* pipeline: stations on one track under phase tabs, with a band of data rules tied to stations */
-G.meta.pipeline = { use: 'a method as a short ordered chain with rules that shape it', data: 'values{bandTitle, phases[{t,a,b,hot?}], stations[{t,d,i,hot?}], band[{at,t}]}', limits: '4 to 6 stations, 3 rules; titles about 15 characters, descriptions about 80', notes: 'stations spread evenly over the width: 330 px apart at 5, 275 px at 6; rules sit under their station, so rules on neighbouring stations must be short' };
+/* pipeline: stations on one track under phase tabs. Under them, either a band of data rules tied to stations (values.band) or a picture card per station (stations[].art, a key of G.art) */
+G.art = {};   /* G.art.name(g, x, y, w, h, P, svg) draws a small illustration inside a station card; write them in the deck's builders.js */
+G.meta.pipeline = { use: 'a method as a short ordered chain, with rules that shape it or a picture per step', data: 'values{phases[{t,a,b,hot?}], stations[{t,d,i,hot?,art?}], band?[{at,t}], bandTitle?}', limits: '4 to 6 stations, 3 rules; titles about 15 characters, descriptions about 80', notes: 'stations spread evenly over the width: 330 px apart at 5, 275 px at 6; picture cards are 245 x 226 at 6 stations and use G.art; rules sit under their station, so rules on neighbouring stations must be short' };
 G.pipeline = function (svg, ds) {
-  svg.textContent = ''; const P = pal(svg), v = ds.values, n = v.stations.length, pitch = (ZONE.x1 - ZONE.x0) / n, cx = i => ZONE.x0 + pitch / 2 + i * pitch, ty = 520;
+  svg.textContent = ''; const P = pal(svg), v = ds.values, n = v.stations.length, pitch = (ZONE.x1 - ZONE.x0) / n, cx = i => ZONE.x0 + pitch / 2 + i * pitch, ty = v.stations.some(s => s.art) ? 500 : 520;
   v.phases.forEach((p, i) => {
     const x = cx(p.a) - (pitch - 50) / 2, w = cx(p.b) - cx(p.a) + pitch - 50, hot = !!p.hot;
     R(svg, x, 368, w, 44, { rx: 22, fill: hot ? P.accent : P.accentTint });
@@ -79,6 +80,13 @@ G.pipeline = function (svg, ds) {
     T(svg, cx(i), ty + 98, ft.lines.join(' '), { size: ft.size, w: W.strong, fill: P.ink, a: 'middle' });
     TL(svg, cx(i), ty + 134, wrap(resolve(s.d), pitch - 40, { size: S.label }), { size: S.label, fill: P.ink2, a: 'middle', lh: 28 });
   });
+  v.stations.forEach((s, i) => {
+    if (!s.art) return;
+    const w = pitch - 30, x = cx(i) - w / 2, g = Gr(svg);
+    R(g, x, 756, w, 226, { rx: SH.radiusCard, fill: P.bgAlt });
+    G.art[s.art](g, x, 756, w, 226, P, svg);
+  });
+  if (!v.band) return;
   R(svg, ZONE.x0, 772, ZONE.x1 - ZONE.x0, 168, { rx: SH.radiusCard, fill: P.bgAlt });
   caps(svg, ZONE.x0 + 28, 806, v.bandTitle || 'Rules', P.ink3);
   v.band.forEach(b => {

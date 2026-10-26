@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="brand">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chest pain as care patterns · clinical validation</title>
+<!--
+HOW THIS FILE WORKS
+Open it by double-click (no network). Keys: arrows, space, PageUp/Down move; Home/End; S notes; F fullscreen; O overview; T theme; ? help; Esc closes.
+URL flags: ?check (self-check panel + window.__deckCheck), ?static (no motion), ?theme=light|dark|paper|brand, ?notes. A hash like #7 opens slide 7.
+Add a slide: copy a <section class="slide"> in section 4. A graphic is <svg class="full" data-g="builder" data-d="dataset" data-o='{"opt":1}'>.
+Add a dataset: add a key to DATA (section 5): {id,title,unit,kind,window,denominator,exclusions,source,formula,values}. Text cites numbers as {{dataset.path|fmt}}.
+Add a builder: write G.name=function(svg,ds,o){...} in section 7 and describe it in G.meta.name.
+Add a theme: add html[data-theme="x"]{...} in section 1 with the same token names, then add x to THEMES in section 8.
+Re-brand: edit ONLY the BRAND SLOT in section 1 (tokens, @font-face) and the logo symbols in section 3.
+PDF: open in Chrome or Edge, Print, Save as PDF, Background graphics on, Margins none. One page per slide.
+-->
+<style>
+/* ===== 1. THEME [ENGINE + BRAND SLOT] ===== */
+/* Every color, font, size, radius, stroke, spacing and motion value lives here. Nothing below this block may hold a brand literal. */
+:root, html[data-theme="light"] {
+  --bg:#FFFFFF; --bg-alt:#F4F6F9; --surface:#FFFFFF; --surface-2:#EAEFF5; --bg-dark:#0F1B2D; --letterbox:#0A0F18;
+  --ink:#131A24; --ink-2:#3A4553; --ink-3:#5E6876; --ink-on-dark:#F2F5F9; --ink-2-on-dark:#C3CCD8; --ink-3-on-dark:#98A4B4;
+  --line:#D8DEE6; --line-strong:#8590A0; --line-on-dark:#2A3A52; --line-strong-on-dark:#5B6F8D;
+  --accent:#1556C0; --accent-tint:#E6EEFA; --accent-ink:#0F3F8F; --accent-on-dark:#7FA9FF; --accent-contrast:#FFFFFF;
+  --positive:#0F7B55; --positive-tint:#E3F5EE; --positive-ink:#0B5A3E; --positive-on-dark:#6FD6AB;
+  --caution:#B85309; --caution-tint:#FBEBDD; --caution-ink:#7D3706; --caution-on-dark:#FFB470;
+  --negative:#B3321F; --negative-tint:#FBE6E2; --negative-ink:#86230F; --negative-on-dark:#FF9E8F;
+  --info:#0E7490; --info-tint:#E0F2F7; --info-ink:#0A5368; --info-on-dark:#67D4EC;
+  --s1:var(--accent); --s2:#7A3FA0; --s3:#1B8A7A; --s4:#8A7000; --s5:#C03A7A; --s6:#4B5563; --s7:#7A5230; --s8:#5F8F00;
+  --seq-1:color-mix(in srgb, var(--accent) 10%, var(--bg)); --seq-2:color-mix(in srgb, var(--accent) 24%, var(--bg)); --seq-3:color-mix(in srgb, var(--accent) 42%, var(--bg));
+  --seq-4:color-mix(in srgb, var(--accent) 62%, var(--bg)); --seq-5:color-mix(in srgb, var(--accent) 82%, var(--bg)); --seq-6:var(--accent);
+  --div-1:var(--caution); --div-2:color-mix(in srgb, var(--caution) 65%, var(--bg)); --div-3:color-mix(in srgb, var(--caution) 32%, var(--bg)); --div-4:var(--surface-2);
+  --div-5:color-mix(in srgb, var(--info) 32%, var(--bg)); --div-6:color-mix(in srgb, var(--info) 65%, var(--bg)); --div-7:var(--info);
+  --font-display:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --w-display:300; --w-body:400; --w-strong:700;
+  --fs-hero:176px; --fs-display:136px; --fs-divider:88px; --fs-title:64px; --fs-lede:28px; --fs-card:30px; --fs-body:24px; --fs-label:22px; --fs-kicker:22px; --fs-foot:18px; --fs-big:120px; --fs-stat:92px; --fs-axis:20px;
+  --fs-eyebrow:26px; --fs-name:34px; --fs-statement:96px; --fs-num:300px; --fs-cap:36px; --fs-title2:32px;
+  --tracking-title:-.012em; --tracking-caps:.16em; --lh-title:1.06; --lh-body:1.35;
+  --radius-card:24px; --radius-inner:14px; --radius-pill:999px; --stroke:3px; --stroke-strong:6px; --icon-stroke:1.8; --shadow:none;
+  --stage-w:1920px; --stage-h:1080px; --margin-x:135px; --head-top:72px; --content-top:316px; --content-bottom:1000px; --foot-bottom:38px; --gap:30px;
+  --motif-a:var(--accent-on-dark); --motif-b:var(--info-on-dark); --motif-alpha:.5; --photo-ring:var(--accent-on-dark);
+  --dur-fast:160ms; --dur:620ms; --ease:cubic-bezier(.22,.7,.2,1);
+}
+html[data-theme="dark"] {
+  --bg:#0B121C; --bg-alt:#101A27; --surface:#131E2D; --surface-2:#1A2738; --bg-dark:#060B12; --letterbox:#030609;
+  --ink:#E8ECF2; --ink-2:#BAC4D1; --ink-3:#8F9BAB; --ink-on-dark:#E8ECF2; --ink-2-on-dark:#BAC4D1; --ink-3-on-dark:#8F9BAB;
+  --line:#1F2D41; --line-strong:#58708F; --line-on-dark:#1F2D41; --line-strong-on-dark:#58708F;
+  --accent:#6FA3FF; --accent-tint:#14243D; --accent-ink:#A9C8FF; --accent-on-dark:#8CB6FF; --accent-contrast:#08142A;
+  --positive:#4FD1A1; --positive-tint:#0F2A22; --positive-ink:#8BE5C4; --positive-on-dark:#6FDCB0;
+  --caution:#F0A04B; --caution-tint:#2E2012; --caution-ink:#F7C58E; --caution-on-dark:#F7B067;
+  --negative:#FF8A78; --negative-tint:#331A16; --negative-ink:#FFB2A5; --negative-on-dark:#FF9A8A;
+  --info:#5BC8E0; --info-tint:#0F2A33; --info-ink:#9ADCEB; --info-on-dark:#74D3E8;
+  --s2:#B98AE0; --s3:#4FC3AE; --s4:#C9B13A; --s5:#E57BAE; --s6:#9AA6B6; --s7:#C19A6B; --s8:#9BC53D;
+}
+html[data-theme="paper"] {
+  --bg:#FBF7F0; --bg-alt:#F3EDE2; --surface:#FFFDF8; --surface-2:#ECE4D4; --bg-dark:#2A2118; --letterbox:#1A140E;
+  --ink:#231C14; --ink-2:#4B4034; --ink-3:#6F6254; --ink-on-dark:#F6EFE3; --ink-2-on-dark:#D8CDBB; --ink-3-on-dark:#B3A58F;
+  --line:#DDD3C0; --line-strong:#928570; --line-on-dark:#43372A; --line-strong-on-dark:#7B6C57;
+  --accent:#B4472A; --accent-tint:#F6E3DB; --accent-ink:#8A3219; --accent-on-dark:#F0A58B; --accent-contrast:#FFFFFF;
+  --positive:#2F6B3F; --positive-tint:#E4EFE2; --positive-ink:#234F2F; --positive-on-dark:#8CCB9B;
+  --caution:#94590A; --caution-tint:#F7E8D0; --caution-ink:#6A3F05; --caution-on-dark:#E8B66A;
+  --negative:#A32A2A; --negative-tint:#F6E0DD; --negative-ink:#7C1F1F; --negative-on-dark:#F2A39A;
+  --info:#2B5F7A; --info-tint:#DFEAEF; --info-ink:#1F4A60; --info-on-dark:#8CC3DC;
+  --s2:#5B4B8A; --s3:#2F7D6D; --s4:#8A6D00; --s5:#A63D6E; --s6:#5C5649; --s7:#7A4A2A; --s8:#5A7F1A;
+  --font-display:"Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --radius-card:12px; --radius-inner:8px; --stroke:2px;
+}
+/* >>> BRAND SLOT START */
+/* Ethos Brand Guidelines 2026. Fill or edit ONLY this block to re-brand. Light-theme neutral value of each token is noted in the last comment line. */
+/* @font-face example (brand fonts are licensed, not bundled): local() first, then a relative file.
+   @font-face { font-family:"Portada"; font-weight:600; src:local("Portada Semibold"), local("Portada-Semibold"), url("fonts/Portada-Semibold.woff2") format("woff2"); }
+   @font-face { font-family:"Hauss"; font-weight:400; src:local("Hauss Regular"), local("Hauss-Regular"), url("fonts/Hauss-Regular.woff2") format("woff2"); } */
+html[data-theme="brand"] {
+  --bg:#FFFFFF; --bg-alt:#FAF9F5; --surface:#FFFFFF; --surface-2:#EFECE2; --bg-dark:#05594F; --letterbox:#272727;                /* Dark Cypress, Light Truffle, Truffle, Night */
+  --ink:#272727; --ink-2:#5D5D5D; --ink-3:#6B6B6B; --ink-on-dark:#FFFFFF; --ink-2-on-dark:#D2ECE7; --ink-3-on-dark:#A9D8CF;       /* ink-3 and the on-dark greys are derived */
+  --line:#D4D4D4; --line-strong:#8F8F8F; --line-on-dark:#2B7168; --line-strong-on-dark:#5FA095;
+  --accent:#05594F; --accent-tint:#E3F8F6; --accent-ink:#05594F; --accent-on-dark:#59F8B1; --accent-contrast:#FFFFFF;             /* Dark Cypress, Light Cypress, Bright Clover */
+  --positive:#17835F; --positive-tint:#E4F6EE; --positive-ink:#0F5C43; --positive-on-dark:#7DE8B8;                                 /* derived: the brand has no status colors */
+  --caution:#9A5B00; --caution-tint:#FFF1D9; --caution-ink:#6F4100; --caution-on-dark:#FFD27A;
+  --negative:#B3321F; --negative-tint:#FDE7E3; --negative-ink:#8A2314; --negative-on-dark:#FFB3A6;
+  --info:#0B4368; --info-tint:#E3EEF6; --info-ink:#0B4368; --info-on-dark:#9CD0F2;                                                 /* Neptune: factual and informative content */
+  --s2:#2F6FB5; --s3:#8A7B00; --s4:#7A4FA0; --s5:#C0508A; --s6:#078476; --s7:#6B7280; --s8:#A0522D;                                 /* derived categorical set */
+  --font-display:"Portada", "Merriweather", "Iowan Old Style", Georgia, serif;
+  --font-body:"Hauss", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --w-display:600; --radius-card:20px; --radius-inner:12px; --stroke:3px;
+  --motif-a:var(--accent-on-dark); --motif-b:#078476; --motif-alpha:.55; --photo-ring:var(--accent-on-dark);
+  /* neutral (light) values of the tokens above: accent #1556C0, bg-dark #0F1B2D, ink #131A24, positive #0F7B55, caution #B85309, negative #B3321F, info #0E7490, display weight 300, radius-card 24px */
+}
+/* <<< BRAND SLOT END */
+/* ===== 2. BASE [ENGINE] ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--letterbox);overflow:hidden}
+body{font-family:var(--font-body);font-weight:var(--w-body);color:var(--ink);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+#viewport{position:fixed;inset:0;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:var(--stage-w);height:var(--stage-h);transform-origin:0 0;background:var(--bg);overflow:hidden}
+.slide{position:absolute;inset:0;display:none;background:var(--bg);color:var(--ink);overflow:hidden}
+.slide.active{display:block}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+svg{display:block;font-variant-numeric:tabular-nums}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px}
+svg.sprites{position:absolute;width:0;height:0}
+/* head, kicker, title, lede */
+.head{position:absolute;left:var(--margin-x);right:var(--margin-x);top:var(--head-top)}
+.kicker{font-size:var(--fs-kicker);font-weight:var(--w-strong);text-transform:uppercase;letter-spacing:var(--tracking-caps);color:var(--accent);margin-bottom:14px}
+h1{text-wrap:balance;font-family:var(--font-display);font-weight:var(--w-display);font-size:var(--fs-title);line-height:var(--lh-title);letter-spacing:var(--tracking-title);max-width:1480px}
+.lede{font-size:var(--fs-lede);line-height:1.2;color:var(--ink-2);margin-top:14px;white-space:nowrap}
+.slide .notes{display:none}
+.chip{position:absolute;right:var(--margin-x);top:70px;font-size:var(--fs-foot);font-weight:var(--w-strong);letter-spacing:.12em;text-transform:uppercase;padding:8px 18px;border-radius:var(--radius-pill);background:var(--positive-tint);color:var(--positive-ink)}
+.chip.estimate,.chip.draft{background:var(--caution-tint);color:var(--caution-ink)}
+.chip.illustrative{background:var(--info-tint);color:var(--info-ink)}
+.foot{position:absolute;left:var(--margin-x);right:var(--margin-x);bottom:var(--foot-bottom);display:flex;justify-content:space-between;font-size:var(--fs-foot);color:var(--ink-3)}
+.fn{position:absolute;left:var(--margin-x);right:var(--margin-x);bottom:68px;display:flex;justify-content:space-between;align-items:flex-end;gap:48px;font-size:var(--fs-axis);line-height:1.25;color:var(--ink-3)}
+.fn span:first-child{max-width:560px}.fn span:last-child{max-width:1040px;text-align:right}
+.dark .fn{color:var(--ink-3-on-dark)}
+/* dark slides */
+.dark,.hero,.divider{color:var(--ink-on-dark)}
+.dark{background:var(--bg-dark)}
+.dark .kicker{color:var(--accent-on-dark)} .dark .lede{color:var(--ink-2-on-dark)} .dark .foot{color:var(--ink-3-on-dark)}
+.dark .chip{background:color-mix(in srgb, var(--positive-on-dark) 22%, transparent);color:var(--positive-on-dark)}
+.dark .chip.estimate{background:color-mix(in srgb, var(--caution-on-dark) 22%, transparent);color:var(--caution-on-dark)}
+/* hero: cover and closing */
+.hero{background:linear-gradient(135deg, var(--bg-dark) 0%, color-mix(in srgb, var(--bg-dark) 82%, var(--accent)) 100%)}
+.hero svg.motif{position:absolute;left:0;top:0;width:1920px;height:1080px}
+.hero .eyebrow{position:absolute;left:var(--margin-x);top:128px;font-size:var(--fs-eyebrow);font-weight:var(--w-strong);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2-on-dark)}
+.hero .title{position:absolute;left:var(--margin-x);top:196px;width:1500px;font-family:var(--font-display);font-weight:var(--w-display);font-size:var(--fs-hero);line-height:1.02;letter-spacing:-.025em}
+.hero .title em{font-style:normal;font-weight:var(--w-strong);color:var(--accent-on-dark)}
+.hero .rule{position:absolute;left:var(--margin-x);top:600px;width:104px;height:5px;background:var(--accent-on-dark)}
+.hero .team{position:absolute;left:var(--margin-x);top:632px;font-size:var(--fs-lede);color:var(--ink-2-on-dark)}
+.hero .people{position:absolute;left:var(--margin-x);top:728px;display:flex;align-items:center;gap:26px}
+.hero .people div + svg{margin-left:38px}
+.hero .people .nm{font-family:var(--font-display);font-size:var(--fs-name);font-weight:var(--w-display);line-height:1.1}
+.hero .people .rl{font-size:var(--fs-label);color:var(--ink-2-on-dark);margin-top:4px}
+.hero .logo{position:absolute;left:835px;bottom:78px;width:250px;height:48px;color:var(--ink-on-dark)}
+.hero.close .title{top:300px}
+/* statement */
+.statement{background:var(--bg-alt)}
+.statement .st{position:absolute;left:var(--margin-x);right:var(--margin-x);top:0;bottom:0;display:flex;flex-direction:column;justify-content:center}
+.statement .big{font-family:var(--font-display);font-weight:var(--w-display);font-size:var(--fs-statement);line-height:1.08;letter-spacing:var(--tracking-title);max-width:1500px}
+.statement .big em{font-style:normal;color:var(--accent)}
+.statement .num{font-family:var(--font-display);font-weight:var(--w-display);font-size:var(--fs-num);line-height:1;color:var(--accent);letter-spacing:-.03em}
+.statement .cap{font-size:var(--fs-cap);line-height:1.3;color:var(--ink-2);margin-top:26px;max-width:1380px}
+.statement .kicker{margin-bottom:34px}
+/* divider */
+.divider{background:var(--accent);color:var(--accent-contrast)}
+.divider .numeral{position:absolute;left:-250px;top:-210px;font-family:var(--font-display);font-weight:var(--w-strong);font-size:1440px;line-height:1;color:color-mix(in srgb, var(--accent-contrast) 14%, transparent)}
+.divider svg.marks{position:absolute;right:var(--margin-x);top:96px;width:520px;height:300px;color:var(--accent-contrast)}
+.divider .dt{position:absolute;left:var(--margin-x);bottom:210px;right:var(--margin-x)}
+.divider h1{font-size:var(--fs-divider);max-width:1500px} .divider .line{font-size:var(--fs-title2);margin-top:22px;max-width:1300px}
+.divider .kicker{color:var(--accent-contrast)}
+/* chrome: notes, overview, help, check panel */
+#notes{position:fixed;left:0;right:0;bottom:0;display:none;max-height:34vh;overflow:auto;padding:14px 26px 16px;background:var(--surface);color:var(--ink);border-top:2px solid var(--line-strong);font-size:17px;line-height:1.45;z-index:20}
+body.notes #notes{display:block}
+#overview{position:fixed;inset:0;display:none;overflow:auto;padding:28px;background:var(--letterbox);z-index:30;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;align-content:start}
+body.ov #overview{display:grid} body.ov #notes{display:none}
+#overview .th{position:relative;overflow:hidden;border-radius:6px;cursor:pointer;background:var(--bg);outline:2px solid transparent}
+#overview .th::before{content:"";display:block;padding-top:56.25%}
+#overview .th.cur{outline-color:var(--accent-on-dark)} #overview .th .in{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;pointer-events:none}
+#overview .th .in .slide{display:block}
+#help{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:color-mix(in srgb, var(--letterbox) 80%, transparent);z-index:40}
+body.hp #help{display:flex}
+#help .box{background:var(--surface);color:var(--ink);padding:28px 36px;border-radius:var(--radius-card);font-size:18px;line-height:1.7;max-width:640px}
+#help kbd{font-family:var(--font-mono);background:var(--surface-2);padding:2px 8px;border-radius:6px;margin-right:6px}
+#deck-check{position:fixed;left:8px;top:8px;z-index:50;max-width:min(980px,96vw);max-height:92vh;overflow:auto;margin:0;padding:10px 14px;font:12px/1.45 var(--font-mono);background:var(--surface);color:var(--ink);border:3px solid var(--positive);white-space:pre-wrap}
+#deck-check.bad{border-color:var(--caution)}
+/* print: one slide per page, final states */
+@page{size:1920px 1080px;margin:0}
+@media print{
+  html,body{height:auto;overflow:visible;background:none}
+  #viewport{position:static;overflow:visible}
+  #stage{position:static;transform:none!important;width:1920px;height:auto;overflow:visible}
+  .slide{display:block!important;position:relative;width:1920px;height:1080px;break-after:page;page-break-after:always}
+  .slide:last-child{break-after:auto;page-break-after:auto}
+  #notes,#overview,#help,#deck-check{display:none!important}
+  *{print-color-adjust:exact;-webkit-print-color-adjust:exact;animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<!-- ===== 3. SPRITES [ENGINE] ===== -->
+<svg class="sprites" aria-hidden="true" focusable="false">
+<symbol fill="currentColor" stroke="none" id="logo-word" viewBox="951 421 720 139"><path d="M 1052.1 422.7 L 1052.1 449.9 L 977.7 449.9 L 977.7 477 L 1042.5 477 L 1042.5 503.8 L 977.7 503.8 L 977.7 531.2 L 1052.1 531.2 L 1052.1 558.1 L 951 558.1 L 951 422.7 Z M 1052.1 422.7 "/><path d="M 1353.7 503.8 L 1353.7 422.7 L 1327 422.7 L 1327 477 L 1266.9 477 L 1266.9 422.7 L 1240.2 422.7 L 1240.2 558.1 L 1266.9 558.1 L 1266.9 503.8 L 1327 503.8 L 1327 558.1 L 1353.7 558.1 Z M 1353.7 503.8 "/><path d="M 1159.4 558.1 L 1132.7 558.1 L 1132.7 449.9 L 1089.4 449.9 L 1089.4 422.7 L 1202.7 422.7 L 1202.7 449.9 L 1159.4 449.9 L 1159.4 558.1 "/><path d="M 1668.3 444.7 L 1647.8 461.2 C 1647.8 461.2 1638.2 445.9 1614.3 445.9 C 1590.4 445.9 1591.9 460.8 1591.9 460.8 C 1591.9 460.8 1591.2 467.9 1599.3 471.3 C 1607.3 474.7 1624.5 477.4 1632.9 479.7 C 1639.6 481.6 1649.9 484.1 1658 490.4 C 1666.6 497.1 1671 504.2 1671 517.9 C 1671 533.4 1662.7 541.9 1662.7 541.9 C 1662.7 541.9 1649.5 560 1618.5 560 C 1587.4 560 1571.6 545.8 1571.6 545.8 C 1571.6 545.8 1562.8 539.4 1556.9 530.8 L 1579.2 514.9 C 1579.2 514.9 1589.3 534.6 1618.3 534.6 C 1647.4 534.6 1642.1 516.8 1642.1 516.8 C 1642.1 516.8 1640.6 510.1 1630.6 507.3 C 1621.1 504.6 1618.5 504.7 1596.2 499.1 C 1568.4 492.2 1563.2 472.3 1563.2 462.3 C 1563.3 453.4 1565.9 441.8 1579.7 430.9 C 1593.6 420.1 1616 421 1616 421 C 1616 421 1646.3 419.2 1668.3 444.7 Z M 1668.3 444.7 "/><path d="M 1430.5 518.3 C 1411.6 499.5 1400.1 464.7 1421.4 428 L 1411.4 437.9 C 1383.9 465.4 1383.9 510 1411.4 537.4 C 1438.9 564.9 1483.5 564.9 1510.9 537.4 L 1520.9 527.5 C 1485.9 547.8 1451.1 538.9 1430.5 518.3 Z M 1430.5 518.3 "/><path d="M 1512.1 436.8 C 1493.3 418.1 1462.8 418.1 1444 436.8 C 1441.3 439.5 1435.7 445.9 1433.8 449 C 1452.3 437.6 1476.9 439.9 1492.9 455.9 C 1508.9 471.9 1511.3 496.4 1500 514.9 L 1502.8 512.7 C 1505.9 510.5 1509.8 507.1 1512.1 504.8 C 1530.8 486.1 1530.8 455.6 1512.1 436.8 Z M 1512.1 436.8 "/></symbol>
+<symbol fill="currentColor" stroke="none" id="logo-mark" viewBox="1101 423 235 235"><path d="M 1170 589 C 1137.2 556.2 1117.1 495.9 1154.1 432.1 L 1136.8 449.4 C 1089.1 497.1 1089.1 574.5 1136.8 622.2 C 1184.5 669.9 1261.9 669.9 1309.6 622.2 L 1326.9 604.9 C 1266.2 640.2 1205.7 624.8 1170 589 Z M 1170 589 "/><path d="M 1311.5 447.5 C 1278.9 414.8 1226.1 414.8 1193.4 447.5 C 1188.7 452.2 1178.9 463.2 1175.6 468.6 C 1207.8 448.8 1250.5 452.7 1278.4 480.6 C 1306.1 508.4 1310.2 550.9 1290.6 583 L 1295.5 579.3 C 1300.9 575.4 1307.7 569.4 1311.6 565.5 C 1344.2 532.9 1344.2 480.1 1311.6 447.5 Z M 1311.5 447.5 "/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M7.5 12.5l3 3 6-6.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.8"/><path d="M2.5 19c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 14c3 0 5 1.6 5.5 5"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h6l2 2h10v11H3z"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5L16 9.5"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></symbol>
+<symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.7L19.5 10l-5.7 1.8L12 17.5l-1.8-5.7L4.5 10l5.7-1.3z"/></symbol>
+<symbol id="i-chart-bar" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><rect x="8" y="12" width="3" height="8"/><rect x="14" y="7" width="3" height="13"/></symbol>
+<symbol id="i-chart-line" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="M7 15l4-4 3 3 5-7"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+<symbol id="i-message" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 5h13l-2.5 4 2.5 4H5"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12h.01"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4M4 5v4h4"/><path d="M4 13a8 8 0 0 0 14 4M20 19v-4h-4"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M4 20h16"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+<symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 7.5v9M6 16c0-5 12-1 12-5.5"/></symbol>
+<symbol id="i-merge" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5"/><circle cx="6" cy="19" r="2.5"/><path d="M6 7.5v9M18 12h-6a6 6 0 0 1-6-6"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.8 6.3.8-4.6 4.4 1.2 6.3-5.6-3.1-5.6 3.1 1.2-6.3L3 9.6l6.3-.8z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/></symbol>
+<symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2 12h5l2-6 4 12 2-6h7"/></symbol>
+<symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/></symbol>
+</svg>
+<div id="viewport"><div id="stage">
+<!-- ===== 4. SLIDES [CONTENT] ===== -->
+<!-- 1 · cover -->
+<section class="slide hero" data-sec="Cover">
+  <svg class="motif" viewBox="0 0 1920 1080" aria-hidden="true" data-motif></svg>
+  <div class="eyebrow">Clinical validation session</div>
+  <h1 class="title">Chest pain as<br><em>care</em> patterns</h1>
+  <div class="rule"></div>
+  <p class="team">Prepared for the clinical and underwriting review</p>
+  <div class="people" data-people></div>
+  <svg class="logo" viewBox="0 0 720 139" role="img" aria-label="Ethos"><use href="#logo-word"/></svg>
+  <aside class="notes">Welcome. This is a validation session, not a results talk. We found eight care patterns in the records of {{cohort.n|int}} chest pain applicants, and we need you to tell us which are clinically meaningful for underwriting and which are only database correlation. We speak for about twenty minutes, then take questions. Keys: arrows move, S shows these notes, O opens the overview, T cycles the themes, F goes full screen, the question mark opens help. The appendix holds one backup page per pattern.</aside>
+</section>
+
+<!-- 2 · the goal -->
+<section class="slide statement" data-sec="Goal" data-chip="none">
+  <div class="st"><div class="kicker">Goal</div>
+    <p class="big">We need you to separate what matters <em>clinically</em> from what is only a database correlation.</p></div>
+  <aside class="notes">Here is the goal, up front. We found patterns in the records of {{cohort.n|int}} applicants. Some are clinically real. Some are only things that happen to be recorded together. We cannot tell which is which from the data alone, and we hold no confirmed outcome to test against. So we would like Dr. Z and the underwriters to sort them. Nothing in this deck recommends an underwriting decision. Next, the problem we started from.</aside>
+</section>
+
+<!-- 3 · problem -->
+<section class="slide" data-sec="The problem">
+  <div class="head"><div class="kicker">01 · The problem</div>
+    <h1>Two nonspecific codes make up {{icd.top2|pct0}} of chest pain applicants.</h1>
+    <p class="lede">Share of applicants by chest pain code, in an earlier extract of {{icd.n|int}} applicants.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="rankedBars" data-d="icd" data-o='{"head":"International Classification of Diseases, tenth revision (ICD-10) code","note":["Today the guideline flags this","code group (dx_9487) for manual","review. Chest pain may be cardiac,","musculoskeletal, digestive or","anxiety-related."],"top":2}'
+       role="img" aria-label="Horizontal bars: R07.89 other chest pain {{icd.rows.0.v|pct1}} and R07.9 chest pain unspecified {{icd.rows.1.v|pct1}} together make {{icd.top2|pct1}} of {{icd.n|int}} applicants; three smaller codes make the rest."></svg>
+  <aside class="notes">These are the five International Classification of Diseases, tenth revision, codes behind our chest pain group, dx_9487. Two of them, other chest pain and chest pain unspecified, carry {{icd.top2|pct0}} of applicants, and both are nonspecific. Chest pain can be cardiac, musculoskeletal, digestive or anxiety-related, and the code does not say which. Today the guideline flags the whole group for manual review. These shares come from an earlier extract of {{icd.n|int}} applicants; the rest of the talk uses {{cohort.n|int}}. Next, why a plain list of codes cannot separate these applicants.</aside>
+</section>
+
+<!-- 4 · identical records -->
+<section class="slide" data-sec="The problem">
+  <div class="head"><div class="kicker">01 · The problem</div>
+    <h1>Two identical-looking records can end very differently.</h1>
+    <p class="lede">A bag of codes lists what was recorded, not the order or the timing of care.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="lanes" data-d="pair" role="img" aria-label="Two applicants share chest pain and an electrocardiogram; later one has an anxiety diagnosis and the other a troponin test."></svg>
+  <aside class="notes">Here is why order matters. Take two applicants whose records look the same: chest pain and an electrocardiogram. Later, one receives an anxiety diagnosis and the other gets a troponin test. A bag of codes cannot tell them apart. That is a limit of the representation, not of the algorithm, so we keep the order of care and look for patterns in it. This is a schematic of two records described in our report, not a rate. Next, how we find the patterns.</aside>
+</section>
+
+<!-- 5 · method -->
+<section class="slide" data-sec="How we find them">
+  <div class="head"><div class="kicker">02 · How we find them</div>
+    <h1>Six steps take a guideline and raw records to checked care patterns.</h1>
+    <p class="lede">{{cohort.n|int}} applicants, {{cohort.patterns}} patterns, {{cohort.sequences}} ordered sequences.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="pipeline" data-d="method" role="img" aria-label="Six stations: a language model turns the guideline into code lists; {{cohort.n|int}} applicants with a chest pain code and their records; a bag of codes per applicant; {{cohort.patterns}} stable care patterns; ordered sequences re-tested on unseen halves; a PubMed literature search. Each station has a picture: a guideline paper, a crowd of applicants, a bag of coded events, clusters, a chain of care steps, the PubMed logo."></svg>
+  <aside class="notes">This is the whole method in six steps. First, a retrieval-augmented generation (RAG) language model reads the 2021 chest pain guideline of the American Heart Association and the American College of Cardiology and writes the code lists. Second, we take the {{cohort.n|int}} applicants with a chest pain code and pull their records from the Observational Medical Outcomes Partnership (OMOP) tables. Third, each applicant becomes a bag of codes. Fourth, non-negative matrix factorization (NMF) finds {{cohort.patterns}} care patterns, and we keep only those that survive re-runs. Fifth, we mine ordered sequences around chest pain and re-test them on unseen halves. Sixth, a language model searches PubMed for support; the literature can back an event but cannot test its order. Three data rules shape what you will see: visits are removed, refills are collapsed, and same-day steps follow a fixed order. Next, four terms.</aside>
+</section>
+
+<!-- 6 · terms -->
+<section class="slide" data-sec="How we find them">
+  <div class="head"><div class="kicker">02 · How we find them</div>
+    <h1>Four terms carry the whole talk.</h1>
+    <p class="lede">Each is defined once here and used the same way afterwards.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="cards" data-d="terms" role="img" aria-label="Four term cards: care pattern, sequence, times as common, validation."></svg>
+  <aside class="notes">Four terms, defined once. A care pattern is a group of codes that tend to appear together in the same applicants' records. A sequence is a list of codes in the order they appear around chest pain; we keep the top {{cohort.perPattern}} per pattern. Times as common compares the share of a pattern's applicants who have a sequence with the share among everyone else. Validation re-tests a sequence on a random half it was not built from, {{cohort.heldRuns}} times. Each card ends with what the term does not mean. Next, the eight patterns.</aside>
+</section>
+
+<!-- 7 · eight patterns -->
+<section class="slide" data-sec="What we found">
+  <div class="head"><div class="kicker">03 · What we found</div>
+    <h1>{{cohort.patterns|Word}} care patterns cover all {{cohort.n|int}} applicants.</h1>
+    <p class="lede">Each applicant sits in the pattern that dominates their record. Area is the number of applicants.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="treemap" data-d="patterns" data-o='{"highlight":3}' role="img" aria-label="Treemap of eight care patterns. Check-up care is largest at {{patterns.rows.0.pct|pct1}}; the acute emergency work-up is {{patterns.rows.3.pct|pct1}}."></svg>
+  <aside class="notes">These are the eight patterns. Each applicant is placed in the pattern that dominates their record, so the tiles add up to all {{cohort.n|int}} applicants. Check-up care is the largest at {{patterns.rows.0.pct|pct0}}. The acute emergency work-up, highlighted, is {{patterns.rows.3.pct|pct0}}, or {{patterns.rows.3.n|int}} applicants. The names are our wording, taken from each pattern's top codes, and they need a clinical read. These describe care delivered, not diagnosis. Next, the pattern that looks most like a cardiac work-up.</aside>
+</section>
+
+<!-- 8 · emergency work-up (dark) -->
+<section class="slide dark" data-sec="What we found">
+  <div class="head"><div class="kicker">03 · What we found</div>
+    <h1>One pattern looks like an emergency work-up.</h1>
+    <p class="lede">Share of applicants with each ordered sequence: inside the pattern, and among everyone else.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="seqStrip" data-d="patterns" data-o='{"i":3}' role="img" aria-label="In the acute emergency work-up pattern, {{patterns.rows.3.seqs.0.inB|pct0}} of applicants have chest pain, then chest X-ray, then troponin, then a metabolic panel, against {{patterns.rows.3.seqs.0.out|pct0}} of everyone else, {{patterns.rows.3.seqs.0.lift|x1}} as common."></svg>
+  <aside class="notes">This is the pattern clinicians should recognize. {{patterns.rows.3.n|int}} applicants sit here. Troponin appears in {{patterns.rows.3.ents.0.share|pct0}} of them and a chest X-ray in {{patterns.rows.3.ents.3.share|pct0}}. The top sequence runs chest pain, chest X-ray, troponin, then a comprehensive metabolic panel. {{patterns.rows.3.seqs.0.inB|pct0}} of the pattern follows it, against {{patterns.rows.3.seqs.0.out|pct0}} of everyone else. All three top sequences hold in validation, but all are same-day, so the order is a tie-break and not clock time. Next, when these events happen relative to chest pain.</aside>
+</section>
+
+<!-- 9 · timing -->
+<section class="slide" data-sec="What we found">
+  <div class="head"><div class="kicker">03 · What we found</div>
+    <h1>Check-up labs come months before chest pain; the work-up, the same day.</h1>
+    <p class="lede">Median days from an applicant's first chest pain to each pattern's five main events.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="timeline" data-d="timing" data-o='{"highlight":3,"also":0}' role="img" aria-label="Dot plot of median days from first chest pain for five events in each of eight patterns. Check-up labs sit about {{timing.rows.0.ents.0.med|absmonths}} before; all emergency work-up events sit on day zero."></svg>
+  <aside class="notes">Each dot is one of a pattern's five main events, placed at the median number of days between the applicant's first chest pain and the first time the event appears. Zero is chest pain. The emergency work-up lands on the same day. Check-up labs, such as the lipid panel and the general examination, sit about {{timing.rows.0.ents.0.med|absmonths}} earlier, which is routine care and not a response to the symptom. Physical therapy and nutrition labs straddle chest pain. We read the first occurrence only, so a repeated test can look earlier than it is. Next, the original anxiety question.</aside>
+</section>
+
+<!-- 10 · psych -->
+<section class="slide statement" data-sec="What we found" data-d="psych">
+  <div class="st"><div class="kicker">03 · What we found</div>
+    <p class="num">{{psych.first|pct0}}</p>
+    <p class="cap">of the {{psych.n|int}} applicants with both a psychiatric code and a troponin test had the psychiatric code first. Yet no pattern is led by anxiety or panic codes.</p></div>
+  <aside class="notes">We started with the question of whether anxiety or panic explains many chest pain cases. The data answer is awkward. {{psych.first|pct0}} of the {{psych.n|int}} applicants who have both a psychiatric code and a troponin test had the psychiatric code first. But no care pattern in any of our runs is led by anxiety or panic codes; those codes are spread thin across several patterns. So the signal exists in the timing but not as a pattern of its own. Psychiatric evidence here means anxiety, panic, or an evaluation or therapy code. Next, how well the sequences hold up.</aside>
+</section>
+
+<!-- 11 · verdicts -->
+<section class="slide" data-sec="What we found">
+  <div class="head"><div class="kicker">03 · What we found</div>
+    <h1>{{verdicts.hold}} of {{verdicts.total}} sequences hold in validation; {{verdicts.unstable}} do not.</h1>
+    <p class="lede">The top {{cohort.perPattern}} sequences of each pattern, colored by verdict, with times as common in each cell.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="verdictGrid" data-d="patterns" role="img" aria-label="Grid of {{verdicts.total}} sequences: {{verdicts.solid}} solid, {{verdicts.suggestive}} suggestive, {{verdicts.unstable}} unstable."></svg>
+  <aside class="notes">Every pattern has three top sequences, so there are {{verdicts.total}} cells. We re-tested each on random halves of the pattern. {{verdicts.solid}} are solid: they hold, and the order shows in the dates. {{verdicts.suggestive}} are suggestive: they hold, but the steps happen on the same day, so order is not evidence. {{verdicts.unstable}} are unstable and should not be used. Check-up and women's health care carry most of the unstable ones. Repeatable does not mean clinically true. Next, four limits of what a code can tell us.</aside>
+</section>
+
+<!-- 12 · limits -->
+<section class="slide" data-sec="Limits">
+  <div class="head"><div class="kicker">04 · What codes cannot tell us</div>
+    <h1>Four limits of what a code can tell us.</h1>
+    <p class="lede">They come from how claims are recorded, and they bound every pattern shown.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="cards" data-d="limits" role="img" aria-label="Four limits: a code shows a test not its result; many codes are generic; same-day order is a rule, {{limits.sameDay}} of {{limits.total}} sequences; patterns are care not diagnosis."></svg>
+  <aside class="notes">Four limits to weigh as you read everything else. First, a code shows that a test happened, not what it found: we cannot see a troponin level or an electrocardiogram reading. Second, many codes are generic: a blood draw or a general examination appears at most check-ups, and we cannot see which troponin test was used. Third, claims carry dates, not times, so {{limits.sameDay}} of {{limits.total}} sequences are mostly same-day and their order is a rule. Fourth, we hold no confirmed cardiac outcome, so nothing is validated. Next, how a pattern becomes a rule.</aside>
+</section>
+
+<!-- 13 · rule -->
+<section class="slide" data-sec="From pattern to rule">
+  <div class="head"><div class="kicker">05 · From pattern to rule</div>
+    <h1>Each pattern becomes one yes-or-no rule built from three parts.</h1>
+    <p class="lede">Example: the emergency work-up. The window and the counts are drafts with no calibration yet.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="layers" data-d="rule" role="img" aria-label="A pattern rule is true when chest pain is present, {{rule.minEntities}} or more of {{rule.entityCount}} events fall within {{rule.windowDays}} day of chest pain, and one of {{rule.sequences}} ordered sequences is present."></svg>
+  <aside class="notes">To be usable, a pattern has to become a rule. Each rule is a yes-or-no question with three parts: chest pain is present, at least {{rule.minEntities}} of the pattern's main events fall within {{rule.windowDays}} day of chest pain, and at least one of {{rule.sequences}} ordered sequences is present. For the emergency work-up the main events are troponin, intravenous push, lipase and chest X-ray. The window and the count are drafts. We have not calibrated them, and for several patterns the main events sit months before chest pain, so the window may not fit. That is one of your questions. Next, where underwriting sign-off comes in.</aside>
+</section>
+
+<!-- 14 · quadrant -->
+<section class="slide" data-sec="Where underwriting sign-off comes in?">
+  <div class="head"><div class="kicker">06 · Where underwriting sign-off comes in?</div>
+    <h1>Is it clinically real? Would it change what an underwriter looks at?</h1>
+    <p class="lede">We leave the grid empty on purpose. The eight patterns wait on the left for your placement.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="quadrant" data-d="quad" data-o='{"chips":"patterns"}' role="img" aria-label="Empty two-by-two grid: clinically real against database correlation, and changes the review against does not. Eight patterns wait to be placed."></svg>
+  <aside class="notes">This is where we would like your help. For each pattern, two questions. Is it clinically real, or only a database correlation? And would it change what an underwriter looks at? We have left the grid empty on purpose, because placing the patterns ourselves would be our opinion and not your judgment. We can do it live, one pattern at a time, or you can take the page away. The backup pages in the appendix show each pattern's events and sequences. Next, five specific questions.</aside>
+</section>
+
+<!-- 15 · asks -->
+<section class="slide" data-sec="Where underwriting sign-off comes in?">
+  <div class="head"><div class="kicker">06 · Where underwriting sign-off comes in?</div>
+    <h1>Five questions we need answered.</h1>
+    <p class="lede">Each one maps to a slide. Your answers decide what stays in the rules.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="askList" data-d="asks" role="img" aria-label="Five questions about patterns, sequences, events, gaps in the data, and the draft rule settings."></svg>
+  <aside class="notes">Five questions. One: which patterns describe a real cardiac work-up, and which are routine care that only sits next to chest pain. Two: does the order of steps matter clinically, or is it a same-day artifact. Three: which single events carry weight on their own, and which are generic. Four: what is missing from a code that you would need, a result, a test type, a severity. Five: are the draft settings sensible, a one-day window and three or more events. We will stay on whichever you choose. Thank you.</aside>
+</section>
+
+<!-- 16 · closing -->
+<section class="slide hero close" data-sec="Closing">
+  <svg class="motif" viewBox="0 0 1920 1080" aria-hidden="true" data-motif></svg>
+  <div class="eyebrow">Thank you</div>
+  <h1 class="title">Questions?</h1>
+  <div class="rule" style="top:520px"></div>
+  <div class="people" style="top:600px" data-people></div>
+  <svg class="logo" viewBox="0 0 720 139" role="img" aria-label="Ethos"><use href="#logo-word"/></svg>
+  <aside class="notes">Thank you. We have about twenty minutes for questions. The appendix has the stability check and one page for each of the eight patterns if you want to look at the events and sequences behind any of them.</aside>
+</section>
+
+<!-- 17 · appendix divider -->
+<section class="slide divider" data-sec="Appendix">
+  <div class="numeral" aria-hidden="true">A</div>
+  <svg class="marks" viewBox="0 0 520 300" aria-hidden="true" data-marks></svg>
+  <div class="dt"><div class="kicker">Appendix</div><h1>Backup for your questions</h1>
+    <p class="line">The re-run stability check, then one page for each of the eight care patterns.</p></div>
+  <aside class="notes">Backup pages follow.</aside>
+</section>
+
+<!-- 18 · stability -->
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Stability</div>
+    <h1>The same patterns return on re-run: {{stability.rows.0.v|dec2}} against a bar of {{stability.bar|dec2}}.</h1>
+    <p class="lede">Agreement between each of {{stability.resamples}} resamples and the base fit, 0 to 1, for three runs on the same applicants.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="rankedBars" data-d="stability" data-o='{"scale":1,"ref":0.75,"refLabel":"0.75 bar","fmt":"dec2","head":"Run","note":["Only the guideline-list run","clears the bar with room","to spare. The 8-pattern run on","our own lists does not."],"top":1}' role="img" aria-label="Re-run agreement: guideline lists {{stability.rows.0.v|dec2}}, own lists with five patterns {{stability.rows.1.v|dec2}}, own lists with eight patterns {{stability.rows.2.v|dec2}}; bar {{stability.bar|dec2}}."></svg>
+  <aside class="notes">Backup. We re-ran the pattern search on {{stability.resamples}} resamples of the same applicants and measured how much each applicant's pattern assignment agreed with the base fit. The guideline-list run scores {{stability.rows.0.v|dec2}}, above the {{stability.bar|dec2}} bar we use for solid. Our own lists score {{stability.rows.1.v|dec2}} with five patterns, which clears the bar narrowly, and {{stability.rows.2.v|dec2}} with eight, which does not. We therefore prefer the guideline-list run.</aside>
+</section>
+
+<!-- 19-26 · one page per pattern -->
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c0</div>
+    <h1>c0: check-up labs sit months before chest pain, and no sequence holds.</h1>
+    <p class="lede">{{patterns.rows.0.n|int}} applicants ({{patterns.rows.0.pct|pct1}}); {{patterns.rows.0.cp}} of {{patterns.rows.0.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":0}' role="img" aria-label="Pattern c0, outpatient check-up and elective cardiac testing: five main events and three sequences, all unstable."></svg>
+  <aside class="notes">Pattern c0, outpatient check-up and elective cardiac testing, holds {{patterns.rows.0.n|int}} applicants. Its lipid panel, blood draw and general examination come about {{patterns.rows.0.ents.0.med|absmonths}} before chest pain, which is routine care. All three top sequences are unstable in validation, so we would not rely on them.</aside>
+</section>
+
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c1</div>
+    <h1>c1: steroid and antibiotic courses precede chest pain, same day as the tracing.</h1>
+    <p class="lede">{{patterns.rows.1.n|int}} applicants ({{patterns.rows.1.pct|pct1}}); {{patterns.rows.1.cp}} of {{patterns.rows.1.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":1}' role="img" aria-label="Pattern c1, prescriptions for acute and chronic illness: five main drugs and three suggestive same-day sequences."></svg>
+  <aside class="notes">Pattern c1, prescriptions for acute and chronic illness, holds {{patterns.rows.1.n|int}} applicants. The main drugs are steroids, antibiotics and an acid-lowering drug, a median of {{patterns.rows.1.ents.4.med|absmonths}} to {{patterns.rows.1.ents.2.med|absmonths}} before chest pain. The sequences are suggestive and same-day, up to {{patterns.rows.1.seqs.0.lift|x1}} as common, so the order is not evidence.</aside>
+</section>
+
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c2</div>
+    <h1>c2: women's health care fits no sequence that holds up.</h1>
+    <p class="lede">{{patterns.rows.2.n|int}} applicants ({{patterns.rows.2.pct|pct1}}); {{patterns.rows.2.cp}} of {{patterns.rows.2.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":2}' role="img" aria-label="Pattern c2, women's health and urinary tract: five main events months before chest pain and three unstable sequences."></svg>
+  <aside class="notes">Pattern c2, women's health and urinary tract, holds {{patterns.rows.2.n|int}} applicants. Its gynecologic examination, infection tests and cytology sit {{patterns.rows.2.ents.3.med|absmonths}} to {{patterns.rows.2.ents.0.med|absmonths}} before chest pain. All three sequences are unstable and only about {{patterns.rows.2.seqs.0.lift|x1}} as common, so this pattern says little about the chest pain itself.</aside>
+</section>
+
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c3</div>
+    <h1>c3: troponin, chest X-ray and drugs all land on the day of chest pain.</h1>
+    <p class="lede">{{patterns.rows.3.n|int}} applicants ({{patterns.rows.3.pct|pct1}}); {{patterns.rows.3.cp}} of {{patterns.rows.3.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":3}' role="img" aria-label="Pattern c3, acute emergency work-up: five main events on day zero and three suggestive same-day sequences."></svg>
+  <aside class="notes">Pattern c3, the acute emergency work-up, holds {{patterns.rows.3.n|int}} applicants. All five main events have a median of day zero. The three sequences are suggestive and same-day, each about {{patterns.rows.3.seqs.0.lift|x1}} as common. This is the pattern the rest of the talk focused on.</aside>
+</section>
+
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c4</div>
+    <h1>c4: an acid reflux work-up follows chest pain, and two sequences are solid.</h1>
+    <p class="lede">{{patterns.rows.4.n|int}} applicants ({{patterns.rows.4.pct|pct1}}); {{patterns.rows.4.cp}} of {{patterns.rows.4.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":4}' role="img" aria-label="Pattern c4, stomach and bowel work-up and cancer screening: two solid and one suggestive sequence, up to {{patterns.rows.4.seqs.0.lift|x1}} as common."></svg>
+  <aside class="notes">Pattern c4, stomach and bowel work-up and cancer screening, holds {{patterns.rows.4.n|int}} applicants. Acid reflux is on the day of chest pain, and the endoscopy and tissue exam follow within weeks to months. Two sequences are solid, up to {{patterns.rows.4.seqs.0.lift|x1}} as common, and one is suggestive.</aside>
+</section>
+
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c5</div>
+    <h1>c5: physical therapy is the most specific pattern, up to {{patterns.rows.5.seqs.0.lift|x1}} as common.</h1>
+    <p class="lede">{{patterns.rows.5.n|int}} applicants ({{patterns.rows.5.pct|pct1}}); {{patterns.rows.5.cp}} of {{patterns.rows.5.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":5}' role="img" aria-label="Pattern c5, muscle and bone care and physical therapy: three solid sequences, up to {{patterns.rows.5.seqs.0.lift|x1}} as common."></svg>
+  <aside class="notes">Pattern c5, muscle and bone care and physical therapy, holds {{patterns.rows.5.n|int}} applicants. All three sequences are solid and up to {{patterns.rows.5.seqs.0.lift|x1}} as common. That is the strongest statistical signal in the deck, and also the one least likely to matter for underwriting, since it describes treatment that follows chest pain.</aside>
+</section>
+
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c6</div>
+    <h1>c6: nutrition and hormone labs fall within weeks of chest pain.</h1>
+    <p class="lede">{{patterns.rows.6.n|int}} applicants ({{patterns.rows.6.pct|pct1}}); {{patterns.rows.6.cp}} of {{patterns.rows.6.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":6}' role="img" aria-label="Pattern c6, nutrition and hormone blood tests: five labs within a month of chest pain and three solid sequences."></svg>
+  <aside class="notes">Pattern c6, nutrition and hormone blood tests, holds {{patterns.rows.6.n|int}} applicants. Vitamin B12, vitamin D, thyroid, iron and ferritin tests sit within {{patterns.rows.6.ents.1.med|absdays}} of chest pain. All three sequences are solid, but the sequences with a lipid panel are only {{patterns.rows.6.seqs.2.lift|x1}} to {{patterns.rows.6.seqs.0.lift|x1}} as common.</aside>
+</section>
+
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Pattern c7</div>
+    <h1>c7: respiratory infection codes sit on or just before chest pain.</h1>
+    <p class="lede">{{patterns.rows.7.n|int}} applicants ({{patterns.rows.7.pct|pct1}}); {{patterns.rows.7.cp}} of {{patterns.rows.7.scored}} scored sequences contain chest pain.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="bundleCard" data-d="patterns" data-o='{"i":7}' role="img" aria-label="Pattern c7, acute respiratory infection: cough {{patterns.rows.7.ents.0.med|absdays}} before and four events on day zero, three solid sequences."></svg>
+  <aside class="notes">Pattern c7, acute respiratory infection, holds {{patterns.rows.7.n|int}} applicants. Cough comes a median of {{patterns.rows.7.ents.0.med|absdays}} before chest pain, and the infection, sore throat and antigen tests land on the same day. All three sequences are solid, up to {{patterns.rows.7.seqs.0.lift|x1}} as common, and each ends with an electrocardiogram.</aside>
+</section>
+</div></div>
+<aside id="notes" aria-live="polite"></aside>
+<div id="overview" aria-label="Slide overview"></div>
+<div id="help" role="dialog" aria-label="Keyboard help"><div class="box"><b>Keys</b><br><kbd>→</kbd><kbd>Space</kbd><kbd>PageDown</kbd> next &nbsp; <kbd>←</kbd><kbd>PageUp</kbd> previous<br><kbd>Home</kbd><kbd>End</kbd> first, last &nbsp; <kbd>S</kbd> notes &nbsp; <kbd>F</kbd> full screen<br><kbd>O</kbd> overview &nbsp; <kbd>T</kbd> next theme &nbsp; <kbd>?</kbd> help &nbsp; <kbd>Esc</kbd> close<br>Click the left or right fifth of the window to go back or forward. Swipe on touch.</div></div>
+<script>
+/* ===== 5. DATA [CONTENT] ===== */
+/* The ONLY place numbers live. Text, notes and aria-labels cite them as {{dataset.path|fmt}}. Shares are fractions (0 to 1). */
+const DECK = { name: 'Chest pain as care patterns', people: [{ key: 'ec', name: 'Esteban Correa', role: 'Bioinformatic Scientist MRN' }, { key: 'zm', name: 'Zack Moore', role: 'Product Performance Actuary Lead' }] };
+const PHOTO = {"ec":"data:image/jpeg;base64,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","pubmed":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJMYXllcl8yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDIuMyA2OC44Ij48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzMyNjU5OTt9LmNscy0ze2ZpbGw6Izk5OTt9LmNscy00e2ZpbGw6IzAwMDA4Yjt9PC9zdHlsZT48L2RlZnM+PGcgaWQ9IkxheWVyXzEtMiI+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJtOTEuNzIsNjMuOGgwYzYtMjUsMzgsNSwzOCw1VjI1LjhzLTMyLTI3LTM4LTJoMHY0MFoiLz48cGF0aCBkPSJtOTEuNzQsNjMuOGgwYy0zLjQ3LTIwLjkzLTE1LjU2LTE1Ljc4LTE1LjU2LTE1Ljc4bC0uMzUtNDMuOTFzOS4yLTMuMTYsMTUuOTYsMTguMTFoMGwtLjA2LDQxLjU4WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0ibTkxLjgyLDY0LjAxaDBjLS45Ni0yNS43Ni04LjAyLTI0LjE2LTguMDItMjQuMTZsLS44My0zOS44NXM3Ljg4LDQuMDYsOS4wMiwxOS45OGgwbC0uMTgsNDQuMDNaIi8+PGc+PGc+PHBhdGggY2xhc3M9ImNscy00IiBkPSJtMjEuODcsMzEuOTFjMCwzLjEtLjkzLDUuNDEtMi43OSw2LjkyLTEuODYsMS41Mi00LjUzLDIuMjctOCwyLjI3aC00LjA4djEzLjI1SDB2LTMxLjYyaDExLjAyYzMuMzQsMCw1Ljk4Ljc2LDcuOTMsMi4yNywxLjk1LDEuNTIsMi45MiwzLjgyLDIuOTIsNi45Wm0tNywuOTJjMC0xLjU3LS40Mi0yLjc0LTEuMjctMy41MS0uODUtLjc3LTIuMDMtMS4xNS0zLjU2LTEuMTVoLTMuMDV2OS40NGgzLjIzYzEuNjEsMCwyLjc5LS40MywzLjUzLTEuMjhzMS4xMi0yLjAyLDEuMTItMy41WiIvPjxwYXRoIGNsYXNzPSJjbHMtNCIgZD0ibTQ1LjgsNTQuMzZoLTYuMzF2LTIuNTNsLTIuNjEsMS40OGMtLjczLjQxLTEuNDkuNzMtMi4yOC45Ni0uNzkuMjMtMS42NS4zNC0yLjU3LjM0LTIuMTgsMC0zLjktLjY3LTUuMTUtMi4wMy0xLjI1LTEuMzUtMS44OC0zLjE0LTEuODgtNS4zNnYtMTQuOTloNi4zMXYxMy41NmMwLC44MS4yOSwxLjUyLjg2LDIuMTQuNTcuNjIsMS40Ni45MiwyLjY1LjkyLDEuMTEsMCwyLjA2LS4yNCwyLjg1LS43MS43OS0uNDgsMS40LS45MSwxLjgzLTEuMzF2LTE0LjZoNi4zMXYyMi4xMloiLz48cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Im03Mi43NSw0Mi44NWMwLDMuMzgtMS4wNCw2LjE5LTMuMTEsOC40NC0yLjA3LDIuMjUtNC42OCwzLjM4LTcuODMsMy4zOC0xLjEzLDAtMi4yNy0uMTYtMy40NC0uNDctMS4xNi0uMzEtMi4wMi0uNjgtMi41Ny0xLjFsLTMuNTQsMS41Ni0xLjUyLS44MXYtMzEuMTJoNi4xOXYxMC41NmwyLjM3LTEuMTVjLjQ3LS4yMi45OS0uNDMsMS41Ny0uNjIuNTgtLjE5LDEuMjItLjI5LDEuOTQtLjI5LDMuMTEsMCw1LjU0LDEuMSw3LjMsMy4yOSwxLjc1LDIuMTksMi42Myw0Ljk3LDIuNjMsOC4zM1ptLTYuMzcuNGMwLTEuODQtLjUtMy40My0xLjUtNC43Ny0xLTEuMzMtMi4yOC0yLTMuODItMi0uOTUsMC0xLjguMTYtMi41Ny40Ni0uNzcuMzEtMS4yOC43LTEuNTQsMS4xNnYxMC41Yy4zNC4zOC44Ny42OSwxLjU5Ljk0LjcyLjI1LDEuNTMuMzcsMi40Mi4zNywxLjk1LDAsMy4zNC0uNTMsNC4xNy0xLjYuODQtMS4wNywxLjI1LTIuNzUsMS4yNS01LjA3WiIvPjwvZz48Zz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Im0yMS44NywzMS45MWMwLDMuMS0uOTMsNS40MS0yLjc5LDYuOTItMS44NiwxLjUyLTQuNTMsMi4yNy04LDIuMjdoLTQuMDh2MTMuMjVIMHYtMzEuNjJoMTEuMDJjMy4zNCwwLDUuOTguNzYsNy45MywyLjI3LDEuOTUsMS41MiwyLjkyLDMuODIsMi45Miw2LjlabS03LC45MmMwLTEuNTctLjQyLTIuNzQtMS4yNy0zLjUxLS44NS0uNzctMi4wMy0xLjE1LTMuNTYtMS4xNWgtMy4wNXY5LjQ0aDMuMjNjMS42MSwwLDIuNzktLjQzLDMuNTMtMS4yOHMxLjEyLTIuMDIsMS4xMi0zLjVaIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJtNDUuOCw1NC4zNmgtNi4zMXYtMi41M2wtMi42MSwxLjQ4Yy0uNzMuNDEtMS40OS43My0yLjI4Ljk2LS43OS4yMy0xLjY1LjM0LTIuNTcuMzQtMi4xOCwwLTMuOS0uNjctNS4xNS0yLjAzLTEuMjUtMS4zNS0xLjg4LTMuMTQtMS44OC01LjM2di0xNC45OWg2LjMxdjEzLjU2YzAsLjgxLjI5LDEuNTIuODYsMi4xNC41Ny42MiwxLjQ2LjkyLDIuNjUuOTIsMS4xMSwwLDIuMDYtLjI0LDIuODUtLjcxLjc5LS40OCwxLjQtLjkxLDEuODMtMS4zMXYtMTQuNmg2LjMxdjIyLjEyWiIvPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0ibTcyLjc1LDQyLjg1YzAsMy4zOC0xLjA0LDYuMTktMy4xMSw4LjQ0LTIuMDcsMi4yNS00LjY4LDMuMzgtNy44MywzLjM4LTEuMTMsMC0yLjI3LS4xNi0zLjQ0LS40Ny0xLjE2LS4zMS0yLjAyLS42OC0yLjU3LTEuMWwtMy41NCwxLjU2LTEuNTItLjgxdi0zMS4xMmg2LjE5djEwLjU2bDIuMzctMS4xNWMuNDctLjIyLjk5LS40MywxLjU3LS42Mi41OC0uMTksMS4yMi0uMjksMS45NC0uMjksMy4xMSwwLDUuNTQsMS4xLDcuMywzLjI5LDEuNzUsMi4xOSwyLjYzLDQuOTcsMi42Myw4LjMzWm0tNi4zNy40YzAtMS44NC0uNS0zLjQzLTEuNS00Ljc3LTEtMS4zMy0yLjI4LTItMy44Mi0yLS45NSwwLTEuOC4xNi0yLjU3LjQ2LS43Ny4zMS0xLjI4LjctMS41NCwxLjE2djEwLjVjLjM0LjM4Ljg3LjY5LDEuNTkuOTQuNzIuMjUsMS41My4zNywyLjQyLjM3LDEuOTUsMCwzLjM0LS41Myw0LjE3LTEuNi44NC0xLjA3LDEuMjUtMi43NSwxLjI1LTUuMDdaIi8+PC9nPjwvZz48Zz48Zz48cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Im0xNTUuMzcsNDQuMjNoLTE2LjM3Yy4zNCwxLjc5LDEuMDUsMy4wOCwyLjEyLDMuODcsMS4wNy43OSwyLjM3LDEuMTksMy45LDEuMTksMS4yMywwLDIuNTktLjE4LDQuMDgtLjUzLDEuNDktLjM2LDIuNjYtLjgyLDMuNTItMS40djUuNTZjLS44MS41OC0yLjAzLDEuMDMtMy42NSwxLjM3LTEuNjIuMzQtMi45My41LTMuOTIuNS0zLjkxLDAtNi45Ni0xLjA3LTkuMTUtMy4yLTIuMTktMi4xMy0zLjI5LTQuOTktMy4yOS04LjU3czEuMTItNi41MSwzLjM2LTguNzNjMi4yNC0yLjIxLDUuMDQtMy4zMiw4LjQtMy4zMnM2LjAzLDEuMTgsOC4wMywzLjU0YzEuOTksMi4zNiwyLjk4LDUuNiwyLjk3LDkuNzFabS01LjgxLTNjLS4zMS0xLjY1LS45NC0yLjktMS44OS0zLjc0LS45NS0uODQtMi4xMi0xLjI2LTMuNTItMS4yNi0xLjYzLDAtMi44Ny40Ni0zLjcsMS4zNi0uODMuOTEtMS4zMywyLjEyLTEuNTEsMy42NGgxMC42MloiLz48cGF0aCBjbGFzcz0iY2xzLTQiIGQ9Im0xNzkuNDcsNTQuMzZoLTQuODFsLTEuMzEtMi0zLjMyLDEuOGMtLjI4LjE1LS42Ny4yNi0xLjIuMzQtLjUyLjA3LS45OC4xMS0xLjM2LjExLTMuMjQsMC01LjcxLTEuMDktNy4zOS0zLjI3LTEuNjgtMi4xOC0yLjUzLTQuOTItMi41NS04LjIyLS4wMS0zLjU3LDEtNi40MSwzLjA0LTguNTIsMi4wNC0yLjExLDQuNzMtMy4xNyw4LjA4LTMuMTcuOTYsMCwxLjguMDgsMi41My4yMy43My4xNSwxLjQzLjQyLDIuMS44di05LjcyaDYuMTl2MzEuNjJabS02LjE5LTYuODF2LTkuNzhjLS4zNC0uNDEtLjkxLS43Ny0xLjctMS4wOC0uNzktLjMtMS42NS0uNDUtMi41OC0uNDUtMS43MiwwLTMsLjUtMy44NCwxLjUxLS44NCwxLjAxLTEuMjYsMi42MS0xLjI2LDQuODFzLjQ1LDMuOTEsMS4zNCw1LjAyYy44OSwxLjExLDIuMSwxLjY2LDMuNjMsMS42Ni45OCwwLDEuODUtLjE3LDIuNTktLjUuNzQtLjMzLDEuMzUtLjczLDEuODEtMS4xOVoiLz48L2c+PGc+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJtMTU1LjM3LDQ0LjIzaC0xNi4zN2MuMzQsMS43OSwxLjA1LDMuMDgsMi4xMiwzLjg3LDEuMDcuNzksMi4zNywxLjE5LDMuOSwxLjE5LDEuMjMsMCwyLjU5LS4xOCw0LjA4LS41MywxLjQ5LS4zNiwyLjY2LS44MiwzLjUyLTEuNHY1LjU2Yy0uODEuNTgtMi4wMywxLjAzLTMuNjUsMS4zNy0xLjYyLjM0LTIuOTMuNS0zLjkyLjUtMy45MSwwLTYuOTYtMS4wNy05LjE1LTMuMi0yLjE5LTIuMTMtMy4yOS00Ljk5LTMuMjktOC41N3MxLjEyLTYuNTEsMy4zNi04LjczYzIuMjQtMi4yMSw1LjA0LTMuMzIsOC40LTMuMzJzNi4wMywxLjE4LDguMDMsMy41NGMxLjk5LDIuMzYsMi45OCw1LjYsMi45Nyw5LjcxWm0tNS44MS0zYy0uMzEtMS42NS0uOTQtMi45LTEuODktMy43NC0uOTUtLjg0LTIuMTItMS4yNi0zLjUyLTEuMjYtMS42MywwLTIuODcuNDYtMy43LDEuMzYtLjgzLjkxLTEuMzMsMi4xMi0xLjUxLDMuNjRoMTAuNjJaIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJtMTc5LjQ3LDU0LjM2aC00LjgxbC0xLjMxLTItMy4zMiwxLjhjLS4yOC4xNS0uNjcuMjYtMS4yLjM0LS41Mi4wNy0uOTguMTEtMS4zNi4xMS0zLjI0LDAtNS43MS0xLjA5LTcuMzktMy4yNy0xLjY4LTIuMTgtMi41My00LjkyLTIuNTUtOC4yMi0uMDEtMy41NywxLTYuNDEsMy4wNC04LjUyLDIuMDQtMi4xMSw0LjczLTMuMTcsOC4wOC0zLjE3Ljk2LDAsMS44LjA4LDIuNTMuMjMuNzMuMTUsMS40My40MiwyLjEuOHYtOS43Mmg2LjE5djMxLjYyWm0tNi4xOS02Ljgxdi05Ljc4Yy0uMzQtLjQxLS45MS0uNzctMS43LTEuMDgtLjc5LS4zLTEuNjUtLjQ1LTIuNTgtLjQ1LTEuNzIsMC0zLC41LTMuODQsMS41MS0uODQsMS4wMS0xLjI2LDIuNjEtMS4yNiw0Ljgxcy40NSwzLjkxLDEuMzQsNS4wMmMuODksMS4xMSwyLjEsMS42NiwzLjYzLDEuNjYuOTgsMCwxLjg1LS4xNywyLjU5LS41Ljc0LS4zMywxLjM1LS43MywxLjgxLTEuMTlaIi8+PC9nPjwvZz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im0xMjYuMTcsNTEuMzhoLTYuMTNsLTIuOTYtMTUuMDQtNS40NiwxMi45MmgtMi43OGwtNC45My0xMi4zMy0yLjk2LDE0LjQ1aC01LjgxbDUuOTgtMjYuOTJoMi4zbDcuMTQsMTUuODgsNy4xMy0xNS44OGgyLjQ4bDUuOTksMjYuOTJaIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJtMjAyLjMsMjIuMTNjMCw0LjQ2LTMuNSw3Ljk3LTguMDYsNy45N3MtOC4xMS0zLjUtOC4xMS03Ljk3LDMuNi03Ljg3LDguMTEtNy44Nyw4LjA2LDMuNSw4LjA2LDcuODdabS0xNC4xNiwwYzAsMy41LDIuNTksNi4yOSw2LjE0LDYuMjlzNi0yLjc4LDYtNi4yNC0yLjU0LTYuMzQtNi4wNS02LjM0LTYuMSwyLjgzLTYuMSw2LjI5Wm00Ljg1LDQuMTNoLTEuODJ2LTcuODdjLjcyLS4xNCwxLjczLS4yNCwzLjAyLS4yNCwxLjQ5LDAsMi4xNi4yNCwyLjc0LjU4LjQzLjM0Ljc3Ljk2Ljc3LDEuNzMsMCwuODYtLjY3LDEuNTQtMS42MywxLjgydi4xYy43Ny4yOSwxLjIuODYsMS40NCwxLjkyLjI0LDEuMi4zOCwxLjY4LjU4LDEuOTdoLTEuOTdjLS4yNC0uMjktLjM4LTEuMDEtLjYyLTEuOTItLjE0LS44Ni0uNjItMS4yNS0xLjYzLTEuMjVoLS44NnYzLjE3Wm0uMDUtNC40NmguODZjMS4wMSwwLDEuODItLjM0LDEuODItMS4xNSwwLS43Mi0uNTMtMS4yLTEuNjgtMS4yLS40OCwwLS44Mi4wNS0xLjAxLjF2Mi4yNloiLz48L2c+PC9zdmc+Cg=="};   // key -> photo as a data URI (scripts/photo_to_datauri.py) or a relative path; a missing key means an initials avatar
+const SRC = 'Guideline-list run, final_table_chestpain_k8_AHA.xlsx';
+const DATA = {
+  cohort: { id: 'cohort', title: 'Chest pain cohort', unit: 'applicants', kind: 'counted', window: 'full history of each applicant',
+    denominator: '139,416 applicants with a chest pain code', exclusions: 'none beyond the cohort rule',
+    source: SRC, formula: '', values: { n: 139416, patterns: 8, codes: 5, sequences: 24, perPattern: 3, heldRuns: 40 } },
+  icd: { id: 'icd', title: 'Chest pain codes', unit: 'share of applicants', kind: 'counted', window: 'earlier extract, full history',
+    denominator: '150,368 applicants with chest pain reported', exclusions: 'none stated', source: 'Atypical Chest Pain - Insights report',
+    formula: 'applicants with the code ÷ applicants with chest pain reported',
+    values: { n: 150368, top2: 0.906, rows: [
+      { k: 'R07.89', l: 'Other chest pain', v: 0.481 }, { k: 'R07.9', l: 'Chest pain, unspecified', v: 0.425 }, { k: 'R07.2', l: 'Precordial pain', v: 0.065 },
+      { k: 'R07.8', l: 'Other chest pain', v: 0.018 }, { k: 'R07.82', l: 'Intercostal pain', v: 0.011 }] } },
+  pair: { id: 'pair', title: 'Two applicants with the same codes', unit: '', kind: 'illustrative', window: '', denominator: 'two applicants, no rate', exclusions: '', source: 'Atypical Chest Pain - Insights report', formula: '',
+    values: { same: 'Same codes so far', stepIcons: ['heart', 'pulse'], lanes: [{ who: 'Applicant A', end: 'Anxiety diagnosis', icon: 'message' }, { who: 'Applicant B', end: 'Troponin test', icon: 'flask' }], steps: ['Chest pain', 'Electrocardiogram'], later: 'Later', bag: 'In a bag of codes the two records are identical.' } },
+  method: { id: 'method', title: 'Method', unit: '', kind: 'concept', values: {
+    phases: [{ t: 'Prepare', a: 0, b: 2 }, { t: 'Find', a: 3, b: 4, hot: true }, { t: 'Check', a: 5, b: 5 }],
+    stations: [
+      { t: 'Guideline', d: 'A language model reads the guideline and writes the code lists', i: 'file', art: 'guideline' },
+      { t: 'Applicants', d: '{{cohort.n|int}} applicants with a chest pain code, and all their records', i: 'users', art: 'cohort' },
+      { t: 'Bag of codes', d: 'Each applicant becomes one list of coded events', i: 'box', art: 'bag' },
+      { t: 'Care patterns', d: '{{cohort.patterns}} groups of frequent codes that travel together, kept if stable', i: 'layers', hot: true, art: 'clusters' },
+      { t: 'Sequences', d: 'Ordered steps around chest pain, top {{cohort.perPattern}} per pattern, validated on unseen halves', i: 'branch', hot: true, art: 'sequence' },
+      { t: 'Literature', d: 'A language model searches PubMed for published support', i: 'search', art: 'pubmed' }] } },
+  terms: { id: 'terms', title: 'Terms', unit: '', kind: 'concept', values: { cards: [
+    { t: 'Care pattern', pos: 'noun', d: 'A group of codes that tend to appear together in the same applicants\' records.', k: 'Describes care delivered, not diagnosis.', i: 'layers' },
+    { t: 'Sequence', pos: 'noun', d: 'Codes in the order they appear around chest pain. We keep the top {{cohort.perPattern}} per pattern.', k: 'Same-day steps have no true order.', i: 'branch' },
+    { t: 'Times as common', pos: 'noun phrase', d: 'Share of the pattern\'s applicants with a sequence, divided by the share among everyone else.', k: 'Specific to a pattern, not necessarily important.', i: 'chart-bar' },
+    { t: 'Validation', pos: 'noun', d: 'We re-test each sequence on a random half the pattern was not built from, {{cohort.heldRuns}} times.', k: 'Repeatable is not the same as clinically true.', i: 'refresh' }] } },
+  patterns: { id: 'patterns', title: 'Care patterns, entities and top sequences', unit: 'applicants', kind: 'counted', window: 'full history of each applicant',
+    denominator: '139,416 applicants, each in their dominant pattern', exclusions: 'visits removed, refills collapsed',
+    source: SRC, formula: 'times as common = (share inside + 0.01) ÷ (share outside + 0.01)',
+    values: { total: 139416, rows: [{"id":"c0","name":"Outpatient check-up and elective cardiac testing","n":31113,"pct":0.223,"cp":18,"scored":60,"ents":[{"k":"Lipid panel","share":0.81,"med":-85,"before":0.57},{"k":"Blood draw","share":0.81,"med":-84,"before":0.57},{"k":"General examination","share":0.76,"med":-104,"before":0.57},{"k":"Electrocardiogram","share":0.87,"med":0,"before":0.27},{"k":"Comprehensive metabolic panel","share":0.74,"med":0,"before":0.49}],"seqs":[{"steps":["Chest pain","Electrocardiogram","Hyperlipidemia diagnosis"],"inB":0.447,"out":0.274,"lift":1.6,"pass_":0.5,"verdict":"Unstable","order":"dated"},{"steps":["Chest pain","General examination","Lipid panel"],"inB":0.446,"out":0.283,"lift":1.6,"pass_":0.175,"verdict":"Unstable","order":"dated"},{"steps":["Chest pain","Electrocardiogram","General examination"],"inB":0.473,"out":0.325,"lift":1.4,"pass_":0.0,"verdict":"Unstable","order":"same-day"}]},{"id":"c1","name":"Prescriptions for acute and chronic illness","n":24606,"pct":0.176,"cp":35,"scored":60,"ents":[{"k":"Methylprednisolone (steroid)","share":0.55,"med":-83,"before":0.54},{"k":"Amoxicillin with clavulanate","share":0.55,"med":-97,"before":0.54},{"k":"Azithromycin (antibiotic)","share":0.54,"med":-187,"before":0.59},{"k":"Acid-lowering drug","share":0.52,"med":-109,"before":0.56},{"k":"Prednisone (steroid)","share":0.49,"med":-46,"before":0.53}],"seqs":[{"steps":["Methylprednisolone (steroid)","Chest pain","Electrocardiogram"],"inB":0.244,"out":0.049,"lift":4.3,"pass_":1.0,"verdict":"Suggestive","order":"same-day"},{"steps":["Azithromycin (antibiotic)","Chest pain","Electrocardiogram"],"inB":0.263,"out":0.071,"lift":3.4,"pass_":1.0,"verdict":"Suggestive","order":"same-day"},{"steps":["Chest pain","Electrocardiogram","Methylprednisolone (steroid)"],"inB":0.26,"out":0.075,"lift":3.2,"pass_":1.0,"verdict":"Suggestive","order":"same-day"}]},{"id":"c2","name":"Women's health and urinary tract","n":16770,"pct":0.12,"cp":14,"scored":60,"ents":[{"k":"Gynecologic examination","share":0.69,"med":-193,"before":0.61},{"k":"Chlamydia nucleic acid test","share":0.65,"med":-124,"before":0.57},{"k":"Gonorrhea nucleic acid test","share":0.65,"med":-124,"before":0.57},{"k":"Cervical cytology","share":0.63,"med":-97,"before":0.55},{"k":"Urine pregnancy test","share":0.63,"med":-128,"before":0.58}],"seqs":[{"steps":["Chest pain","Complete blood count","Blood draw"],"inB":0.467,"out":0.349,"lift":1.3,"pass_":0.0,"verdict":"Unstable","order":"dated"},{"steps":["Chest pain","Blood draw ×2"],"inB":0.529,"out":0.404,"lift":1.3,"pass_":0.0,"verdict":"Unstable","order":"dated"},{"steps":["Blood draw","Chest pain","Electrocardiogram"],"inB":0.517,"out":0.399,"lift":1.3,"pass_":0.0,"verdict":"Unstable","order":"dated"}]},{"id":"c3","name":"Acute emergency work-up","n":17250,"pct":0.124,"cp":24,"scored":60,"ents":[{"k":"Troponin test","share":0.81,"med":0,"before":0.21},{"k":"Intravenous push, first drug","share":0.66,"med":0,"before":0.33},{"k":"Lipase test","share":0.59,"med":0,"before":0.34},{"k":"Chest X-ray","share":0.86,"med":0,"before":0.33},{"k":"Intravenous push, added drug","share":0.55,"med":0,"before":0.34}],"seqs":[{"steps":["Chest pain","Chest X-ray","Troponin test","Comprehensive metabolic panel"],"inB":0.594,"out":0.244,"lift":2.4,"pass_":1.0,"verdict":"Suggestive","order":"same-day"},{"steps":["Chest pain","Electrocardiogram","Troponin test","Comprehensive metabolic panel"],"inB":0.649,"out":0.267,"lift":2.4,"pass_":1.0,"verdict":"Suggestive","order":"same-day"},{"steps":["Chest pain","Troponin test","Comprehensive metabolic panel","Complete blood count"],"inB":0.628,"out":0.255,"lift":2.4,"pass_":1.0,"verdict":"Suggestive","order":"same-day"}]},{"id":"c4","name":"Stomach and bowel work-up and cancer screening","n":8409,"pct":0.06,"cp":24,"scored":60,"ents":[{"k":"Tissue pathology exam","share":0.83,"med":8,"before":0.48},{"k":"Colon cancer screening","share":0.68,"med":55,"before":0.42},{"k":"Upper endoscopy with biopsy","share":0.63,"med":61,"before":0.37},{"k":"Acid reflux diagnosis","share":0.7,"med":0,"before":0.49},{"k":"Periodic preventive visit","share":0.61,"med":-175,"before":0.59}],"seqs":[{"steps":["Chest pain","Acid reflux diagnosis","Upper endoscopy with biopsy"],"inB":0.377,"out":0.06,"lift":5.5,"pass_":1.0,"verdict":"Solid","order":"dated"},{"steps":["Chest pain","Tissue pathology exam","Upper endoscopy with biopsy"],"inB":0.391,"out":0.064,"lift":5.4,"pass_":1.0,"verdict":"Suggestive","order":"same-day"},{"steps":["Chest pain","Acid reflux diagnosis","Tissue pathology exam"],"inB":0.411,"out":0.086,"lift":4.4,"pass_":1.0,"verdict":"Solid","order":"dated"}]},{"id":"c5","name":"Muscle and bone care and physical therapy","n":19127,"pct":0.137,"cp":14,"scored":60,"ents":[{"k":"Therapeutic exercise","share":0.85,"med":-36,"before":0.52},{"k":"Manual therapy","share":0.75,"med":-5,"before":0.5},{"k":"Therapeutic activities","share":0.55,"med":132,"before":0.42},{"k":"Low back pain diagnosis","share":0.65,"med":-115,"before":0.56},{"k":"Movement training","share":0.54,"med":133,"before":0.42}],"seqs":[{"steps":["Chest pain","Manual therapy","Therapeutic exercise"],"inB":0.456,"out":0.064,"lift":6.3,"pass_":1.0,"verdict":"Solid","order":"dated"},{"steps":["Chest pain","Manual therapy ×2"],"inB":0.471,"out":0.069,"lift":6.1,"pass_":1.0,"verdict":"Solid","order":"dated"},{"steps":["Chest pain","Therapeutic exercise","Manual therapy"],"inB":0.487,"out":0.075,"lift":5.9,"pass_":1.0,"verdict":"Solid","order":"dated"}]},{"id":"c6","name":"Nutrition and hormone blood tests","n":10987,"pct":0.079,"cp":8,"scored":60,"ents":[{"k":"Vitamin B12 test","share":0.88,"med":0,"before":0.48},{"k":"Vitamin D test","share":0.9,"med":-29,"before":0.53},{"k":"Free thyroxine test","share":0.75,"med":-14,"before":0.52},{"k":"Iron test","share":0.71,"med":19,"before":0.44},{"k":"Ferritin test","share":0.71,"med":21,"before":0.44}],"seqs":[{"steps":["Chest pain","Lipid panel","Vitamin D test"],"inB":0.646,"out":0.194,"lift":3.2,"pass_":1.0,"verdict":"Solid","order":"dated"},{"steps":["Chest pain","Lipid panel","Hemoglobin A1c test"],"inB":0.688,"out":0.363,"lift":1.9,"pass_":1.0,"verdict":"Solid","order":"dated"},{"steps":["Chest pain","Electrocardiogram","Lipid panel"],"inB":0.65,"out":0.412,"lift":1.6,"pass_":1.0,"verdict":"Solid","order":"dated"}]},{"id":"c7","name":"Acute respiratory infection","n":11154,"pct":0.08,"cp":25,"scored":60,"ents":[{"k":"Cough","share":0.66,"med":-18,"before":0.53},{"k":"Upper respiratory infection","share":0.6,"med":0,"before":0.48},{"k":"Sore throat (pharyngitis)","share":0.61,"med":0,"before":0.49},{"k":"Rapid antigen test (87880)","share":0.55,"med":0,"before":0.48},{"k":"Rapid antigen test (87804)","share":0.53,"med":0,"before":0.48}],"seqs":[{"steps":["Sore throat (pharyngitis)","Chest pain","Electrocardiogram"],"inB":0.306,"out":0.106,"lift":2.7,"pass_":1.0,"verdict":"Solid","order":"dated"},{"steps":["Chest pain","Electrocardiogram","Upper respiratory infection"],"inB":0.301,"out":0.131,"lift":2.2,"pass_":1.0,"verdict":"Solid","order":"dated"},{"steps":["Cough","Chest pain","Electrocardiogram"],"inB":0.325,"out":0.155,"lift":2.0,"pass_":1.0,"verdict":"Solid","order":"dated"}]}] } },
+  timing: { id: 'timing', title: 'Timing against first chest pain', unit: 'days', kind: 'counted', window: 'first occurrence of each event',
+    denominator: 'pattern applicants with both chest pain and the event', exclusions: 'repeats read at first occurrence, so a test can look early',
+    source: SRC, formula: 'median days from first chest pain to first occurrence of the event', values: { rows: null } },
+  stability: { id: 'stability', title: 'Re-run stability', unit: 'agreement, 0 to 1', kind: 'counted', window: '{{stability.resamples}} resamples of the same applicants',
+    denominator: 'same 139,416 applicants in all three runs', exclusions: 'none', source: 'sanity_check_AHA.md',
+    formula: 'adjusted Rand index between each resample and the base fit, averaged',
+    values: { bar: 0.75, resamples: 10, rows: [{ k: 'Guideline lists, 8 patterns', v: 0.88, hi: true }, { k: 'Own lists, 5 patterns', v: 0.77 }, { k: 'Own lists, 8 patterns', v: 0.71 }] } },
+  psych: { id: 'psych', title: 'Psychiatric evidence before troponin', unit: 'share of applicants', kind: 'counted', window: 'first occurrence of each, full history',
+    denominator: '27,042 applicants with both a psychiatric code and a troponin test', exclusions: 'antidepressants and sedatives not counted as psychiatric evidence',
+    source: 'Guideline-list run, timing cell, all patterns pooled', formula: 'first psychiatric code earlier than first troponin ÷ applicants with both',
+    values: { n: 27042, first: 0.572, same: 0.074, tropFirst: 0.354, medianDays: 108 } },
+  verdicts: { id: 'verdicts', title: 'Validation verdicts of the 24 sequences', unit: 'sequences', kind: 'counted', window: '{{cohort.heldRuns}} runs per pattern: random half splits',
+    denominator: '24 sequences, top 3 per pattern with chest pain', exclusions: 'sequences without chest pain',
+    source: SRC, formula: 'pass = support ≥ 10% on the unseen half and lower 95% bound of the odds ratio ≥ 2',
+    values: { total: 24, solid: 11, suggestive: 7, unstable: 6, hold: 18, bar: 0.7 } },
+  limits: { id: 'limits', title: 'Limits of a code', unit: '', kind: 'concept', values: { sameDay: 8, total: 24, cards: [
+    { t: 'A code shows a test, not its result', d: 'Troponin is present or absent. Its level and the electrocardiogram reading are not in the data.', k: 'We cannot tell normal from abnormal.', i: 'eye' },
+    { t: 'Many codes are generic', d: 'A blood draw, a general examination and a lipid panel appear at most check-ups. Troponin type is not shown.', k: 'Some events say little alone.', i: 'layers' },
+    { t: 'Same-day order is a rule', d: 'Claims carry dates, not times. {{limits.sameDay}} of {{limits.total}} sequences happen mostly on one day.', k: 'Read them as sets, not steps.', i: 'clock' },
+    { t: 'Patterns are care, not diagnosis', d: 'We hold no confirmed cardiac outcome to test against. A missing code is not proof of absence.', k: 'Nothing here is validated against outcomes.', i: 'target' }] } },
+  rule: { id: 'rule', title: 'From pattern to rule', unit: '', kind: 'draft', window: '', denominator: '', exclusions: '', source: 'Atypical Chest Pain - Insights report', formula: 'pattern rule = chest pain AND entities rule AND sequence rule',
+    values: { legend: "Each box at the bottom is one yes-or-no question about an applicant's records.", windowDays: 1, minEntities: 3, entityCount: 4, sequences: 3, top: 'Emergency work-up rule: true when all three parts are true', parts: [
+      { t: 'Chest pain present', d: 'At least one chest pain event', chips: ['Chest pain diagnosis'] },
+      { t: 'Entities in the window', d: '{{rule.minEntities}} or more of {{rule.entityCount}} events within {{rule.windowDays}} day of chest pain', chips: ['Troponin test', 'Intravenous push', 'Lipase test', 'Chest X-ray'] },
+      { t: 'An ordered sequence', d: 'Any one of {{rule.sequences}} sequences, steps in order', chips: ['Chest pain → chest X-ray → troponin → metabolic panel', 'Chest pain → electrocardiogram → troponin → metabolic panel', 'Chest pain → troponin → metabolic panel → blood count'] }] } },
+  quad: { id: 'quad', title: 'Validation grid', unit: '', kind: 'concept', values: { x: ['Database correlation', 'Clinically real'], y: ['No change to review', 'Changes the review'],
+    cells: ['Looks useful, may only correlate', 'Real and useful for underwriting', 'Correlation only', 'Real, not for underwriting'], hint: 'Patterns to place' } },
+  asks: { id: 'asks', title: 'Questions', unit: '', kind: 'concept', values: { rows: [
+    { q: 'Which patterns describe a real cardiac work-up, and which are routine care that only sits next to chest pain?', t: 'Patterns' },
+    { q: 'Does the order of steps matter clinically, or is it a same-day artifact?', t: 'Sequences' },
+    { q: 'Which single events carry clinical weight alone, and which are generic?', t: 'Events' },
+    { q: 'What is missing from a code that you would need: a result, a test type, a severity?', t: 'Gaps' },
+    { q: 'Are the draft settings sensible: a one-day window and three or more events?', t: 'Settings' }] } }
+};
+DATA.timing.values.rows = DATA.patterns.values.rows;
+
+/* data checks run by ?check: each returns '' when fine or one issue sentence */
+DECK.checks = [
+  () => { const V = DATA.verdicts.values, all = DATA.patterns.values.rows.flatMap(r => r.seqs), tally = k => all.filter(s => s.verdict === k).length;
+    return tally('Solid') !== V.solid || tally('Suggestive') !== V.suggestive || tally('Unstable') !== V.unstable || all.length !== V.total || V.solid + V.suggestive !== V.hold ? 'data: verdict tallies do not match the 24 sequences' : ''; },
+  () => DATA.patterns.values.rows.flatMap(r => r.seqs).filter(s => s.order === 'same-day').length !== DATA.limits.values.sameDay ? 'data: same-day count does not match' : '',
+  () => DATA.patterns.values.rows.reduce((a, r) => a + r.n, 0) !== DATA.cohort.values.n ? 'data: pattern sizes do not add up to the cohort' : ''
+];
+
+/* ===== 6. HELPERS [ENGINE] ===== */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const camel = s => s.replace(/-([a-z0-9])/g, (m, c) => c.toUpperCase());
+const COLOR_TOKENS = ['bg', 'bg-alt', 'surface', 'surface-2', 'bg-dark', 'letterbox', 'ink', 'ink-2', 'ink-3', 'ink-on-dark', 'ink-2-on-dark', 'ink-3-on-dark', 'line', 'line-strong', 'line-on-dark', 'line-strong-on-dark', 'accent-contrast', 'motif-a', 'motif-b', 'photo-ring']
+  .concat(['accent', 'positive', 'caution', 'negative', 'info'].flatMap(r => [r, r + '-tint', r + '-ink', r + '-on-dark']))
+  .concat([1, 2, 3, 4, 5, 6, 7, 8].map(i => 's' + i), [1, 2, 3, 4, 5, 6].map(i => 'seq-' + i), [1, 2, 3, 4, 5, 6, 7].map(i => 'div-' + i));
+const SIZE_TOKENS = ['hero', 'display', 'divider', 'title', 'lede', 'card', 'body', 'label', 'kicker', 'foot', 'big', 'stat', 'axis', 'eyebrow', 'name', 'statement', 'num', 'cap', 'title2'];
+let C = {}, S = {}, FONT = {}, W = {}, SH = {};
+const cs = () => getComputedStyle(document.documentElement);
+/* readTokens(): resolve every color token to a plain rgb() string (color-mix included) via a hidden probe, so JS contrast math works */
+function normColor(v) {
+  let m = v.match(/^rgba?\(([^)]+)\)/);
+  if (m) { const p = m[1].split(/[ ,\/]+/).map(Number); return 'rgb(' + p.slice(0, 3).map(Math.round).join(', ') + ')'; }
+  m = v.match(/^color\(srgb ([^)]+)\)/);
+  if (m) { const p = m[1].split(/[ \/]+/).map(Number); return 'rgb(' + p.slice(0, 3).map(x => Math.round(x * 255)).join(', ') + ')'; }
+  return v;
+}
+function readTokens() {
+  let pr = $('#probe'); if (!pr) { pr = document.createElement('span'); pr.id = 'probe'; pr.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none'; document.body.append(pr); }
+  const st = cs();
+  C = {};
+  COLOR_TOKENS.forEach(t => { pr.style.color = 'var(--' + t + ')'; C[camel(t)] = normColor(getComputedStyle(pr).color); });
+  SIZE_TOKENS.forEach(t => { S[t] = parseFloat(st.getPropertyValue('--fs-' + t)); });
+  ['display', 'body', 'mono'].forEach(k => { FONT[k] = st.getPropertyValue('--font-' + k).trim(); });
+  ['display', 'body', 'strong'].forEach(k => { W[k] = st.getPropertyValue('--w-' + k).trim(); });
+  ['radius-card', 'radius-inner', 'stroke', 'stroke-strong', 'icon-stroke'].forEach(k => { SH[camel(k)] = parseFloat(st.getPropertyValue('--' + k)); });
+  return C;
+}
+/* dark-slide palette: the same names, read from the -on-dark tokens */
+function pal(svg) {
+  if (!svg.closest('.dark')) return { ...C, dark: false };
+  return { ...C, dark: true, bg: C.bgDark, ink: C.inkOnDark, ink2: C.ink2OnDark, ink3: C.ink3OnDark, line: C.lineOnDark, lineStrong: C.lineStrongOnDark,
+    accent: C.accentOnDark, positive: C.positiveOnDark, caution: C.cautionOnDark, negative: C.negativeOnDark, info: C.infoOnDark, surface: C.bgDark, surface2: C.lineOnDark,
+    accentTint: C.lineOnDark, accentInk: C.accentOnDark };
+}
+/* colors and contrast */
+const rgbOf = c => Array.isArray(c) ? c : (c.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
+const lum = c => { const [r, g, b] = rgbOf(c).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); return .2126 * r + .7152 * g + .0722 * b; };
+const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+const mixc = (a, b, t) => { const p = rgbOf(a), q = rgbOf(b); return 'rgb(' + p.map((v, i) => Math.round(v + (q[i] - v) * t)).join(', ') + ')'; };
+/* nearest passing value: move fg toward black or white until it reaches the ratio against bg */
+function nearestPass(fg, bg, need) {
+  const to = lum(bg) > .5 ? [0, 0, 0] : [255, 255, 255];
+  for (let t = 0; t <= 1.001; t += .02) { const c = mixc(fg, to, t); if (contrast(c, bg) >= need) return c; }
+  return to;
+}
+/* text measuring and wrapping (SVG text does not wrap) */
+const _cv = document.createElement('canvas').getContext('2d'), _mc = {};
+function measure(text, size, w = W.body, font = 'body', ls = 0) {
+  const k = [text, size, w, font, ls, FONT[font]].join('|');
+  if (_mc[k] === undefined) { _cv.font = w + ' ' + size + 'px ' + FONT[font]; _mc[k] = _cv.measureText(text).width + ls * size * text.length; }
+  return _mc[k];
+}
+function wrap(text, maxW, o = {}) {
+  const { size = S.body, w = W.body, font = 'body', ls = 0 } = o, out = []; let cur = '';
+  String(text).split(/\s+/).forEach(word => {
+    const t = cur ? cur + ' ' + word : word;
+    if (cur && measure(t, size, w, font, ls) > maxW) { out.push(cur); cur = word; } else cur = t;
+  });
+  if (cur) out.push(cur);
+  return out;
+}
+/* fit(): largest size at or above min whose wrapped text stays within maxLines */
+function fit(text, maxW, o = {}) {
+  const { max = S.card, min = 20, lines = 2 } = o;
+  for (let s = max; s >= min; s -= 1) { const l = wrap(text, maxW, { ...o, size: s }); if (l.length <= lines) return { size: s, lines: l }; }
+  return { size: min, lines: wrap(text, maxW, { ...o, size: min }) };
+}
+/* SVG primitives: parent first, every one returns the element */
+const r2 = v => typeof v === 'number' ? Math.round(v * 100) / 100 : v;
+function el(tag, at, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in at) if (at[k] !== undefined && at[k] !== null) e.setAttribute(k, r2(at[k]));
+  if (parent) parent.append(e);
+  return e;
+}
+const Gr = (p, at = {}) => el('g', at, p);
+const R = (p, x, y, w, h, o = {}) => el('rect', { x, y, width: Math.max(w, 0), height: Math.max(h, 0), rx: o.rx, fill: o.fill || 'none', stroke: o.stroke, 'stroke-width': o.sw, 'stroke-dasharray': o.dash, 'fill-opacity': o.fo, opacity: o.op }, p);
+const Ln = (p, x1, y1, x2, y2, o = {}) => el('line', { x1, y1, x2, y2, stroke: o.stroke || C.line, 'stroke-width': o.sw || 2, 'stroke-dasharray': o.dash, 'stroke-linecap': o.cap || 'round', opacity: o.op }, p);
+const Ci = (p, cx, cy, r, o = {}) => el('circle', { cx, cy, r, fill: o.fill || 'none', stroke: o.stroke, 'stroke-width': o.sw, 'fill-opacity': o.fo, 'stroke-dasharray': o.dash, opacity: o.op }, p);
+const Pa = (p, d, o = {}) => el('path', { d, fill: o.fill || 'none', stroke: o.stroke, 'stroke-width': o.sw, 'stroke-dasharray': o.dash, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'fill-opacity': o.fo, opacity: o.op, 'marker-end': o.marker }, p);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+/* T: one line of text, y is the baseline. font is 'body' | 'display' | 'mono'; a is the anchor (start, middle, end) */
+function T(p, x, y, text, o = {}) {
+  const e = el('text', { x, y, 'font-size': o.size || S.body, 'font-weight': o.w || W.body, fill: o.fill || C.ink, 'text-anchor': o.a || 'start', 'letter-spacing': o.ls ? o.ls + 'em' : undefined, opacity: o.op,
+    'font-family': FONT[o.font || 'body'], 'text-transform': o.caps ? 'uppercase' : undefined }, p);
+  e.textContent = o.caps ? String(text).toUpperCase() : text;
+  return e;
+}
+function TL(p, x, y, lines, o = {}) {
+  const lh = o.lh || (o.size || S.body) * 1.28;
+  return lines.map((l, i) => T(p, x, y + i * lh, l, o));
+}
+/* markers need unique ids per builder */
+function arrowMarker(svg, id, color) {
+  const d = svg.querySelector('defs') || el('defs', {}, svg);
+  el('path', { d: 'M0 0L10 5L0 10z', fill: color }, el('marker', { id, viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, d));
+  return 'url(#' + id + ')';
+}
+/* icons: ico(x, y, size) places the top-left, icoC centers. Icons are 24-unit line art in currentColor. */
+function ico(p, name, x, y, size, color) {
+  const g = Gr(p, { transform: 'translate(' + r2(x) + ' ' + r2(y) + ') scale(' + r2(size / 24) + ')', fill: 'none', stroke: color || C.ink, 'stroke-width': SH.iconStroke, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+  el('use', { href: '#i-' + name, width: 24, height: 24 }, g);
+  return g;
+}
+const icoC = (p, name, cx, cy, size, color) => ico(p, name, cx - size / 2, cy - size / 2, size, color);
+/* avatar: a real photo from PHOTO[key] (data URI or relative path), or initials on a tinted disc. The clip path id is unique per call: the cover and the closing slide both draw it, and a url(#id) must not point into a hidden slide. */
+let AVN = 0;
+function AV(p, key, name, cx, cy, r, ring) {
+  const g = Gr(p);
+  if (PHOTO[key]) {
+    const id = 'av-' + key + '-' + (++AVN), cp = el('clipPath', { id }, g); Ci(cp, cx, cy, r);
+    el('image', { href: PHOTO[key], x: cx - r, y: cy - r, width: 2 * r, height: 2 * r, 'clip-path': 'url(#' + id + ')', preserveAspectRatio: 'xMidYMid slice' }, g);
+  } else {
+    Ci(g, cx, cy, r, { fill: C.accentTint });
+    T(g, cx, cy + r * .17, name.split(/\s+/).map(w => w[0]).join('').slice(0, 2), { size: r * .72, w: W.strong, fill: C.accentInk, a: 'middle' });
+  }
+  if (ring) Ci(g, cx, cy, r + 5, { stroke: C.photoRing, sw: 3 });
+  return g;
+}
+/* scales and ticks */
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+const symlog = v => Math.sign(v) * Math.log10(1 + Math.abs(v) / 10);
+/* formatters: shares are fractions */
+const MINUS = '−', WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const F = {
+  int: v => Math.round(v).toLocaleString('en-US'),
+  compact: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'k' : String(Math.round(v)),
+  pct0: v => Math.round(v * 100) + '%', pct1: v => (v * 100).toFixed(1) + '%',
+  dec1: v => v.toFixed(1), dec2: v => v.toFixed(2), x1: v => v.toFixed(1) + '×',
+  delta: v => (v < 0 ? MINUS : '+') + Math.abs(v), dur: v => v === 0 ? 'same day' : Math.abs(v) + ' days ' + (v < 0 ? 'before' : 'after'),
+  absdays: v => Math.abs(v) + ' days', absmonths: v => Math.round(Math.abs(v) / 30.4) + ' months',
+  approx: v => '≈' + Math.round(v), word: v => WORDS[v], Word: v => WORDS[v][0].toUpperCase() + WORDS[v].slice(1)
+};
+const dig = (o, path) => path.split('.').reduce((a, k) => (a == null ? a : a[k]), o);
+/* {{dataset.path|fmt}}: the first segment is a DATA key, the rest is a path inside its values */
+function resolve(str, issues) {
+  return String(str).replace(/\{\{\s*([\w.]+)\s*(?:\|\s*(\w+))?\s*\}\}/g, (m, path, fmt) => {
+    const [k, ...rest] = path.split('.'), v = DATA[k] && dig(DATA[k].values, rest.join('.'));
+    if (v === undefined || v === null || (fmt && !F[fmt])) { if (issues) issues.push('unresolved ' + m); return m; }
+    return fmt ? F[fmt](v) : String(v);
+  });
+}
+/* deterministic random numbers for the motif */
+const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+/* generative motif: rings of small marks whose color shifts outward, with clear zones around text */
+function drawMotif(svg, clear = []) {
+  svg.textContent = '';
+  const alpha = parseFloat(cs().getPropertyValue('--motif-alpha')), rand = rng(7), cx = 1500, cy = 560, g = Gr(svg, { 'data-breathe': 1, style: 'transform-origin:' + cx + 'px ' + cy + 'px' });
+  for (let ring = 0; ring < 11; ring++) {
+    const r = 150 + ring * 78, n = Math.round(r / 11), col = mixc(C.motifA, C.motifB, ring / 10);
+    for (let i = 0; i < n; i++) {
+      const a = i / n * Math.PI * 2 + ring * .21, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      if (x < 20 || x > 1900 || y < 20 || y > 1060 || clear.some(c => x > c.x0 && x < c.x1 && y > c.y0 && y < c.y1)) continue;
+      const d = Ci(g, x, y, 3.4 + (10 - ring) * .42 + rand() * 1.2, { fill: col, fo: alpha });
+      d.setAttribute('data-ring', ring);
+    }
+  }
+}
+function drawMarks(svg) {
+  svg.textContent = ''; const rand = rng(3);
+  for (let c = 0; c < 13; c++) for (let r = 0; r < 7; r++) Ci(svg, 10 + c * 41, 12 + r * 46, 5, { fill: 'currentColor', fo: .2 + rand() * .6 * (c / 12) });
+}
+/* footnote text generated from the dataset, never typed by hand */
+function footParts(ds) {
+  if (!ds || ds.kind === 'concept') return null;
+  return { left: ds.formula || '', right: [ds.window && 'Window: ' + ds.window, ds.denominator && 'Denominator: ' + ds.denominator, ds.exclusions && 'Excluded: ' + ds.exclusions, ds.source && 'Source: ' + ds.source].filter(Boolean).join(' · ') };
+}
+const KIND = { counted: 'Counted', estimate: 'Estimate', illustrative: 'Illustrative', draft: 'Draft setting' };
+
+/* ===== 7. BUILDERS [ENGINE] ===== */
+/* G.<name>(svg, dataset, options) draws one composition. Pure and idempotent: same inputs, same SVG. Colors come from C / pal() only.
+   Library: rankedBars, lanes, pipeline, cards, treemap, layers, quadrant, askList. Deck-specific builders go in the deck's builders.js (section 7b). */
+const G = { meta: {} };
+const ZONE = { x0: 135, x1: 1785, y0: 316, y1: 946 };
+const A = (e, k) => { e.setAttribute('data-anim', k); return e; };
+const label = (g, x, y, text, w, o = {}) => { const f = fit(text, w, { max: o.max || S.body, min: 20, lines: o.lines || 2, w: o.w || W.strong }); TL(g, x, y, f.lines, { size: f.size, w: o.w || W.strong, fill: o.fill || C.ink, a: o.a, lh: f.size * 1.2 }); return f; };
+const caps = (g, x, y, text, fill, a) => T(g, x, y, text, { size: S.axis, w: W.strong, fill, ls: .12, caps: true, a });
+
+/* rankedBars: horizontal bars sorted by value, the first `top` highlighted, optional reference line and a callout card */
+G.meta.rankedBars = { use: 'compare a few categories on one measure; the claim is that one or two lead', data: 'values.rows[{k, l?, v, hi?}], optional values.bar', limits: '2 to 8 rows', notes: 'o: head, note[], top, together (word before the summed share), scale, ref, refLabel, fmt' };
+G.rankedBars = function (svg, ds, o) {
+  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows, fm = F[o.fmt || 'pct1'], top = o.top || 1;
+  const bx = 600, bw = 520, y0 = 410, pitch = Math.min(104, 520 / rows.length), sc = o.scale || Math.max(...rows.map(r => r.v)) * 1.06, X = v => bx + v / sc * bw;
+  if (o.head) caps(svg, ZONE.x0, 366, o.head, P.ink3);
+  Ln(svg, bx, y0 - 14, bx, y0 + rows.length * pitch - 10, { stroke: P.lineStrong, sw: 2 });
+  rows.forEach((r, i) => {
+    const y = y0 + i * pitch, hi = i < top || r.hi, bh = 52, cy = y + bh / 2;
+    T(svg, ZONE.x0, cy - (r.l ? 2 : -8), r.k, { size: S.body, w: W.strong, fill: P.ink });
+    if (r.l) T(svg, ZONE.x0, cy + 26, r.l, { size: S.label, fill: P.ink2 });
+    A(R(svg, bx, y, X(r.v) - bx, bh, { rx: 10, fill: hi ? P.accent : P.lineStrong }), 'x');
+    T(svg, X(r.v) + 16, cy + 8, fm(r.v), { size: S.body, w: W.strong, fill: hi ? P.accentInk : P.ink2 });
+  });
+  if (o.ref !== undefined) {
+    Ln(svg, X(o.ref), y0 - 30, X(o.ref), y0 + rows.length * pitch - 6, { stroke: P.ink2, sw: 2, dash: '2 8' });
+    T(svg, X(o.ref), y0 - 40, o.refLabel || '', { size: S.axis, w: W.strong, fill: P.ink2, a: 'middle' });
+  }
+  if (o.note) {
+    const nx = 1330, ny = y0 - 10, nh = Math.max(top * pitch + 30, 190), sum = rows.slice(0, top).reduce((a, r) => a + r.v, 0);
+    if (top > 1) { const x = nx - 52, ya = y0 + 4, yb = y0 + (top - 1) * pitch + 48; Pa(svg, 'M' + (x - 14) + ' ' + ya + 'H' + x + 'V' + yb + 'H' + (x - 14), { stroke: P.lineStrong, sw: 2 }); Ln(svg, x, (ya + yb) / 2, nx, (ya + yb) / 2, { stroke: P.lineStrong, sw: 2 }); Ci(svg, nx, (ya + yb) / 2, 5, { fill: P.lineStrong }); }
+    R(svg, nx, ny, ZONE.x1 - nx, nh, { rx: SH.radiusCard, fill: P.accentTint });
+    let y = ny + 54;
+    if (top > 1) { T(svg, nx + 28, y, (o.together || 'Together') + ' ' + fm(sum), { size: S.card, w: W.strong, fill: P.accentInk }); y += 44; }
+    TL(svg, nx + 28, y, o.note, { size: S.body, fill: P.ink, lh: 32 });
+  }
+};
+
+/* lanes: two swimlanes with the same stations; one station differs */
+G.meta.lanes = { use: 'show that two cases share a start and diverge; the difference is the claim', data: 'values{lanes[{who,end,icon}], steps[2], stepIcons[2], same, later, bag}', limits: '2 lanes, 2 shared steps', notes: 'schematic, not a rate' };
+G.lanes = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), v = ds.values, xs = [640, 1070, 1500], ys = [470, 745];
+  R(svg, 520, 336, 650, 560, { rx: SH.radiusCard, stroke: P.lineStrong, sw: 2, dash: '2 10' });
+  v.lanes.forEach((l, i) => {
+    const cy = ys[i];
+    R(svg, ZONE.x0, cy - 105, ZONE.x1 - ZONE.x0, 210, { rx: SH.radiusCard, fill: P.bgAlt });
+    T(svg, ZONE.x0 + 30, cy + 10, l.who, { size: S.card, w: W.strong, fill: P.ink });
+    Ln(svg, xs[0], cy, xs[1], cy, { stroke: P.accent, sw: 10 });
+    Ln(svg, xs[1], cy, xs[2], cy, { stroke: P.accent, sw: 10, dash: '1 22' });
+    T(svg, (xs[1] + xs[2]) / 2, cy - 22, v.later, { size: S.label, fill: P.ink2, a: 'middle' });
+    [0, 1, 2].forEach(k => {
+      const last = k === 2, ic = last ? l.icon : (v.stepIcons || [])[k] || 'spark', nm = last ? l.end : v.steps[k];
+      Ci(svg, xs[k], cy, 48, { fill: last ? P.accent : P.surface, stroke: P.accent, sw: 6 });
+      icoC(svg, ic, xs[k], cy, 48, last ? P.accentContrast : P.accent);
+      T(svg, xs[k], cy + 96, nm, { size: S.body, w: W.strong, fill: P.ink, a: 'middle' });
+    });
+  });
+  const my = (ys[0] + ys[1]) / 2 + 4, pw = measure(v.same, S.label, W.strong) + 44;
+  R(svg, 845 - pw / 2, my - 24, pw, 48, { rx: 24, fill: P.surface, stroke: P.lineStrong, sw: 2 });
+  T(svg, 845, my + 8, v.same, { size: S.label, w: W.strong, fill: P.ink, a: 'middle' });
+  T(svg, 960, 930, v.bag, { size: S.body, fill: P.ink2, a: 'middle' });
+};
+
+/* pipeline: stations on one track under phase tabs. Under them, either a band of data rules tied to stations (values.band) or a picture card per station (stations[].art, a key of G.art) */
+G.art = {};   /* G.art.name(g, x, y, w, h, P, svg) draws a small illustration inside a station card; write them in the deck's builders.js */
+G.meta.pipeline = { use: 'a method as a short ordered chain, with rules that shape it or a picture per step', data: 'values{phases[{t,a,b,hot?}], stations[{t,d,i,hot?,art?}], band?[{at,t}], bandTitle?}', limits: '4 to 6 stations, 3 rules; titles about 15 characters, descriptions about 80', notes: 'stations spread evenly over the width: 330 px apart at 5, 275 px at 6; picture cards are 245 x 226 at 6 stations and use G.art; rules sit under their station, so rules on neighbouring stations must be short' };
+G.pipeline = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), v = ds.values, n = v.stations.length, pitch = (ZONE.x1 - ZONE.x0) / n, cx = i => ZONE.x0 + pitch / 2 + i * pitch, ty = v.stations.some(s => s.art) ? 500 : 520;
+  v.phases.forEach((p, i) => {
+    const x = cx(p.a) - (pitch - 50) / 2, w = cx(p.b) - cx(p.a) + pitch - 50, hot = !!p.hot;
+    R(svg, x, 368, w, 44, { rx: 22, fill: hot ? P.accent : P.accentTint });
+    T(svg, x + w / 2, 398, p.t, { size: S.label, w: W.strong, fill: hot ? P.accentContrast : P.accentInk, a: 'middle', ls: .12, caps: true });
+  });
+  Ln(svg, cx(0), ty, cx(n - 1), ty, { stroke: P.line, sw: 12 });
+  v.stations.forEach((s, i) => {
+    const hot = !!s.hot;
+    Ci(svg, cx(i), ty, 48, { fill: hot ? P.accent : P.surface, stroke: P.accent, sw: 6 });
+    icoC(svg, s.i, cx(i), ty, 46, hot ? P.accentContrast : P.accent);
+    const ft = fit(s.t, pitch - 20, { max: S.card, min: 24, lines: 1, w: W.strong });
+    T(svg, cx(i), ty + 98, ft.lines.join(' '), { size: ft.size, w: W.strong, fill: P.ink, a: 'middle' });
+    TL(svg, cx(i), ty + 134, wrap(resolve(s.d), pitch - 40, { size: S.label }), { size: S.label, fill: P.ink2, a: 'middle', lh: 28 });
+  });
+  v.stations.forEach((s, i) => {
+    if (!s.art) return;
+    const w = pitch - 30, x = cx(i) - w / 2, g = Gr(svg);
+    R(g, x, 756, w, 226, { rx: SH.radiusCard, fill: P.bgAlt });
+    G.art[s.art](g, x, 756, w, 226, P, svg);
+  });
+  if (!v.band) return;
+  R(svg, ZONE.x0, 772, ZONE.x1 - ZONE.x0, 168, { rx: SH.radiusCard, fill: P.bgAlt });
+  caps(svg, ZONE.x0 + 28, 806, v.bandTitle || 'Rules', P.ink3);
+  v.band.forEach(b => {
+    const bw = pitch - 30, x = cx(b.at) - bw / 2;
+    Ln(svg, cx(b.at), ty + 214, cx(b.at), 828, { stroke: P.lineStrong, sw: 2, dash: '2 8' });
+    R(svg, x, 828, bw, 100, { rx: SH.radiusInner, fill: P.surface, stroke: P.line, sw: 2 });
+    TL(svg, x + 18, 862, wrap(b.t, bw - 34, { size: S.label }), { size: S.label, fill: P.ink, lh: 28 });
+  });
+};
+
+/* cards: 3 to 4 parallel cards (icon zone, title, body, takeaway) */
+G.meta.cards = { use: 'three or four parallel ideas of equal weight, such as definitions or limits', data: 'values.cards[{t, pos?, d, k, i}]', limits: '4 cards 390 x 620; body 6 lines or fewer', notes: 'keep all cards the same shape' };
+G.cards = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), cards = ds.values.cards, cw = 390, gap = 30, y0 = 324, ch = 620, defs = el('defs', {}, svg);
+  cards.forEach((c, i) => {
+    const x = ZONE.x0 + i * (cw + gap), id = 'cards-clip-' + i, g = Gr(svg);
+    R(el('clipPath', { id }, defs), x, y0, cw, ch, { rx: SH.radiusCard });
+    R(g, x, y0, cw, ch, { rx: SH.radiusCard, fill: P.surface, stroke: P.line, sw: 2 });
+    const z = Gr(g, { 'clip-path': 'url(#' + id + ')' }); R(z, x, y0, cw, 150, { fill: P.accentTint });
+    Ci(g, x + cw / 2, y0 + 75, 52, { fill: P.accent }); icoC(g, c.i, x + cw / 2, y0 + 75, 52, P.accentContrast);
+    const tf = fit(c.t, cw - 56, { max: S.card, min: 24, lines: 2, w: W.strong });
+    TL(g, x + 28, y0 + 208, tf.lines, { size: tf.size, w: W.strong, fill: P.ink, lh: tf.size * 1.2 });
+    let y = y0 + 208 + (tf.lines.length - 1) * tf.size * 1.2 + 34;
+    if (c.pos) { T(g, x + 28, y, c.pos, { size: S.label, fill: P.ink3 }); y += 14; }
+    TL(g, x + 28, y + 26, wrap(resolve(c.d), cw - 56, { size: S.body + 2 }), { size: S.body + 2, fill: P.ink2, lh: 34 });
+    Ln(g, x + 28, y0 + ch - 128, x + cw - 28, y0 + ch - 128, { stroke: P.line, sw: 2 });
+    TL(g, x + 28, y0 + ch - 88, wrap(c.k, cw - 56, { size: S.body + 2, w: W.strong }), { size: S.body + 2, w: W.strong, fill: P.accentInk, lh: 33 });
+  });
+};
+
+/* treemap: area is the quantity; one tile highlighted */
+G.meta.treemap = { use: 'parts of a whole when the claim is how big each part is and which one matters', data: 'values.rows[{id, name, n, pct}]', limits: '4 to 10 tiles', notes: 'squarified; o.highlight = row index' };
+function squarify(items, x, y, w, h) {
+  const out = [], sc = w * h / items.reduce((a, i) => a + i.v, 0); let rest = items.slice();
+  const worst = (row, s, a) => { const ar = row.map(i => i.v * sc); return Math.max(s * s * Math.max(...ar) / (a * a), a * a / (s * s * Math.min(...ar))); };
+  while (rest.length) {
+    const s = Math.min(w, h); let row = [rest[0]], a = rest[0].v * sc, i = 1;
+    while (i < rest.length) { const nr = row.concat(rest[i]), na = a + rest[i].v * sc; if (worst(nr, s, na) <= worst(row, s, a)) { row = nr; a = na; i++; } else break; }
+    if (w >= h) { const cw = a / h; let cy = y; row.forEach(it => { const chh = it.v * sc / cw; out.push({ it, x, y: cy, w: cw, h: chh }); cy += chh; }); x += cw; w -= cw; }
+    else { const rh = a / w; let cx = x; row.forEach(it => { const cw = it.v * sc / rh; out.push({ it, x: cx, y, w: cw, h: rh }); cx += cw; }); y += rh; h -= rh; }
+    rest = rest.slice(row.length);
+  }
+  return out;
+}
+G.treemap = function (svg, ds, o) {
+  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows.map((r, i) => ({ ...r, i, v: r.n })).sort((a, b) => b.v - a.v);
+  squarify(rows, ZONE.x0, 330, ZONE.x1 - ZONE.x0, 596).forEach(t => {
+    const r = t.it, hot = r.i === o.highlight, x = t.x + 4, y = t.y + 4, w = t.w - 8, h = t.h - 8, g = Gr(svg);
+    A(R(g, x, y, w, h, { rx: SH.radiusInner, fill: hot ? P.accent : P.surface2 }), 'fade');
+    const ink = hot ? P.accentContrast : P.ink, f = fit(r.name, w - 40, { max: S.card, min: 22, lines: 4, w: W.strong });
+    T(g, x + 20, y + 40, r.id, { size: S.label, w: W.strong, fill: hot ? P.accentContrast : P.ink2, ls: .12, caps: true });
+    TL(g, x + 20, y + 80, f.lines, { size: f.size, w: W.strong, fill: ink, lh: f.size * 1.2 });
+    T(g, x + w - 20, y + 40, F.int(r.n) + ' · ' + F.pct1(r.pct), { size: S.label, fill: ink, a: 'end' });
+  });
+};
+
+/* layers: a composite rule over its parts and the atomic yes-or-no questions beneath */
+G.meta.layers = { use: 'how a composite is built from parts and atomic predicates', data: 'values{top, join?, legend?, parts[{t, d, chips[]}]}', limits: '3 parts, up to 4 chips each', notes: 'AND pills between parts' };
+G.layers = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), v = ds.values, parts = ds.values.parts, pw = 520, gap = 45, px = i => ZONE.x0 + i * (pw + gap);
+  R(svg, 405, 332, 1110, 82, { rx: 41, fill: P.accent }); T(svg, 960, 384, ds.values.top, { size: S.card, w: W.strong, fill: P.accentContrast, a: 'middle' });
+  parts.forEach((p, i) => {
+    const x = px(i), cxm = x + pw / 2; Ln(svg, cxm, 414, cxm, 470, { stroke: P.accent, sw: 4 });
+    R(svg, x, 470, pw, 170, { rx: SH.radiusCard, fill: P.accentTint });
+    Ci(svg, x + 52, 524, 26, { fill: P.accent }); T(svg, x + 52, 534, String(i + 1), { size: S.card, w: W.strong, fill: P.accentContrast, a: 'middle' });
+    T(svg, x + 96, 534, p.t, { size: S.card, w: W.strong, fill: P.accentInk });
+    TL(svg, x + 28, 586, wrap(resolve(p.d), pw - 56, { size: S.body }), { size: S.body, fill: P.ink, lh: 30 });
+    if (i < 2) { const ax = x + pw + gap / 2; R(svg, ax - 32, 540, 64, 38, { rx: 19, fill: P.surface, stroke: P.lineStrong, sw: 2 }); T(svg, ax, 566, v.join || 'AND', { size: S.axis, w: W.strong, fill: P.ink2, a: 'middle' }); }
+    Ln(svg, cxm, 640, cxm, 690, { stroke: P.lineStrong, sw: 2, dash: '2 8' });
+    const two = p.chips.length > 1 && p.chips.length <= 4 && p.chips.every(c => measure(c, S.label, W.strong) < 200);
+    p.chips.forEach((c, k) => {
+      const w = two ? (pw - 14) / 2 : pw, cx0 = x + (two ? (k % 2) * (w + 14) : 0), f = wrap(c, w - 28, { size: S.label, w: W.strong }), h = 26 * f.length + 30;
+      const cy = two ? 696 + Math.floor(k / 2) * 80 : 696 + k * 92;
+      R(svg, cx0, cy, w, h, { rx: SH.radiusInner, fill: P.surface, stroke: P.accent, sw: 2 });
+      TL(svg, cx0 + 14, cy + 34, f, { size: S.label, w: W.strong, fill: P.ink, lh: 26 });
+    });
+  });
+  if (v.legend) { R(svg, 160, 926, 20, 20, { rx: 5, fill: P.surface, stroke: P.accent, sw: 2 }); T(svg, 192, 944, v.legend, { size: S.label, fill: P.ink2 }); }
+};
+
+/* quadrant: an empty 2 x 2 with items waiting to be placed */
+G.meta.quadrant = { use: 'a judgment grid the audience fills in', data: 'values{x[2], y[2], cells[4], hint, good?}; o.chips = key of a dataset whose values.rows[] have {id, name}', limits: '4 cells, up to 8 chips', notes: 'cells are TL, TR, BL, BR; good = index of the highlighted cell, default 1' };
+G.quadrant = function (svg, ds, o) {
+  svg.textContent = ''; const P = pal(svg), v = ds.values, gx = 640, gy = 340, gw = 1145, gh = 540, mk = arrowMarker(svg, 'quad-arrow', P.ink3);
+  caps(svg, ZONE.x0, 350, v.hint, P.ink3);
+  ((o.chips && DATA[o.chips].values.rows) || []).forEach((r, i) => {
+    const y = 372 + i * 68, f = fit(r.id + '  ' + r.name, 350, { max: S.label, min: 20, lines: 2, w: W.strong });
+    R(svg, ZONE.x0, y, 410, 58, { rx: 29, fill: P.surface, stroke: P.lineStrong, sw: 2 }); TL(svg, ZONE.x0 + 22, y + 35 - (f.lines.length - 1) * 11, f.lines, { size: f.size, w: W.strong, fill: P.ink, lh: f.size * 1.14 });
+  });
+  const cw = (gw - 12) / 2, ch = (gh - 12) / 2;
+  v.cells.forEach((c, i) => {
+    const x = gx + (i % 2) * (cw + 12), y = gy + Math.floor(i / 2) * (ch + 12), good = i === (v.good === undefined ? 1 : v.good);
+    R(svg, x, y, cw, ch, { rx: SH.radiusCard, fill: good ? P.accentTint : P.bgAlt, stroke: good ? P.accent : P.line, sw: 2 });
+    T(svg, x + 28, y + 52, c, { size: S.card, w: W.strong, fill: good ? P.accentInk : P.ink });
+  });
+  T(svg, gx, gy + gh + 44, v.x[0], { size: S.body, w: W.strong, fill: P.ink2 }); T(svg, gx + gw, gy + gh + 44, v.x[1], { size: S.body, w: W.strong, fill: P.ink2, a: 'end' });
+  Ln(svg, gx + 360, gy + gh + 34, gx + gw - 280, gy + gh + 34, { stroke: P.ink3, sw: 3 }).setAttribute('marker-end', mk);
+  const yy = (t, x, y) => { const e = T(svg, 0, 0, t, { size: S.label, w: W.strong, fill: P.ink2, a: 'middle' }); e.setAttribute('transform', 'translate(' + x + ' ' + y + ') rotate(-90)'); };
+  yy(v.y[1], gx - 20, gy + ch / 2); yy(v.y[0], gx - 20, gy + ch + 12 + ch / 2);
+};
+
+/* askList: numbered questions with a one-word tag */
+G.meta.askList = { use: 'the closing ask: a short numbered list of questions', data: 'values.rows[{q, t}]', limits: '3 to 6 rows', notes: 'question text uses the caption size' };
+G.askList = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows, pitch = 118;
+  rows.forEach((r, i) => {
+    const y = 336 + i * pitch; Ln(svg, ZONE.x0, y, ZONE.x1, y, { stroke: P.line, sw: 2 });
+    T(svg, ZONE.x0, y + 82, String(i + 1), { size: S.stat * .75, w: W.display, font: 'display', fill: P.accent });
+    TL(svg, ZONE.x0 + 120, y + 52, wrap(r.q, 1180, { size: S.cap * .88 }), { size: S.cap * .88, fill: P.ink, lh: 42 });
+    const w = measure(r.t, S.label, W.strong, 'body', .12) + 44; R(svg, ZONE.x1 - w, y + 36, w, 46, { rx: 23, fill: P.accentTint }); T(svg, ZONE.x1 - w / 2, y + 67, r.t, { size: S.label, w: W.strong, fill: P.accentInk, a: 'middle', ls: .12, caps: true });
+  });
+  Ln(svg, ZONE.x0, 336 + rows.length * pitch, ZONE.x1, 336 + rows.length * pitch, { stroke: P.line, sw: 2 });
+};
+
+
+/* ===== 7b. DECK BUILDERS [CONTENT] ===== */
+/* Builders that only make sense for this deck's data. They use the engine helpers (ZONE, A, label, caps, pal, T, R, F, ...). */
+/* ---- pipeline station pictures: G.art.name(g, x, y, w, h, P, svg), each drawn inside a 245 x 226 card ---- */
+const person = (g, cx, cy, s, fill) => {
+  Ci(g, cx, cy - s * .62, s * .36, { fill });
+  Pa(g, 'M' + (cx - s * .6) + ' ' + (cy + s * .62) + 'V' + (cy + s * .25) + 'a' + (s * .6) + ' ' + (s * .6) + ' 0 0 1 ' + (s * 1.2) + ' 0V' + (cy + s * .62) + 'Z', { fill });
+};
+G.art.guideline = (g, x, y, w, h, P) => {
+  const cx = x + w / 2, sx = cx - 52, sy = y + 40, sw = 112, sh = 164, hi = i => i === 2 || i === 3 || i === 5;
+  R(g, sx - 14, sy - 14, sw, sh, { rx: 10, fill: P.surface, stroke: P.line, sw: 3 });
+  Pa(g, 'M' + (sx + 10) + ' ' + sy + 'H' + (sx + sw - 30) + 'L' + (sx + sw) + ' ' + (sy + 30) + 'V' + (sy + sh - 10) + 'a10 10 0 0 1 -10 10H' + (sx + 10) + 'a10 10 0 0 1 -10 -10V' + (sy + 10) + 'a10 10 0 0 1 10 -10Z', { fill: P.surface, stroke: P.lineStrong, sw: 3 });
+  Pa(g, 'M' + (sx + sw - 30) + ' ' + sy + 'V' + (sy + 30) + 'H' + (sx + sw) + 'Z', { fill: P.surface2, stroke: P.lineStrong, sw: 3 });
+  R(g, sx + 16, sy + 24, 50, 12, { rx: 6, fill: P.accent });
+  [86, 70, 86, 56, 86, 70, 46].forEach((lw, i) => R(g, sx + 16, sy + 56 + i * 15, lw, 7, { rx: 3.5, fill: hi(i) ? P.accent : P.line }));
+  Ci(g, sx + sw - 6, sy + sh - 12, 24, { fill: P.accent, stroke: P.bgAlt, sw: 4 });
+  icoC(g, 'check', sx + sw - 6, sy + sh - 12, 26, P.accentContrast);
+};
+G.art.cohort = (g, x, y, w, h, P) => {
+  R(g, x + 16, y + 18, w - 32, h - 36, { rx: 22, stroke: P.accent, sw: 3, dash: '2 10' });
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) person(g, x + w / 2 + (c - 2) * 38, y + 64 + r * 52, 24, P.accent);
+};
+G.art.bag = (g, x, y, w, h, P) => {
+  const cx = x + w / 2, y0 = y + 82;
+  [['heart', -62], ['flask', 0], ['box', 62]].forEach(([ic, dx], i) => {
+    const cy = y + (i === 1 ? 32 : 44);
+    Ln(g, cx + dx, cy + 22, cx + dx * .3, y0 - 4, { stroke: P.lineStrong, sw: 2, dash: '2 8' });
+    Ci(g, cx + dx, cy, 22, { fill: P.surface, stroke: P.accent, sw: 4 }); icoC(g, ic, cx + dx, cy, 26, P.accent);
+  });
+  Pa(g, 'M' + (cx - 26) + ' ' + y0 + 'C' + (cx - 28) + ' ' + (y0 + 12) + ' ' + (cx - 96) + ' ' + (y0 + 14) + ' ' + (cx - 100) + ' ' + (y0 + 60) + 'C' + (cx - 104) + ' ' + (y0 + 98) + ' ' + (cx - 86) + ' ' + (y0 + 124) + ' ' + (cx - 60) + ' ' + (y0 + 130)
+    + 'Q' + cx + ' ' + (y0 + 140) + ' ' + (cx + 60) + ' ' + (y0 + 130) + 'C' + (cx + 86) + ' ' + (y0 + 124) + ' ' + (cx + 104) + ' ' + (y0 + 98) + ' ' + (cx + 100) + ' ' + (y0 + 60) + 'C' + (cx + 96) + ' ' + (y0 + 14) + ' ' + (cx + 28) + ' ' + (y0 + 12) + ' ' + (cx + 26) + ' ' + y0 + 'Z', { fill: P.accentTint, stroke: P.accent, sw: 4 });
+  R(g, cx - 34, y0 - 7, 68, 14, { rx: 7, fill: P.accent });
+  [['Condition', 'Drug'], ['Procedure', 'Test']].forEach((row, r) => {
+    const ws = row.map(t => measure(t, S.axis, W.strong) + 14); let px = cx - (ws[0] + ws[1] + 6) / 2;
+    row.forEach((t, k) => { R(g, px, y0 + 44 + r * 40, ws[k], 32, { rx: 16, fill: P.surface, stroke: P.accent, sw: 2 }); T(g, px + ws[k] / 2, y0 + 67 + r * 40, t, { size: S.axis, w: W.strong, fill: P.ink, a: 'middle' }); px += ws[k] + 6; });
+  });
+};
+G.art.clusters = (g, x, y, w, h, P) => {
+  const rand = rng(11), cx = x + w / 2;
+  [[cx - 50, y + 84, 44, P.accent, 9], [cx + 52, y + 64, 38, P.info, 7], [cx + 6, y + 164, 46, P.ink2, 10]].forEach(([mx, my, r, col, n]) => {
+    Ci(g, mx, my, r, { fill: col, fo: .12, stroke: col, sw: 2, dash: '2 8' });
+    for (let i = 0; i < n; i++) { const a = rand() * Math.PI * 2, d = Math.sqrt(rand()) * (r - 12); Ci(g, mx + Math.cos(a) * d, my + Math.sin(a) * d, 6.5, { fill: col }); }
+  });
+};
+G.art.sequence = (g, x, y, w, h, P, svg) => {
+  const mk = arrowMarker(svg, 'pipe-arrow', P.accent), pts = [[x + 40, y + 190], [x + 98, y + 138], [x + 156, y + 86], [x + 214, y + 34]], ics = ['heart', 'pulse', 'search', 'flask'];
+  pts.slice(0, 3).forEach((p, i) => {
+    const q = pts[i + 1], dx = q[0] - p[0], dy = q[1] - p[1], d = Math.hypot(dx, dy), a = 23 / d, b = (d - 23) / d;
+    Ln(g, p[0] + dx * a, p[1] + dy * a, p[0] + dx * b, p[1] + dy * b, { stroke: P.accent, sw: 3 }).setAttribute('marker-end', mk);
+  });
+  pts.forEach((p, i) => { const last = i === 3; Ci(g, p[0], p[1], 18, { fill: last ? P.accent : P.surface, stroke: P.accent, sw: 4 }); icoC(g, ics[i], p[0], p[1], 20, last ? P.accentContrast : P.accent); });
+};
+G.art.pubmed = (g, x, y, w, h, P) => {
+  const plate = lum(C.bg) > .5 ? C.surface : C.ink, lw = w - 56, lh = lw * 68.8 / 202.3;
+  R(g, x + 14, y + 58, w - 28, 110, { rx: 14, fill: plate, stroke: P.line, sw: 2 });
+  el('image', { href: PHOTO.pubmed, x: x + 28, y: y + 113 - lh / 2, width: lw, height: lh, preserveAspectRatio: 'xMidYMid meet' }, g);
+};
+
+/* seqStrip: ordered sequences as chains, with in-group vs rest bars and the ratio */
+G.meta.seqStrip = { use: 'show ordered steps and how much more common they are inside a group than outside', data: 'values.rows[i].seqs[{steps[], inB, out, lift, verdict, order}]', limits: '3 sequences, 5 steps', notes: 'o.i = row index; dark-slide aware' };
+G.seqStrip = function (svg, ds, o) {
+  svg.textContent = ''; const P = pal(svg), b = ds.values.rows[o.i], mk = arrowMarker(svg, 'seqstrip-arrow', P.ink3), bx = ZONE.x0, bw = 760, sc = .72;
+  b.seqs.forEach((s, r) => {
+    const y = 336 + r * 178; let x = bx;
+    s.steps.forEach((st, k) => {
+      const w = measure(st, S.body, W.strong) + 40;
+      R(svg, x, y, w, 62, { rx: 31, fill: k === 0 ? P.surface2 : 'none', stroke: k === 0 ? P.surface2 : P.accent, sw: 3 });
+      T(svg, x + w / 2, y + 40, st, { size: S.body, w: W.strong, fill: P.ink, a: 'middle' });
+      x += w; if (k < s.steps.length - 1) { Ln(svg, x + 4, y + 31, x + 34, y + 31, { stroke: P.ink3, sw: 3 }).setAttribute('marker-end', mk); x += 38; }
+    });
+    [['inB', P.accent, 'inside the pattern', 84], ['out', P.lineStrong, 'everyone else', 124]].forEach(([k, col, txt, dy]) => {
+      A(R(svg, bx, y + dy - 6, s[k] / sc * bw, 26, { rx: 6, fill: col }), 'x');
+      const vx = bx + s[k] / sc * bw + 16; T(svg, vx, y + dy + 16, F.pct0(s[k]), { size: S.body, w: W.strong, fill: P.ink });
+      T(svg, vx + measure(F.pct0(s[k]), S.body, W.strong) + 12, y + dy + 16, txt, { size: S.label, fill: P.ink2 });
+    });
+    T(svg, 1560, y + 92, F.x1(s.lift), { size: S.stat, w: W.display, font: 'display', fill: P.accent });
+    T(svg, 1560, y + 128, 'as common', { size: S.label, fill: P.ink2 });
+    if (r < 2) Ln(svg, bx, y + 160, ZONE.x1, y + 160, { stroke: P.line, sw: 1.5 });
+  });
+  Ci(svg, ZONE.x0 + 8, 898, 7, { fill: P.caution });
+  T(svg, ZONE.x0 + 30, 906, 'All three hold in validation, but every step is same-day: the order is a tie-break, not clock time.', { size: S.body, fill: P.ink });
+};
+
+/* timeline: dot plot of median days against an anchor event, one row per group; zero is the anchor */
+G.meta.timeline = { use: 'when events happen relative to an anchor, across groups', data: 'values.rows[{id, name, ents[{k, med}]}]', limits: '4 to 10 rows, 3 to 6 dots', notes: 'compressed (symlog) axis; o.highlight/o.also rows in accent' };
+G.timeline = function (svg, ds, o) {
+  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows, x0 = 600, x1 = 1740, s0 = symlog(-250), s1 = symlog(190), X = d => lin(s0, s1, x0, x1)(symlog(d)), y0 = 384, pitch = 64, ticks = [-180, -90, -30, 0, 30, 90, 180];
+  ticks.forEach(t => { Ln(svg, X(t), y0 - 10, X(t), y0 + rows.length * pitch - 8, { stroke: t ? P.line : P.ink2, sw: t ? 1.5 : 2, dash: t ? undefined : '2 8' }); T(svg, X(t), y0 + rows.length * pitch + 26, t ? F.delta(t) : '0', { size: S.axis, fill: P.ink3, a: 'middle' }); });
+  T(svg, X(0), y0 - 20, 'first chest pain', { size: S.axis, w: W.strong, fill: P.ink2, a: 'middle' });
+  T(svg, ZONE.x0, y0 + rows.length * pitch + 26, 'Days (compressed scale)', { size: S.axis, fill: P.ink3 });
+  rows.forEach((r, i) => {
+    const cy = y0 + i * pitch + pitch / 2 - 10, hot = i === o.highlight || i === o.also, g = Gr(svg);
+    const f = fit(r.id + '  ' + r.name, 420, { max: S.label, min: 20, lines: 2, w: hot ? W.strong : W.body }); TL(g, ZONE.x0, cy - 2 - (f.lines.length - 1) * 11, f.lines, { size: f.size, w: hot ? W.strong : W.body, fill: hot ? P.ink : P.ink2, lh: f.size * 1.18 });
+    const seen = {}; r.ents.forEach(e => { const k = seen[e.med] = (seen[e.med] || 0) + 1, n = r.ents.filter(q => q.med === e.med).length;
+      A(Ci(g, X(e.med), cy + (k - 1 - (n - 1) / 2) * 7, 9, { fill: hot ? P.accent : P.lineStrong, stroke: P.bg, sw: 2 }), 'fade'); });
+    if (hot) { const m = r.ents.map(e => e.med).sort((a, b) => a - b)[2]; T(g, X(0) + 30, cy + 7, 'Middle event: ' + F.dur(m), { size: S.label, w: W.strong, fill: P.accentInk }); }
+  });
+};
+
+/* verdictGrid: one cell per ordered sequence, colored by verdict, with the ratio inside */
+G.meta.verdictGrid = { use: 'a status for every item of a small matrix, with a legend that carries the counts', data: 'values.rows[].seqs[{verdict, lift, order}]; counts from DATA.verdicts', limits: '8 rows x 3 columns', notes: 'verdict words sit inside the cell so color is never alone' };
+G.verdictGrid = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), V = DATA.verdicts.values, rows = ds.values.rows, cx = 640, cw = 360, gap = 12, y0 = 446, pitch = 58;
+  const role = { Solid: [P.positiveTint, P.positive, P.positiveInk], Suggestive: [P.infoTint, P.info, P.infoInk], Unstable: [P.negativeTint, P.negative, P.negativeInk] };
+  [['Solid', V.solid, 'holds; order shows in dates'], ['Suggestive', V.suggestive, 'holds; steps are same-day'], ['Unstable', V.unstable, 'does not hold']].forEach(([k, n, d], i) => {
+    const x = ZONE.x0 + i * 560; R(svg, x, 336, 28, 28, { rx: 6, fill: role[k][0], stroke: role[k][1], sw: 3 });
+    T(svg, x + 44, 360, n + ' ' + k, { size: S.body, w: W.strong, fill: P.ink }); T(svg, x + 44 + measure(n + ' ' + k, S.body, W.strong) + 12, 360, d, { size: S.label, fill: P.ink2 });
+  });
+  ['Top by lift', 'Second', 'Third'].forEach((t, i) => caps(svg, cx + i * (cw + gap) + 18, y0 - 14, t, P.ink3));
+  rows.forEach((r, i) => {
+    const y = y0 + i * pitch, f = fit(r.id + '  ' + r.name, 480, { max: S.label, min: 20, lines: 2, w: W.body }); TL(svg, ZONE.x0, y + 28 - (f.lines.length - 1) * 11, f.lines, { size: f.size, fill: P.ink, lh: f.size * 1.18 });
+    r.seqs.forEach((s, k) => {
+      const x = cx + k * (cw + gap), c = role[s.verdict];
+      A(R(svg, x, y, cw, pitch - 10, { rx: SH.radiusInner, fill: c[0], stroke: c[1], sw: 2 }), 'fade');
+      T(svg, x + 18, y + 34, s.verdict, { size: S.label, w: W.strong, fill: c[2] }); T(svg, x + 170, y + 34, F.x1(s.lift), { size: S.label, w: W.strong, fill: P.ink });
+      T(svg, x + cw - 18, y + 34, s.order === 'same-day' ? 'same day' : 'dated order', { size: S.axis, fill: P.ink2, a: 'end' });
+    });
+  });
+};
+
+/* bundleCard: one backup page for a group: identity, five main events with timing, three sequences with verdicts */
+G.meta.bundleCard = { use: 'a backup page that shows one group in full', data: 'values.rows[i]: n, pct, ents[5], seqs[3]', limits: '5 events, 3 sequences', notes: 'o.i = row index' };
+G.bundleCard = function (svg, ds, o) {
+  svg.textContent = ''; const P = pal(svg), b = ds.values.rows[o.i], vc = { Solid: P.positive, Suggestive: P.info, Unstable: P.negative };
+  R(svg, ZONE.x0, 330, 420, 610, { rx: SH.radiusCard, fill: P.accentTint });
+  T(svg, ZONE.x0 + 32, 450, b.id, { size: S.big, w: W.display, font: 'display', fill: P.accent });
+  const f = fit(b.name, 356, { max: S.card, min: 24, lines: 4, w: W.strong }); TL(svg, ZONE.x0 + 32, 508, f.lines, { size: f.size, w: W.strong, fill: P.accentInk, lh: f.size * 1.2 });
+  T(svg, ZONE.x0 + 32, 760, F.int(b.n), { size: S.stat, w: W.display, font: 'display', fill: P.ink });
+  T(svg, ZONE.x0 + 32, 800, 'applicants', { size: S.label, fill: P.ink2 }); T(svg, ZONE.x0 + 32, 870, F.pct1(b.pct), { size: S.card, w: W.strong, fill: P.accentInk }); T(svg, ZONE.x0 + 32, 906, 'of the cohort', { size: S.label, fill: P.ink2 });
+  caps(svg, 600, 350, 'Five main events', P.ink3); caps(svg, 1210, 350, 'Three top sequences', P.ink3);
+  b.ents.forEach((e, i) => {
+    const y = 380 + i * 104; label(svg, 600, y + 26, e.k, 540, { lines: 1 });
+    A(R(svg, 600, y + 40, e.share * 420, 18, { rx: 5, fill: P.accent }), 'x'); T(svg, 600 + e.share * 420 + 12, y + 56, F.pct0(e.share) + ' of the pattern', { size: S.label, fill: P.ink2 });
+    T(svg, 600, y + 90, F.dur(e.med) + (e.med ? '' : ' as first chest pain'), { size: S.label, fill: P.ink3 });
+  });
+  b.seqs.forEach((s, i) => {
+    const y = 380 + i * 182; Ln(svg, 1210, y - 14, ZONE.x1, y - 14, { stroke: P.line, sw: 1.5 });
+    const f2 = fit(s.steps.join(' → '), 560, { max: S.body, min: 22, lines: 3, w: W.strong }); TL(svg, 1210, y + 24, f2.lines, { size: f2.size, w: W.strong, fill: P.ink, lh: f2.size * 1.22 });
+    T(svg, 1210, y + 114, F.pct0(s.inB) + ' inside · ' + F.pct0(s.out) + ' elsewhere · ' + F.x1(s.lift) + ' as common', { size: S.label, fill: P.ink2 });
+    const w = measure(s.verdict, S.axis, W.strong, 'body', .06) + 30; R(svg, 1210, y + 130, w, 32, { rx: 16, fill: vc[s.verdict] });
+    T(svg, 1210 + w / 2, y + 153, s.verdict, { size: S.axis, w: W.strong, fill: P.bg, a: 'middle', ls: .06 });
+    T(svg, 1210 + w + 14, y + 153, s.order === 'same-day' ? 'same-day steps' : 'order shows in dates', { size: S.axis, fill: P.ink3 });
+  });
+};
+
+/* ===== 8. BOOT [ENGINE] ===== */
+const ERRORS = [];
+window.addEventListener('error', e => ERRORS.push('script error: ' + e.message + ' (' + (e.filename || '').split('/').pop() + ':' + e.lineno + ')'));
+const Q = new URLSearchParams(location.search), FLAGS = { check: Q.has('check'), static: Q.has('static'), notes: Q.has('notes') };
+const ROOT = document.documentElement, THEMES = ROOT.dataset.theme === 'brand' ? ['brand', 'light', 'dark', 'paper'] : ['light', 'dark', 'paper'];
+const MOTION = !(matchMedia('(prefers-reduced-motion: reduce)').matches || FLAGS.static || FLAGS.check);
+let slides = [], cur = 0, scale = 1;
+const BIND_ISSUES = [];
+/* static attributes are captured before any builder runs, for the brand-leak scan */
+const STATIC_ATTRS = [];
+function captureStatic() { $$('[style],[fill],[stroke]').forEach(e => ['style', 'fill', 'stroke'].forEach(a => { const v = e.getAttribute(a); if (v) STATIC_ATTRS.push(e.nodeName.toLowerCase() + ' ' + a + '="' + v + '"'); })); }
+function resolveData(o) {
+  for (const k in o) { if (typeof o[k] === 'string' && o[k].includes('{{')) o[k] = resolve(o[k], BIND_ISSUES); else if (o[k] && typeof o[k] === 'object') resolveData(o[k]); }
+}
+function bindText() {
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), nodes = [];
+  while (w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => { if (n.nodeValue.includes('{{') && !/^(SCRIPT|STYLE)$/.test(n.parentNode.nodeName)) n.nodeValue = resolve(n.nodeValue, BIND_ISSUES); });
+  $$('[aria-label]').forEach(e => { const v = e.getAttribute('aria-label'); if (v.includes('{{')) e.setAttribute('aria-label', resolve(v, BIND_ISSUES)); });
+}
+/* chrome added by script: kind chip, footnote from the dataset, footer */
+function decorate() {
+  slides.forEach((s, i) => {
+    const key = s.dataset.d || (s.querySelector('svg[data-d]') || {}).dataset?.d, ds = DATA[key], kind = ds && ds.kind;
+    if (kind && kind !== 'concept' && s.dataset.chip !== 'none') { const c = document.createElement('div'); c.className = 'chip ' + kind; c.textContent = KIND[kind]; s.append(c); }
+    const fp = ds && s.dataset.chip !== 'none' && footParts(ds);
+    if (fp && (fp.left || fp.right)) { const f = document.createElement('div'); f.className = 'fn'; ['left', 'right'].forEach(k => { const sp = document.createElement('span'); sp.textContent = fp[k]; f.append(sp); }); s.append(f); }
+    if (!/\b(hero|divider)\b/.test(s.className)) { const f = document.createElement('div'); f.className = 'foot'; f.innerHTML = '<span></span><span></span>'; f.firstChild.textContent = DECK.name + ' | ' + s.dataset.sec; f.lastChild.textContent = i + 1; s.append(f); }
+  });
+}
+function renderAll() {
+  readTokens();
+  $$('svg[data-g]').forEach(svg => {
+    try { G[svg.dataset.g](svg, DATA[svg.dataset.d], JSON.parse(svg.dataset.o || '{}')); } catch (e) { ERRORS.push('builder ' + svg.dataset.g + ' (' + svg.dataset.d + '): ' + e.message); }
+  });
+  $$('[data-people]').forEach(box => {
+    box.textContent = '';
+    DECK.people.forEach(p => {
+      const sv = el('svg', { width: 100, height: 100, viewBox: '0 0 100 100', 'aria-hidden': 'true' }); AV(sv, p.key, p.name, 50, 50, 42, true); box.append(sv);
+      const t = document.createElement('div'); t.innerHTML = '<div class="nm"></div><div class="rl"></div>'; t.firstChild.textContent = p.name; if (p.role) t.lastChild.textContent = p.role; else t.lastChild.remove(); box.append(t);
+    });
+  });
+  $$('svg[data-motif]').forEach(svg => {
+    const sr = $('#stage').getBoundingClientRect(), box = svg.parentNode, clear = $$('.eyebrow,.title,.team,.people,.logo,.rule', box).map(e => { const r = e.getBoundingClientRect(); return { x0: (r.left - sr.left) / scale - 50, x1: (r.right - sr.left) / scale + 50, y0: (r.top - sr.top) / scale - 40, y1: (r.bottom - sr.top) / scale + 40 }; });
+    drawMotif(svg, clear);
+  });
+  $$('svg[data-marks]').forEach(drawMarks);
+}
+/* stage scaling, letterboxed */
+function layout() {
+  const nh = document.body.classList.contains('notes') ? $('#notes').offsetHeight : 0, w = innerWidth, h = innerHeight - nh;
+  scale = Math.min(w / 1920, h / 1080); const st = $('#stage');
+  st.style.transform = 'translate(' + (w - 1920 * scale) / 2 + 'px,' + (h - 1080 * scale) / 2 + 'px) scale(' + scale + ')';
+}
+/* navigation */
+function go(i, noHash) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, k) => s.classList.toggle('active', k === cur));
+  $('#notes').textContent = ($('.notes', slides[cur]) || {}).textContent || '';
+  if (!noHash) history.replaceState(null, '', '#' + (cur + 1));
+  $$('#overview .th').forEach((t, k) => t.classList.toggle('cur', k === cur));
+  layout(); playMotion(slides[cur]);
+}
+const toggle = (cls, on) => { document.body.classList.toggle(cls, on); layout(); };
+function setTheme(name) { ROOT.dataset.theme = name; renderAll(); if (document.body.classList.contains('ov')) buildOverview(); }
+function buildOverview() {
+  const ov = $('#overview'); ov.textContent = '';
+  slides.forEach((s, i) => { const th = document.createElement('div'), inn = document.createElement('div'); th.className = 'th' + (i === cur ? ' cur' : ''); inn.className = 'in'; inn.append(s.cloneNode(true));
+    th.append(inn); th.addEventListener('click', () => { toggle('ov', false); go(i); }); ov.append(th); const k = th.clientWidth / 1920; inn.style.transform = 'scale(' + k + ')'; });
+}
+/* motion: chart marks only; DOM always holds the final state */
+function playMotion(s) {
+  if (!MOTION) return; const dur = parseFloat(cs().getPropertyValue('--dur')), ease = cs().getPropertyValue('--ease').trim();
+  $$('[data-anim]', s).forEach((e, i) => {
+    const x = e.dataset.anim === 'x'; if (x) e.style.cssText += ';transform-box:fill-box;transform-origin:left center';
+    e.animate(x ? [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }] : [{ opacity: 0 }, { opacity: 1 }], { duration: dur, delay: Math.min(i * 30, 420), easing: ease, fill: 'backwards' });
+  });
+  $$('.statement .num', s).forEach(n => { const m = n.textContent.match(/^(\d+)%$/); if (!m) return; const v = +m[1], t0 = performance.now(); (function tick(t) { const p = Math.min(1, (t - t0) / dur); n.textContent = Math.round(v * (1 - Math.pow(1 - p, 3))) + '%'; if (p < 1) requestAnimationFrame(tick); })(t0); });
+  const g = $('[data-breathe]', s); if (g) {
+    $$('[data-ring]', g).forEach(c => c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1400, delay: c.dataset.ring * 150, easing: ease, fill: 'backwards' }));
+    g.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.02)' }], { duration: 9000, delay: 2200, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out' });
+  }
+}
+/* self-check: window.__deckCheck = { issues, notes } and the panel pre#deck-check */
+const LEAK = { hex: new RegExp('#' + '[0-9a-fA-F]{3,8}\\b'), fn: new RegExp('rgb' + 'a?\\(\\s*\\d|hsl' + 'a?\\(\\s*\\d'), ff: new RegExp('font-family' + '\\s*:\\s*(?!var\\()[^;}]*[A-Za-z]') };
+function leakScan() {
+  const out = [], scan = (txt, where) => txt.split('\n').forEach((ln, i) => { for (const k in LEAK) { const m = ln.match(LEAK[k]); if (m) out.push('BRAND LEAK ' + where + ' line ' + (i + 1) + ': ' + m[0]); } });
+  const st = $('style').textContent; scan(st.slice(st.indexOf('2. BASE')), 'style');
+  $$('script').forEach(s => scan(s.textContent, 'script'));
+  STATIC_ATTRS.forEach(a => scan(a, 'markup'));
+  return out;
+}
+const PAIRS = [['ink', 'bg'], ['ink2', 'bg'], ['ink3', 'bg'], ['accent', 'bg'], ['accentContrast', 'accent'], ['inkOnDark', 'bgDark'], ['ink2OnDark', 'bgDark'], ['ink3OnDark', 'bgDark'], ['accentOnDark', 'bgDark'],
+  ['positiveOnDark', 'bgDark'], ['cautionOnDark', 'bgDark'], ['negativeOnDark', 'bgDark'], ['infoOnDark', 'bgDark'], ['positiveInk', 'positiveTint'], ['cautionInk', 'cautionTint'], ['negativeInk', 'negativeTint'], ['infoInk', 'infoTint'], ['accentInk', 'accentTint'], ['ink3', 'surface2'], ['lineStrong', 'bg', 3]];
+function contrastTable() {
+  const keep = ROOT.dataset.theme, lines = [], bad = [];
+  THEMES.forEach(t => {
+    ROOT.dataset.theme = t; readTokens(); const row = [];
+    PAIRS.forEach(([a, b, need = 4.5]) => { const r = contrast(C[a], C[b]); row.push(a + '/' + b + ' ' + r.toFixed(1)); if (r < need) bad.push('contrast ' + t + ': ' + a + ' on ' + b + ' is ' + r.toFixed(2) + ', needs ' + need + '; nearest passing ' + nearestPass(C[a], C[b], need)); });
+    lines.push(t.padEnd(6) + ' ' + row.join('  '));
+  });
+  ROOT.dataset.theme = keep; readTokens(); return { lines, bad };
+}
+function textBoxes(slide) {
+  const sr = $('#stage').getBoundingClientRect(), k = scale, out = [];
+  const add = (e, rect, size, isSvg) => { if (!rect.width || !rect.height) return; const trim = isSvg ? .2 * size : .12 * size, rot = isSvg && /rotate/.test(e.getAttribute('transform') || '');
+    out.push({ e, size, x0: (rect.left - sr.left) / k, x1: (rect.right - sr.left) / k, y0: (rect.top - sr.top) / k + (rot ? 0 : (isSvg ? .08 * size : trim)), y1: (rect.bottom - sr.top) / k - (rot ? 0 : trim), svg: isSvg, txt: e.textContent.trim().slice(0, 40) }); };
+  $$('text', slide).forEach(e => { if (e.closest('symbol')) return; add(e, e.getBoundingClientRect(), parseFloat(e.getAttribute('font-size')), true); });
+  const walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) { const n = walker.currentNode, p = n.parentElement; if (!n.nodeValue.trim() || p.closest('svg') || p.closest('[aria-hidden="true"]') || p.closest('.notes') || /^(SCRIPT|STYLE)$/.test(p.nodeName)) continue;
+    const rg = document.createRange(); rg.selectNodeContents(n); [...rg.getClientRects()].forEach(r => add(p, r, parseFloat(getComputedStyle(p).fontSize), false)); }
+  return out;
+}
+async function runCheck() {
+  await document.fonts.ready; const issues = [], notes = [], keep = cur;
+  BIND_ISSUES.forEach(m => issues.push(m)); ERRORS.forEach(m => issues.push(m)); leakScan().forEach(m => issues.push(m));
+  slides.forEach((s, i) => {
+    slides.forEach((o, k) => o.classList.toggle('active', k === i)); const at = 'slide ' + (i + 1), boxes = textBoxes(s), hero = /\b(hero|divider)\b/.test(s.className);
+    boxes.forEach(b => {
+      if (b.x0 < -1 || b.x1 > 1921 || b.y0 < -1 || b.y1 > 1081) issues.push(at + ': text off the stage "' + b.txt + '"');
+      if (!hero && !b.e.closest('.foot,.chip,.fn') && (b.x0 < 134 || b.x1 > 1786) && !b.e.closest('.statement,.divider')) notes.push('NOTE ' + at + ': text outside the side margins "' + b.txt + '"');
+      if (b.svg && b.size < 19.9 && !b.e.closest('.foot,.chip')) issues.push(at + ': text smaller than 20 px "' + b.txt + '" (' + b.size + ')');
+    });
+    for (let a = 0; a < boxes.length; a++) for (let b = a + 1; b < boxes.length; b++) {
+      const p = boxes[a], q = boxes[b]; if (p.e === q.e && !p.svg) continue; if (!p.svg && !q.svg && (p.e.contains(q.e) || q.e.contains(p.e))) continue;
+      if (Math.min(p.x1, q.x1) - Math.max(p.x0, q.x0) > 3 && Math.min(p.y1, q.y1) - Math.max(p.y0, q.y0) > 3) issues.push(at + ': text overlaps "' + p.txt + '" and "' + q.txt + '"');
+    }
+    const ld = $('.lede', s); if (ld && ld.getBoundingClientRect().height / scale > parseFloat(getComputedStyle(ld).fontSize) * 1.6) notes.push('NOTE ' + at + ': lede wraps to two lines');
+    if (!$('.notes', s) || !$('.notes', s).textContent.trim()) issues.push(at + ': no notes');
+    if (!hero && !s.classList.contains('statement') && !s.querySelector('svg.full')) issues.push(at + ': content slide without a graphic');
+    if (!/\b(hero|divider)\b/.test(s.className) && $$('h1', s).length !== 1 && !s.classList.contains('statement')) issues.push(at + ': needs exactly one h1');
+  });
+  (DECK.checks || []).forEach(f => { const m = f(); if (m) issues.push(m); });
+  const ct = contrastTable(); ct.bad.forEach(m => issues.push(m));
+  slides.forEach((o, k) => o.classList.toggle('active', k === keep));
+  window.__deckCheck = { issues, notes };
+  let pre = $('#deck-check'); if (!pre) { pre = document.createElement('pre'); pre.id = 'deck-check'; document.body.append(pre); }
+  pre.className = issues.length ? 'bad' : '';
+  pre.textContent = 'CHECK summary: ' + issues.length + ' issue(s) on ' + slides.length + ' slides\ntheme: ' + ROOT.dataset.theme + '\n' + issues.join('\n') + (issues.length ? '\n' : '') + notes.join('\n') + '\n\ncontrast (ratio, need 4.5; line-strong 3):\n' + ct.lines.join('\n');
+  return window.__deckCheck;
+}
+window.runDeckCheck = runCheck;
+/* input */
+addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return; const k = e.key;
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(k)) { e.preventDefault(); go(cur + 1); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(k)) { e.preventDefault(); go(cur - 1); }
+  else if (k === 'Home') go(0); else if (k === 'End') go(slides.length - 1);
+  else if (k === 's' || k === 'S') toggle('notes'); else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : ROOT.requestFullscreen && ROOT.requestFullscreen(); }
+  else if (k === 'o' || k === 'O') { toggle('ov'); if (document.body.classList.contains('ov')) buildOverview(); }
+  else if (k === 't' || k === 'T') setTheme(THEMES[(THEMES.indexOf(ROOT.dataset.theme) + 1) % THEMES.length]);
+  else if (k === '?') toggle('hp'); else if (k === 'Escape') { toggle('ov', false); toggle('hp', false); }
+});
+$('#viewport').addEventListener('click', e => { if (document.body.classList.contains('ov') || document.body.classList.contains('hp')) return; const f = e.clientX / innerWidth; if (f > .8) go(cur + 1); else if (f < .2) go(cur - 1); });
+let tx = null; addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+addEventListener('touchend', e => { if (tx === null) return; const d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 50) go(cur + (d < 0 ? 1 : -1)); tx = null; });
+addEventListener('resize', layout); addEventListener('fullscreenchange', layout); addEventListener('hashchange', () => go((parseInt(location.hash.slice(1)) || 1) - 1, true));
+addEventListener('beforeprint', () => { document.getAnimations().forEach(a => a.cancel()); renderAll(); });
+/* boot */
+captureStatic();
+resolveData(DATA);
+slides = $$('.slide'); bindText(); decorate();
+if (Q.get('theme') && THEMES.includes(Q.get('theme'))) ROOT.dataset.theme = Q.get('theme');
+if (FLAGS.notes) document.body.classList.add('notes');
+layout(); renderAll(); go((parseInt(location.hash.slice(1)) || 1) - 1, true);
+document.fonts.ready.then(() => { renderAll(); layout(); if (FLAGS.check) runCheck(); });
+</script>
+</body>
+</html>

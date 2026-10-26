@@ -1,6 +1,61 @@
 
 /* ===== 7b. DECK BUILDERS [CONTENT] ===== */
 /* Builders that only make sense for this deck's data. They use the engine helpers (ZONE, A, label, caps, pal, T, R, F, ...). */
+/* ---- pipeline station pictures: G.art.name(g, x, y, w, h, P, svg), each drawn inside a 245 x 226 card ---- */
+const person = (g, cx, cy, s, fill) => {
+  Ci(g, cx, cy - s * .62, s * .36, { fill });
+  Pa(g, 'M' + (cx - s * .6) + ' ' + (cy + s * .62) + 'V' + (cy + s * .25) + 'a' + (s * .6) + ' ' + (s * .6) + ' 0 0 1 ' + (s * 1.2) + ' 0V' + (cy + s * .62) + 'Z', { fill });
+};
+G.art.guideline = (g, x, y, w, h, P) => {
+  const cx = x + w / 2, sx = cx - 52, sy = y + 40, sw = 112, sh = 164, hi = i => i === 2 || i === 3 || i === 5;
+  R(g, sx - 14, sy - 14, sw, sh, { rx: 10, fill: P.surface, stroke: P.line, sw: 3 });
+  Pa(g, 'M' + (sx + 10) + ' ' + sy + 'H' + (sx + sw - 30) + 'L' + (sx + sw) + ' ' + (sy + 30) + 'V' + (sy + sh - 10) + 'a10 10 0 0 1 -10 10H' + (sx + 10) + 'a10 10 0 0 1 -10 -10V' + (sy + 10) + 'a10 10 0 0 1 10 -10Z', { fill: P.surface, stroke: P.lineStrong, sw: 3 });
+  Pa(g, 'M' + (sx + sw - 30) + ' ' + sy + 'V' + (sy + 30) + 'H' + (sx + sw) + 'Z', { fill: P.surface2, stroke: P.lineStrong, sw: 3 });
+  R(g, sx + 16, sy + 24, 50, 12, { rx: 6, fill: P.accent });
+  [86, 70, 86, 56, 86, 70, 46].forEach((lw, i) => R(g, sx + 16, sy + 56 + i * 15, lw, 7, { rx: 3.5, fill: hi(i) ? P.accent : P.line }));
+  Ci(g, sx + sw - 6, sy + sh - 12, 24, { fill: P.accent, stroke: P.bgAlt, sw: 4 });
+  icoC(g, 'check', sx + sw - 6, sy + sh - 12, 26, P.accentContrast);
+};
+G.art.cohort = (g, x, y, w, h, P) => {
+  R(g, x + 16, y + 18, w - 32, h - 36, { rx: 22, stroke: P.accent, sw: 3, dash: '2 10' });
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) person(g, x + w / 2 + (c - 2) * 38, y + 64 + r * 52, 24, P.accent);
+};
+G.art.bag = (g, x, y, w, h, P) => {
+  const cx = x + w / 2, y0 = y + 82;
+  [['heart', -62], ['flask', 0], ['box', 62]].forEach(([ic, dx], i) => {
+    const cy = y + (i === 1 ? 32 : 44);
+    Ln(g, cx + dx, cy + 22, cx + dx * .3, y0 - 4, { stroke: P.lineStrong, sw: 2, dash: '2 8' });
+    Ci(g, cx + dx, cy, 22, { fill: P.surface, stroke: P.accent, sw: 4 }); icoC(g, ic, cx + dx, cy, 26, P.accent);
+  });
+  Pa(g, 'M' + (cx - 26) + ' ' + y0 + 'C' + (cx - 28) + ' ' + (y0 + 12) + ' ' + (cx - 96) + ' ' + (y0 + 14) + ' ' + (cx - 100) + ' ' + (y0 + 60) + 'C' + (cx - 104) + ' ' + (y0 + 98) + ' ' + (cx - 86) + ' ' + (y0 + 124) + ' ' + (cx - 60) + ' ' + (y0 + 130)
+    + 'Q' + cx + ' ' + (y0 + 140) + ' ' + (cx + 60) + ' ' + (y0 + 130) + 'C' + (cx + 86) + ' ' + (y0 + 124) + ' ' + (cx + 104) + ' ' + (y0 + 98) + ' ' + (cx + 100) + ' ' + (y0 + 60) + 'C' + (cx + 96) + ' ' + (y0 + 14) + ' ' + (cx + 28) + ' ' + (y0 + 12) + ' ' + (cx + 26) + ' ' + y0 + 'Z', { fill: P.accentTint, stroke: P.accent, sw: 4 });
+  R(g, cx - 34, y0 - 7, 68, 14, { rx: 7, fill: P.accent });
+  [['Condition', 'Drug'], ['Procedure', 'Test']].forEach((row, r) => {
+    const ws = row.map(t => measure(t, S.axis, W.strong) + 14); let px = cx - (ws[0] + ws[1] + 6) / 2;
+    row.forEach((t, k) => { R(g, px, y0 + 44 + r * 40, ws[k], 32, { rx: 16, fill: P.surface, stroke: P.accent, sw: 2 }); T(g, px + ws[k] / 2, y0 + 67 + r * 40, t, { size: S.axis, w: W.strong, fill: P.ink, a: 'middle' }); px += ws[k] + 6; });
+  });
+};
+G.art.clusters = (g, x, y, w, h, P) => {
+  const rand = rng(11), cx = x + w / 2;
+  [[cx - 50, y + 84, 44, P.accent, 9], [cx + 52, y + 64, 38, P.info, 7], [cx + 6, y + 164, 46, P.ink2, 10]].forEach(([mx, my, r, col, n]) => {
+    Ci(g, mx, my, r, { fill: col, fo: .12, stroke: col, sw: 2, dash: '2 8' });
+    for (let i = 0; i < n; i++) { const a = rand() * Math.PI * 2, d = Math.sqrt(rand()) * (r - 12); Ci(g, mx + Math.cos(a) * d, my + Math.sin(a) * d, 6.5, { fill: col }); }
+  });
+};
+G.art.sequence = (g, x, y, w, h, P, svg) => {
+  const mk = arrowMarker(svg, 'pipe-arrow', P.accent), pts = [[x + 40, y + 190], [x + 98, y + 138], [x + 156, y + 86], [x + 214, y + 34]], ics = ['heart', 'pulse', 'search', 'flask'];
+  pts.slice(0, 3).forEach((p, i) => {
+    const q = pts[i + 1], dx = q[0] - p[0], dy = q[1] - p[1], d = Math.hypot(dx, dy), a = 23 / d, b = (d - 23) / d;
+    Ln(g, p[0] + dx * a, p[1] + dy * a, p[0] + dx * b, p[1] + dy * b, { stroke: P.accent, sw: 3 }).setAttribute('marker-end', mk);
+  });
+  pts.forEach((p, i) => { const last = i === 3; Ci(g, p[0], p[1], 18, { fill: last ? P.accent : P.surface, stroke: P.accent, sw: 4 }); icoC(g, ics[i], p[0], p[1], 20, last ? P.accentContrast : P.accent); });
+};
+G.art.pubmed = (g, x, y, w, h, P) => {
+  const plate = lum(C.bg) > .5 ? C.surface : C.ink, lw = w - 56, lh = lw * 68.8 / 202.3;
+  R(g, x + 14, y + 58, w - 28, 110, { rx: 14, fill: plate, stroke: P.line, sw: 2 });
+  el('image', { href: PHOTO.pubmed, x: x + 28, y: y + 113 - lh / 2, width: lw, height: lh, preserveAspectRatio: 'xMidYMid meet' }, g);
+};
+
 /* seqStrip: ordered sequences as chains, with in-group vs rest bars and the ratio */
 G.meta.seqStrip = { use: 'show ordered steps and how much more common they are inside a group than outside', data: 'values.rows[i].seqs[{steps[], inB, out, lift, verdict, order}]', limits: '3 sequences, 5 steps', notes: 'o.i = row index; dark-slide aware' };
 G.seqStrip = function (svg, ds, o) {
@@ -23,7 +78,7 @@ G.seqStrip = function (svg, ds, o) {
     if (r < 2) Ln(svg, bx, y + 160, ZONE.x1, y + 160, { stroke: P.line, sw: 1.5 });
   });
   Ci(svg, ZONE.x0 + 8, 898, 7, { fill: P.caution });
-  T(svg, ZONE.x0 + 30, 906, 'All three hold on held-out halves, but every step is same-day: the order is a tie-break, not clock time.', { size: S.body, fill: P.ink });
+  T(svg, ZONE.x0 + 30, 906, 'All three hold in validation, but every step is same-day: the order is a tie-break, not clock time.', { size: S.body, fill: P.ink });
 };
 
 /* timeline: dot plot of median days against an anchor event, one row per group; zero is the anchor */

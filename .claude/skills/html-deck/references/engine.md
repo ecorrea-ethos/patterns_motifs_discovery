@@ -38,7 +38,7 @@ Contents: 1 File layout · 2 DATA and `{{ }}` binding · 3 Slide kinds and marku
 Numbers live only in `DATA`. Everything else cites them.
 
 ```js
-const DECK = { name: 'Footer name', people: [{ key: 'ab', name: 'Alex Brown', role: 'Role' }] };   // people[0] shows on cover and closing
+const DECK = { name: 'Footer name', people: [{ key: 'ab', name: 'Alex Brown', role: 'Role' }] };   // everyone listed shows on cover and closing, in order (two or three fit); role is optional
 const PHOTO = /*INJECT:photo*/{};                                                                     // key -> data URI (scripts/photo_to_datauri.py) or relative path; no key gives initials
 const DATA = { delay: { id: 'delay', title: '', unit: '', kind: 'counted', window: '', denominator: '', exclusions: '', source: '', formula: '', values: { /* anything */ } } };
 DECK.checks = [ () => '' ];                                                                           // optional; each returns '' or one issue sentence
@@ -81,7 +81,7 @@ Footer, chip and footnote are added by `decorate()` in BOOT on content slides; h
 |---|---|---|---|---|
 | `rankedBars` | compare a few categories; one or two lead | `rows[{k, l?, v, hi?}]` | `head`, `note[]`, `top`, `together`, `scale`, `ref`, `refLabel`, `fmt` (default `pct1`) | 2 to 8 rows |
 | `lanes` | two cases share a start and diverge | `lanes[{who,end,icon}]`, `steps[2]`, `stepIcons[2]`, `same`, `later`, `bag` | none | 2 lanes, 2 shared steps |
-| `pipeline` | a method as a short ordered chain with rules | `bandTitle`, `phases[{t,a,b,hot?}]`, `stations[{t,d,i,hot?}]`, `band[{at,t}]` | none | 4 to 6 stations (titles about 15 characters, descriptions about 80), 3 rules |
+| `pipeline` | a method as a short ordered chain; under it either rules or a picture per step | `phases[{t,a,b,hot?}]`, `stations[{t,d,i,hot?,art?}]`, then optional `band[{at,t}]` + `bandTitle` (rules tied to stations) or `art` on each station (key of `G.art`) | none | 4 to 6 stations (titles about 15 characters, descriptions about 80), 3 rules; picture cards 245 x 226 at 6 stations |
 | `cards` | 3 or 4 parallel ideas (definitions, limits) | `cards[{t, pos?, d, k, i}]` | none | 4 cards 390 x 620, body 6 lines |
 | `treemap` | parts of a whole, how big each is | `rows[{id, name, n, pct}]` | `highlight` (row index) | 4 to 10 tiles |
 | `layers` | a rule built from parts and yes-or-no questions | `top`, `join?`, `legend?`, `parts[{t,d,chips[]}]` | none | 3 parts, 4 chips each |
@@ -89,6 +89,8 @@ Footer, chip and footnote are added by `decorate()` in BOOT on content slides; h
 | `askList` | the closing ask | `rows[{q, t}]` | none | 3 to 6 rows |
 
 Icons for `i` / `icon` fields: arrow-right, check, check-circle, x, plus, minus, user, users, file, folder, link, lock, shield, clock, calendar, search, filter, settings, bolt, spark, chart-bar, chart-line, layers, box, globe, message, flag, target, refresh, alert, info, download, code, branch, merge, star, eye, heart, pulse, flask.
+
+Station pictures for `pipeline` are drawn by `G.art.<name>(g, x, y, w, h, P, svg)`, registered in the deck's `builders.js`; use the same primitives and palette `P` as a builder, no text under 20 px, and keep to the card box. The example has six (`guideline` paper, `cohort` of people, `bag` of coded events, `clusters`, `sequence`, `pubmed` logo). A third-party logo goes in as an image: `scripts/photo_to_datauri.py logo.svg <key> inject/photo.json`, drawn with `<image href=PHOTO[key]>` on a plate that stays light in every theme (`lum(C.bg) > .5 ? C.surface : C.ink`). Fetch a logo only from the owner's own site, and use it to name the source, never to imply endorsement; the leak scan does not read a base64 image.
 
 Deck builders in `assets/example-chest-pain/builders.js` show how topic-specific compositions look: `seqStrip` (ordered chains with in-group versus rest bars), `timeline` (dot plot on a compressed axis against an anchor), `verdictGrid` (status per cell), `bundleCard` (one-page profile of a group).
 

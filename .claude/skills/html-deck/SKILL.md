@@ -66,6 +66,6 @@ Why this shape: a deck that physicians and underwriters must *use* needs graphic
 ## Hard rules
 
 - One file, offline: no frameworks, CDN, chart or icon libraries, web fonts, external images, analytics.
-- The engine is shared. A change under `assets/engine/` must leave the example and the starter at zero issues in every theme, and the example's render byte-identical (hash of `#stage` innerHTML before and after).
+- The engine is shared. A change under `assets/engine/` must leave the example and the starter at zero issues in every theme, and the example's render byte-identical (hash of `#stage` innerHTML before and after) unless the change is meant to alter output; say which it is.
 - Licensed brand fonts are not bundled. The brand stacks fall back to Georgia and Helvetica; tell the user what was actually rendered.
 - Size budget: about 2,200 lines or 150 KB. The assembler warns; prune unused builders and datasets if it does.

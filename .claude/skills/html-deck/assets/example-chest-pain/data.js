@@ -1,7 +1,7 @@
 /* ===== 5. DATA [CONTENT] ===== */
 /* The ONLY place numbers live. Text, notes and aria-labels cite them as {{dataset.path|fmt}}. Shares are fractions (0 to 1). */
-const DECK = { name: 'Chest pain as care patterns', people: [{ key: 'ec', name: 'Esteban Correa', role: 'Data science' }] };
-const PHOTO = {};   // key -> photo as a data URI (scripts/photo_to_datauri.py, injected as /*INJECT:photo*/{}) or a relative path; a missing key means an initials avatar. The live deck uses an injected photo; this reference copy keeps initials.
+const DECK = { name: 'Chest pain as care patterns', people: [{ key: 'ec', name: 'Esteban Correa', role: 'Bioinformatic Scientist MRN' }, { key: 'zm', name: 'Zack Moore', role: 'Product Performance Actuary Lead' }] };
+const PHOTO = /*INJECT:photo*/{};   // key -> photo as a data URI (scripts/photo_to_datauri.py) or a relative path; a missing key means an initials avatar
 const SRC = 'Guideline-list run, final_table_chestpain_k8_AHA.xlsx';
 const DATA = {
   cohort: { id: 'cohort', title: 'Chest pain cohort', unit: 'applicants', kind: 'counted', window: 'full history of each applicant',
@@ -16,21 +16,19 @@ const DATA = {
   pair: { id: 'pair', title: 'Two applicants with the same codes', unit: '', kind: 'illustrative', window: '', denominator: 'two applicants, no rate', exclusions: '', source: 'Atypical Chest Pain - Insights report', formula: '',
     values: { same: 'Same codes so far', stepIcons: ['heart', 'pulse'], lanes: [{ who: 'Applicant A', end: 'Anxiety diagnosis', icon: 'message' }, { who: 'Applicant B', end: 'Troponin test', icon: 'flask' }], steps: ['Chest pain', 'Electrocardiogram'], later: 'Later', bag: 'In a bag of codes the two records are identical.' } },
   method: { id: 'method', title: 'Method', unit: '', kind: 'concept', values: {
-    bandTitle: 'Data rules',
     phases: [{ t: 'Prepare', a: 0, b: 2 }, { t: 'Find', a: 3, b: 4, hot: true }, { t: 'Check', a: 5, b: 5 }],
     stations: [
-      { t: 'Guideline', d: 'A language model reads the guideline and writes the code lists', i: 'file' },
-      { t: 'Applicants', d: '{{cohort.n|int}} applicants with a chest pain code, and all their records', i: 'users' },
-      { t: 'Bag of codes', d: 'Each applicant becomes one list of coded events', i: 'box' },
-      { t: 'Care patterns', d: '{{cohort.patterns}} groups of frequent codes that travel together, kept if stable', i: 'layers', hot: true },
-      { t: 'Sequences', d: 'Ordered steps around chest pain, top {{cohort.perPattern}} per pattern, re-tested on unseen halves', i: 'branch', hot: true },
-      { t: 'Literature', d: 'A language model searches PubMed for published support', i: 'search' }],
-    band: [{ at: 1, t: 'Visits removed: they show where care happened, not why' }, { at: 2, t: 'Refills collapsed into a single step' }, { at: 4, t: 'Same-day steps put in a fixed order' }] } },
+      { t: 'Guideline', d: 'A language model reads the guideline and writes the code lists', i: 'file', art: 'guideline' },
+      { t: 'Applicants', d: '{{cohort.n|int}} applicants with a chest pain code, and all their records', i: 'users', art: 'cohort' },
+      { t: 'Bag of codes', d: 'Each applicant becomes one list of coded events', i: 'box', art: 'bag' },
+      { t: 'Care patterns', d: '{{cohort.patterns}} groups of frequent codes that travel together, kept if stable', i: 'layers', hot: true, art: 'clusters' },
+      { t: 'Sequences', d: 'Ordered steps around chest pain, top {{cohort.perPattern}} per pattern, validated on unseen halves', i: 'branch', hot: true, art: 'sequence' },
+      { t: 'Literature', d: 'A language model searches PubMed for published support', i: 'search', art: 'pubmed' }] } },
   terms: { id: 'terms', title: 'Terms', unit: '', kind: 'concept', values: { cards: [
     { t: 'Care pattern', pos: 'noun', d: 'A group of codes that tend to appear together in the same applicants\' records.', k: 'Describes care delivered, not diagnosis.', i: 'layers' },
     { t: 'Sequence', pos: 'noun', d: 'Codes in the order they appear around chest pain. We keep the top {{cohort.perPattern}} per pattern.', k: 'Same-day steps have no true order.', i: 'branch' },
     { t: 'Times as common', pos: 'noun phrase', d: 'Share of the pattern\'s applicants with a sequence, divided by the share among everyone else.', k: 'Specific to a pattern, not necessarily important.', i: 'chart-bar' },
-    { t: 'Held-out check', pos: 'noun', d: 'We re-test each sequence on a random half the pattern was not built from, {{cohort.heldRuns}} times.', k: 'Repeatable is not the same as clinically true.', i: 'refresh' }] } },
+    { t: 'Validation', pos: 'noun', d: 'We re-test each sequence on a random half the pattern was not built from, {{cohort.heldRuns}} times.', k: 'Repeatable is not the same as clinically true.', i: 'refresh' }] } },
   patterns: { id: 'patterns', title: 'Care patterns, entities and top sequences', unit: 'applicants', kind: 'counted', window: 'full history of each applicant',
     denominator: '139,416 applicants, each in their dominant pattern', exclusions: 'visits removed, refills collapsed',
     source: SRC, formula: 'times as common = (share inside + 0.01) ÷ (share outside + 0.01)',
@@ -46,7 +44,7 @@ const DATA = {
     denominator: '27,042 applicants with both a psychiatric code and a troponin test', exclusions: 'antidepressants and sedatives not counted as psychiatric evidence',
     source: 'Guideline-list run, timing cell, all patterns pooled', formula: 'first psychiatric code earlier than first troponin ÷ applicants with both',
     values: { n: 27042, first: 0.572, same: 0.074, tropFirst: 0.354, medianDays: 108 } },
-  verdicts: { id: 'verdicts', title: 'Held-out verdicts of the 24 sequences', unit: 'sequences', kind: 'counted', window: '{{cohort.heldRuns}} runs per pattern: random half splits',
+  verdicts: { id: 'verdicts', title: 'Validation verdicts of the 24 sequences', unit: 'sequences', kind: 'counted', window: '{{cohort.heldRuns}} runs per pattern: random half splits',
     denominator: '24 sequences, top 3 per pattern with chest pain', exclusions: 'sequences without chest pain',
     source: SRC, formula: 'pass = support ≥ 10% on the unseen half and lower 95% bound of the odds ratio ≥ 2',
     values: { total: 24, solid: 11, suggestive: 7, unstable: 6, hold: 18, bar: 0.7 } },

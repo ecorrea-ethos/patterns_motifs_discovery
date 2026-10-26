@@ -38,6 +38,7 @@ h1{text-wrap:balance;font-family:var(--font-display);font-weight:var(--w-display
 .hero .rule{position:absolute;left:var(--margin-x);top:600px;width:104px;height:5px;background:var(--accent-on-dark)}
 .hero .team{position:absolute;left:var(--margin-x);top:632px;font-size:var(--fs-lede);color:var(--ink-2-on-dark)}
 .hero .people{position:absolute;left:var(--margin-x);top:728px;display:flex;align-items:center;gap:26px}
+.hero .people div + svg{margin-left:38px}
 .hero .people .nm{font-family:var(--font-display);font-size:var(--fs-name);font-weight:var(--w-display);line-height:1.1}
 .hero .people .rl{font-size:var(--fs-label);color:var(--ink-2-on-dark);margin-top:4px}
 .hero .logo{position:absolute;left:835px;bottom:78px;width:250px;height:48px;color:var(--ink-on-dark)}

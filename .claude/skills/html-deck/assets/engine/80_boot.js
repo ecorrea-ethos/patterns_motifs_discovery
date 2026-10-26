@@ -35,8 +35,11 @@ function renderAll() {
     try { G[svg.dataset.g](svg, DATA[svg.dataset.d], JSON.parse(svg.dataset.o || '{}')); } catch (e) { ERRORS.push('builder ' + svg.dataset.g + ' (' + svg.dataset.d + '): ' + e.message); }
   });
   $$('[data-people]').forEach(box => {
-    box.textContent = ''; const p = DECK.people[0], sv = el('svg', { width: 100, height: 100, viewBox: '0 0 100 100', 'aria-hidden': 'true' }); AV(sv, p.key, p.name, 50, 50, 42, true); box.append(sv);
-    const t = document.createElement('div'); t.innerHTML = '<div class="nm"></div><div class="rl"></div>'; t.firstChild.textContent = p.name; t.lastChild.textContent = p.role; box.append(t);
+    box.textContent = '';
+    DECK.people.forEach(p => {
+      const sv = el('svg', { width: 100, height: 100, viewBox: '0 0 100 100', 'aria-hidden': 'true' }); AV(sv, p.key, p.name, 50, 50, 42, true); box.append(sv);
+      const t = document.createElement('div'); t.innerHTML = '<div class="nm"></div><div class="rl"></div>'; t.firstChild.textContent = p.name; if (p.role) t.lastChild.textContent = p.role; else t.lastChild.remove(); box.append(t);
+    });
   });
   $$('svg[data-motif]').forEach(svg => {
     const sr = $('#stage').getBoundingClientRect(), box = svg.parentNode, clear = $$('.eyebrow,.title,.team,.people,.logo,.rule', box).map(e => { const r = e.getBoundingClientRect(); return { x0: (r.left - sr.left) / scale - 50, x1: (r.right - sr.left) / scale + 50, y0: (r.top - sr.top) / scale - 40, y1: (r.bottom - sr.top) / scale + 40 }; });

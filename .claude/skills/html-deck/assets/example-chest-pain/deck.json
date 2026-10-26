@@ -4,6 +4,7 @@
  "brand": "ethos",
  "wordmark": "Ethos",
  "inject": {
-  "rows": "inject/rows.json"
+  "rows": "inject/rows.json",
+  "photo": "inject/photo.json"
  }
 }
