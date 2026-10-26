@@ -1,0 +1,72 @@
+/* ===== 1. THEME [ENGINE + BRAND SLOT] ===== */
+/* Every color, font, size, radius, stroke, spacing and motion value lives here. Nothing below this block may hold a brand literal. */
+:root, html[data-theme="light"] {
+  --bg:#FFFFFF; --bg-alt:#F4F6F9; --surface:#FFFFFF; --surface-2:#EAEFF5; --bg-dark:#0F1B2D; --letterbox:#0A0F18;
+  --ink:#131A24; --ink-2:#3A4553; --ink-3:#5E6876; --ink-on-dark:#F2F5F9; --ink-2-on-dark:#C3CCD8; --ink-3-on-dark:#98A4B4;
+  --line:#D8DEE6; --line-strong:#8590A0; --line-on-dark:#2A3A52; --line-strong-on-dark:#5B6F8D;
+  --accent:#1556C0; --accent-tint:#E6EEFA; --accent-ink:#0F3F8F; --accent-on-dark:#7FA9FF; --accent-contrast:#FFFFFF;
+  --positive:#0F7B55; --positive-tint:#E3F5EE; --positive-ink:#0B5A3E; --positive-on-dark:#6FD6AB;
+  --caution:#B85309; --caution-tint:#FBEBDD; --caution-ink:#7D3706; --caution-on-dark:#FFB470;
+  --negative:#B3321F; --negative-tint:#FBE6E2; --negative-ink:#86230F; --negative-on-dark:#FF9E8F;
+  --info:#0E7490; --info-tint:#E0F2F7; --info-ink:#0A5368; --info-on-dark:#67D4EC;
+  --s1:var(--accent); --s2:#7A3FA0; --s3:#1B8A7A; --s4:#8A7000; --s5:#C03A7A; --s6:#4B5563; --s7:#7A5230; --s8:#5F8F00;
+  --seq-1:color-mix(in srgb, var(--accent) 10%, var(--bg)); --seq-2:color-mix(in srgb, var(--accent) 24%, var(--bg)); --seq-3:color-mix(in srgb, var(--accent) 42%, var(--bg));
+  --seq-4:color-mix(in srgb, var(--accent) 62%, var(--bg)); --seq-5:color-mix(in srgb, var(--accent) 82%, var(--bg)); --seq-6:var(--accent);
+  --div-1:var(--caution); --div-2:color-mix(in srgb, var(--caution) 65%, var(--bg)); --div-3:color-mix(in srgb, var(--caution) 32%, var(--bg)); --div-4:var(--surface-2);
+  --div-5:color-mix(in srgb, var(--info) 32%, var(--bg)); --div-6:color-mix(in srgb, var(--info) 65%, var(--bg)); --div-7:var(--info);
+  --font-display:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-body:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --w-display:300; --w-body:400; --w-strong:700;
+  --fs-hero:176px; --fs-display:136px; --fs-divider:88px; --fs-title:64px; --fs-lede:28px; --fs-card:30px; --fs-body:24px; --fs-label:22px; --fs-kicker:22px; --fs-foot:18px; --fs-big:120px; --fs-stat:92px; --fs-axis:20px;
+  --fs-eyebrow:26px; --fs-name:34px; --fs-statement:96px; --fs-num:300px; --fs-cap:36px; --fs-title2:32px;
+  --tracking-title:-.012em; --tracking-caps:.16em; --lh-title:1.06; --lh-body:1.35;
+  --radius-card:24px; --radius-inner:14px; --radius-pill:999px; --stroke:3px; --stroke-strong:6px; --icon-stroke:1.8; --shadow:none;
+  --stage-w:1920px; --stage-h:1080px; --margin-x:135px; --head-top:72px; --content-top:316px; --content-bottom:1000px; --foot-bottom:38px; --gap:30px;
+  --motif-a:var(--accent-on-dark); --motif-b:var(--info-on-dark); --motif-alpha:.5; --photo-ring:var(--accent-on-dark);
+  --dur-fast:160ms; --dur:620ms; --ease:cubic-bezier(.22,.7,.2,1);
+}
+html[data-theme="dark"] {
+  --bg:#0B121C; --bg-alt:#101A27; --surface:#131E2D; --surface-2:#1A2738; --bg-dark:#060B12; --letterbox:#030609;
+  --ink:#E8ECF2; --ink-2:#BAC4D1; --ink-3:#8F9BAB; --ink-on-dark:#E8ECF2; --ink-2-on-dark:#BAC4D1; --ink-3-on-dark:#8F9BAB;
+  --line:#1F2D41; --line-strong:#58708F; --line-on-dark:#1F2D41; --line-strong-on-dark:#58708F;
+  --accent:#6FA3FF; --accent-tint:#14243D; --accent-ink:#A9C8FF; --accent-on-dark:#8CB6FF; --accent-contrast:#08142A;
+  --positive:#4FD1A1; --positive-tint:#0F2A22; --positive-ink:#8BE5C4; --positive-on-dark:#6FDCB0;
+  --caution:#F0A04B; --caution-tint:#2E2012; --caution-ink:#F7C58E; --caution-on-dark:#F7B067;
+  --negative:#FF8A78; --negative-tint:#331A16; --negative-ink:#FFB2A5; --negative-on-dark:#FF9A8A;
+  --info:#5BC8E0; --info-tint:#0F2A33; --info-ink:#9ADCEB; --info-on-dark:#74D3E8;
+  --s2:#B98AE0; --s3:#4FC3AE; --s4:#C9B13A; --s5:#E57BAE; --s6:#9AA6B6; --s7:#C19A6B; --s8:#9BC53D;
+}
+html[data-theme="paper"] {
+  --bg:#FBF7F0; --bg-alt:#F3EDE2; --surface:#FFFDF8; --surface-2:#ECE4D4; --bg-dark:#2A2118; --letterbox:#1A140E;
+  --ink:#231C14; --ink-2:#4B4034; --ink-3:#6F6254; --ink-on-dark:#F6EFE3; --ink-2-on-dark:#D8CDBB; --ink-3-on-dark:#B3A58F;
+  --line:#DDD3C0; --line-strong:#928570; --line-on-dark:#43372A; --line-strong-on-dark:#7B6C57;
+  --accent:#B4472A; --accent-tint:#F6E3DB; --accent-ink:#8A3219; --accent-on-dark:#F0A58B; --accent-contrast:#FFFFFF;
+  --positive:#2F6B3F; --positive-tint:#E4EFE2; --positive-ink:#234F2F; --positive-on-dark:#8CCB9B;
+  --caution:#94590A; --caution-tint:#F7E8D0; --caution-ink:#6A3F05; --caution-on-dark:#E8B66A;
+  --negative:#A32A2A; --negative-tint:#F6E0DD; --negative-ink:#7C1F1F; --negative-on-dark:#F2A39A;
+  --info:#2B5F7A; --info-tint:#DFEAEF; --info-ink:#1F4A60; --info-on-dark:#8CC3DC;
+  --s2:#5B4B8A; --s3:#2F7D6D; --s4:#8A6D00; --s5:#A63D6E; --s6:#5C5649; --s7:#7A4A2A; --s8:#5A7F1A;
+  --font-display:"Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --radius-card:12px; --radius-inner:8px; --stroke:2px;
+}
+/* >>> BRAND SLOT START */
+/* Fill or edit ONLY this block to re-brand (the assembler swaps in assets/brands/<name>/brand.css). Uncomment the rule, set every token; the neutral (light) value of each is shown.
+   The brand theme joins the T-key cycle only when <html data-theme="brand"> is set, which the assembler does when a brand is given. */
+/* @font-face example (brand fonts are licensed, not bundled): local() first, then a relative file.
+   @font-face { font-family:"Brand Display"; font-weight:600; src:local("Brand Display Semibold"), url("fonts/BrandDisplay-Semibold.woff2") format("woff2"); } */
+/* html[data-theme="brand"] {
+  --bg:#FFFFFF; --bg-alt:#F4F6F9; --surface:#FFFFFF; --surface-2:#EAEFF5; --bg-dark:#0F1B2D; --letterbox:#0A0F18;
+  --ink:#131A24; --ink-2:#3A4553; --ink-3:#5E6876; --ink-on-dark:#F2F5F9; --ink-2-on-dark:#C3CCD8; --ink-3-on-dark:#98A4B4;
+  --line:#D8DEE6; --line-strong:#8590A0; --line-on-dark:#2A3A52; --line-strong-on-dark:#5B6F8D;
+  --accent:#1556C0; --accent-tint:#E6EEFA; --accent-ink:#0F3F8F; --accent-on-dark:#7FA9FF; --accent-contrast:#FFFFFF;
+  --positive:#0F7B55; --positive-tint:#E3F5EE; --positive-ink:#0B5A3E; --positive-on-dark:#6FD6AB;
+  --caution:#B85309; --caution-tint:#FBEBDD; --caution-ink:#7D3706; --caution-on-dark:#FFB470;
+  --negative:#B3321F; --negative-tint:#FBE6E2; --negative-ink:#86230F; --negative-on-dark:#FF9E8F;
+  --info:#0E7490; --info-tint:#E0F2F7; --info-ink:#0A5368; --info-on-dark:#67D4EC;
+  --s2:#7A3FA0; --s3:#1B8A7A; --s4:#8A7000; --s5:#C03A7A; --s6:#4B5563; --s7:#7A5230; --s8:#5F8F00;
+  --font-display:system-ui, sans-serif; --font-body:system-ui, sans-serif; --font-mono:ui-monospace, monospace;
+  --w-display:300; --radius-card:24px; --radius-inner:14px; --stroke:3px;
+  --motif-a:var(--accent-on-dark); --motif-b:var(--info-on-dark); --motif-alpha:.5; --photo-ring:var(--accent-on-dark);
+} */
+/* <<< BRAND SLOT END */

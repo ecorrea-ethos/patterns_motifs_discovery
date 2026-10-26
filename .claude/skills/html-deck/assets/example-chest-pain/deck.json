@@ -1,0 +1,9 @@
+{
+ "title": "Chest pain as care patterns · clinical validation",
+ "out": "build/chest-pain-care-patterns.html",
+ "brand": "ethos",
+ "wordmark": "Ethos",
+ "inject": {
+  "rows": "inject/rows.json"
+ }
+}

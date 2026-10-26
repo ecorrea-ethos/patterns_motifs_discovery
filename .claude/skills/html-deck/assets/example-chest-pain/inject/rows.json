@@ -1,0 +1,651 @@
+[
+ {
+  "id": "c0",
+  "name": "Outpatient check-up and elective cardiac testing",
+  "n": 31113,
+  "pct": 0.223,
+  "cp": 18,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Lipid panel",
+    "share": 0.81,
+    "med": -85,
+    "before": 0.57
+   },
+   {
+    "k": "Blood draw",
+    "share": 0.81,
+    "med": -84,
+    "before": 0.57
+   },
+   {
+    "k": "General examination",
+    "share": 0.76,
+    "med": -104,
+    "before": 0.57
+   },
+   {
+    "k": "Electrocardiogram",
+    "share": 0.87,
+    "med": 0,
+    "before": 0.27
+   },
+   {
+    "k": "Comprehensive metabolic panel",
+    "share": 0.74,
+    "med": 0,
+    "before": 0.49
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Chest pain",
+     "Electrocardiogram",
+     "Hyperlipidemia diagnosis"
+    ],
+    "inB": 0.447,
+    "out": 0.274,
+    "lift": 1.6,
+    "pass_": 0.5,
+    "verdict": "Unstable",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "General examination",
+     "Lipid panel"
+    ],
+    "inB": 0.446,
+    "out": 0.283,
+    "lift": 1.6,
+    "pass_": 0.175,
+    "verdict": "Unstable",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Electrocardiogram",
+     "General examination"
+    ],
+    "inB": 0.473,
+    "out": 0.325,
+    "lift": 1.4,
+    "pass_": 0.0,
+    "verdict": "Unstable",
+    "order": "same-day"
+   }
+  ]
+ },
+ {
+  "id": "c1",
+  "name": "Prescriptions for acute and chronic illness",
+  "n": 24606,
+  "pct": 0.176,
+  "cp": 35,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Methylprednisolone (steroid)",
+    "share": 0.55,
+    "med": -83,
+    "before": 0.54
+   },
+   {
+    "k": "Amoxicillin with clavulanate",
+    "share": 0.55,
+    "med": -97,
+    "before": 0.54
+   },
+   {
+    "k": "Azithromycin (antibiotic)",
+    "share": 0.54,
+    "med": -187,
+    "before": 0.59
+   },
+   {
+    "k": "Acid-lowering drug",
+    "share": 0.52,
+    "med": -109,
+    "before": 0.56
+   },
+   {
+    "k": "Prednisone (steroid)",
+    "share": 0.49,
+    "med": -46,
+    "before": 0.53
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Methylprednisolone (steroid)",
+     "Chest pain",
+     "Electrocardiogram"
+    ],
+    "inB": 0.244,
+    "out": 0.049,
+    "lift": 4.3,
+    "pass_": 1.0,
+    "verdict": "Suggestive",
+    "order": "same-day"
+   },
+   {
+    "steps": [
+     "Azithromycin (antibiotic)",
+     "Chest pain",
+     "Electrocardiogram"
+    ],
+    "inB": 0.263,
+    "out": 0.071,
+    "lift": 3.4,
+    "pass_": 1.0,
+    "verdict": "Suggestive",
+    "order": "same-day"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Electrocardiogram",
+     "Methylprednisolone (steroid)"
+    ],
+    "inB": 0.26,
+    "out": 0.075,
+    "lift": 3.2,
+    "pass_": 1.0,
+    "verdict": "Suggestive",
+    "order": "same-day"
+   }
+  ]
+ },
+ {
+  "id": "c2",
+  "name": "Women's health and urinary tract",
+  "n": 16770,
+  "pct": 0.12,
+  "cp": 14,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Gynecologic examination",
+    "share": 0.69,
+    "med": -193,
+    "before": 0.61
+   },
+   {
+    "k": "Chlamydia nucleic acid test",
+    "share": 0.65,
+    "med": -124,
+    "before": 0.57
+   },
+   {
+    "k": "Gonorrhea nucleic acid test",
+    "share": 0.65,
+    "med": -124,
+    "before": 0.57
+   },
+   {
+    "k": "Cervical cytology",
+    "share": 0.63,
+    "med": -97,
+    "before": 0.55
+   },
+   {
+    "k": "Urine pregnancy test",
+    "share": 0.63,
+    "med": -128,
+    "before": 0.58
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Chest pain",
+     "Complete blood count",
+     "Blood draw"
+    ],
+    "inB": 0.467,
+    "out": 0.349,
+    "lift": 1.3,
+    "pass_": 0.0,
+    "verdict": "Unstable",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Blood draw ×2"
+    ],
+    "inB": 0.529,
+    "out": 0.404,
+    "lift": 1.3,
+    "pass_": 0.0,
+    "verdict": "Unstable",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Blood draw",
+     "Chest pain",
+     "Electrocardiogram"
+    ],
+    "inB": 0.517,
+    "out": 0.399,
+    "lift": 1.3,
+    "pass_": 0.0,
+    "verdict": "Unstable",
+    "order": "dated"
+   }
+  ]
+ },
+ {
+  "id": "c3",
+  "name": "Acute emergency work-up",
+  "n": 17250,
+  "pct": 0.124,
+  "cp": 24,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Troponin test",
+    "share": 0.81,
+    "med": 0,
+    "before": 0.21
+   },
+   {
+    "k": "Intravenous push, first drug",
+    "share": 0.66,
+    "med": 0,
+    "before": 0.33
+   },
+   {
+    "k": "Lipase test",
+    "share": 0.59,
+    "med": 0,
+    "before": 0.34
+   },
+   {
+    "k": "Chest X-ray",
+    "share": 0.86,
+    "med": 0,
+    "before": 0.33
+   },
+   {
+    "k": "Intravenous push, added drug",
+    "share": 0.55,
+    "med": 0,
+    "before": 0.34
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Chest pain",
+     "Chest X-ray",
+     "Troponin test",
+     "Comprehensive metabolic panel"
+    ],
+    "inB": 0.594,
+    "out": 0.244,
+    "lift": 2.4,
+    "pass_": 1.0,
+    "verdict": "Suggestive",
+    "order": "same-day"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Electrocardiogram",
+     "Troponin test",
+     "Comprehensive metabolic panel"
+    ],
+    "inB": 0.649,
+    "out": 0.267,
+    "lift": 2.4,
+    "pass_": 1.0,
+    "verdict": "Suggestive",
+    "order": "same-day"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Troponin test",
+     "Comprehensive metabolic panel",
+     "Complete blood count"
+    ],
+    "inB": 0.628,
+    "out": 0.255,
+    "lift": 2.4,
+    "pass_": 1.0,
+    "verdict": "Suggestive",
+    "order": "same-day"
+   }
+  ]
+ },
+ {
+  "id": "c4",
+  "name": "Stomach and bowel work-up and cancer screening",
+  "n": 8409,
+  "pct": 0.06,
+  "cp": 24,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Tissue pathology exam",
+    "share": 0.83,
+    "med": 8,
+    "before": 0.48
+   },
+   {
+    "k": "Colon cancer screening",
+    "share": 0.68,
+    "med": 55,
+    "before": 0.42
+   },
+   {
+    "k": "Upper endoscopy with biopsy",
+    "share": 0.63,
+    "med": 61,
+    "before": 0.37
+   },
+   {
+    "k": "Acid reflux diagnosis",
+    "share": 0.7,
+    "med": 0,
+    "before": 0.49
+   },
+   {
+    "k": "Periodic preventive visit",
+    "share": 0.61,
+    "med": -175,
+    "before": 0.59
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Chest pain",
+     "Acid reflux diagnosis",
+     "Upper endoscopy with biopsy"
+    ],
+    "inB": 0.377,
+    "out": 0.06,
+    "lift": 5.5,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Tissue pathology exam",
+     "Upper endoscopy with biopsy"
+    ],
+    "inB": 0.391,
+    "out": 0.064,
+    "lift": 5.4,
+    "pass_": 1.0,
+    "verdict": "Suggestive",
+    "order": "same-day"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Acid reflux diagnosis",
+     "Tissue pathology exam"
+    ],
+    "inB": 0.411,
+    "out": 0.086,
+    "lift": 4.4,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   }
+  ]
+ },
+ {
+  "id": "c5",
+  "name": "Muscle and bone care and physical therapy",
+  "n": 19127,
+  "pct": 0.137,
+  "cp": 14,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Therapeutic exercise",
+    "share": 0.85,
+    "med": -36,
+    "before": 0.52
+   },
+   {
+    "k": "Manual therapy",
+    "share": 0.75,
+    "med": -5,
+    "before": 0.5
+   },
+   {
+    "k": "Therapeutic activities",
+    "share": 0.55,
+    "med": 132,
+    "before": 0.42
+   },
+   {
+    "k": "Low back pain diagnosis",
+    "share": 0.65,
+    "med": -115,
+    "before": 0.56
+   },
+   {
+    "k": "Movement training",
+    "share": 0.54,
+    "med": 133,
+    "before": 0.42
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Chest pain",
+     "Manual therapy",
+     "Therapeutic exercise"
+    ],
+    "inB": 0.456,
+    "out": 0.064,
+    "lift": 6.3,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Manual therapy ×2"
+    ],
+    "inB": 0.471,
+    "out": 0.069,
+    "lift": 6.1,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Therapeutic exercise",
+     "Manual therapy"
+    ],
+    "inB": 0.487,
+    "out": 0.075,
+    "lift": 5.9,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   }
+  ]
+ },
+ {
+  "id": "c6",
+  "name": "Nutrition and hormone blood tests",
+  "n": 10987,
+  "pct": 0.079,
+  "cp": 8,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Vitamin B12 test",
+    "share": 0.88,
+    "med": 0,
+    "before": 0.48
+   },
+   {
+    "k": "Vitamin D test",
+    "share": 0.9,
+    "med": -29,
+    "before": 0.53
+   },
+   {
+    "k": "Free thyroxine test",
+    "share": 0.75,
+    "med": -14,
+    "before": 0.52
+   },
+   {
+    "k": "Iron test",
+    "share": 0.71,
+    "med": 19,
+    "before": 0.44
+   },
+   {
+    "k": "Ferritin test",
+    "share": 0.71,
+    "med": 21,
+    "before": 0.44
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Chest pain",
+     "Lipid panel",
+     "Vitamin D test"
+    ],
+    "inB": 0.646,
+    "out": 0.194,
+    "lift": 3.2,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Lipid panel",
+     "Hemoglobin A1c test"
+    ],
+    "inB": 0.688,
+    "out": 0.363,
+    "lift": 1.9,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Electrocardiogram",
+     "Lipid panel"
+    ],
+    "inB": 0.65,
+    "out": 0.412,
+    "lift": 1.6,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   }
+  ]
+ },
+ {
+  "id": "c7",
+  "name": "Acute respiratory infection",
+  "n": 11154,
+  "pct": 0.08,
+  "cp": 25,
+  "scored": 60,
+  "ents": [
+   {
+    "k": "Cough",
+    "share": 0.66,
+    "med": -18,
+    "before": 0.53
+   },
+   {
+    "k": "Upper respiratory infection",
+    "share": 0.6,
+    "med": 0,
+    "before": 0.48
+   },
+   {
+    "k": "Sore throat (pharyngitis)",
+    "share": 0.61,
+    "med": 0,
+    "before": 0.49
+   },
+   {
+    "k": "Rapid antigen test (87880)",
+    "share": 0.55,
+    "med": 0,
+    "before": 0.48
+   },
+   {
+    "k": "Rapid antigen test (87804)",
+    "share": 0.53,
+    "med": 0,
+    "before": 0.48
+   }
+  ],
+  "seqs": [
+   {
+    "steps": [
+     "Sore throat (pharyngitis)",
+     "Chest pain",
+     "Electrocardiogram"
+    ],
+    "inB": 0.306,
+    "out": 0.106,
+    "lift": 2.7,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Chest pain",
+     "Electrocardiogram",
+     "Upper respiratory infection"
+    ],
+    "inB": 0.301,
+    "out": 0.131,
+    "lift": 2.2,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   },
+   {
+    "steps": [
+     "Cough",
+     "Chest pain",
+     "Electrocardiogram"
+    ],
+    "inB": 0.325,
+    "out": 0.155,
+    "lift": 2.0,
+    "pass_": 1.0,
+    "verdict": "Solid",
+    "order": "dated"
+   }
+  ]
+ }
+]

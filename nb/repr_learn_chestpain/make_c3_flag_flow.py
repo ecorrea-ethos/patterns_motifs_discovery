@@ -1,11 +1,11 @@
 """Draw the decision flow of the chest pain c3 pattern for the UW team.
 
 usage (conda env omop_local, cwd = nb/repr_learn_chestpain/):
-    python make_c3_flag_flow.py             # flag wording of the v2 engine (Manual RUW, routine box) -> chestpain_c3_flag_flow.png
-    python make_c3_flag_flow.py --neutral   # ASD-STE100 wording, no routing words, for the v3 engine -> chestpain_c3_pattern_flow.png
+    python make_c3_flag_flow.py             # flag wording of the v2 engine (Manual RUW, routine box) -> outputs/chestpain_c3_flag_flow.png
+    python make_c3_flag_flow.py --neutral   # ASD-STE100 wording, no routing words, for the v3 engine -> outputs/chestpain_c3_pattern_flow.png
 
 The care pattern sizes come from nmf_k8_chestpain_AHA_components.json. The share of c3 patients with each service sits in a text cell of
-final_table_chestpain_k8_AHA.xlsx (care pattern c3, column "Most frequently OMOP clinical entities found"), so it is typed below.
+outputs/final_table_chestpain_k8_AHA.xlsx (care pattern c3, column "Most frequently OMOP clinical entities found"), so it is typed below.
 """
 import argparse
 import json
@@ -152,6 +152,7 @@ text(rx + 22, 486, NOTE2, 10)
 text(rx + 22, 813, NOTE3, 9.3)
 text(30, 1170, FOOT, 8.8, color=MUTED)
 
-out = os.path.join(HERE, OUT)
+out = os.path.join(HERE, "outputs", OUT)
+os.makedirs(os.path.dirname(out), exist_ok=True)
 fig.savefig(out, dpi=100, facecolor="white")
 print("wrote", out)

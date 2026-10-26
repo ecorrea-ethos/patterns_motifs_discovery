@@ -15,7 +15,7 @@ import openpyxl
 from pubmed_aha import PAT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-TABLE = os.path.join(HERE, '..', '..', 'final_table_chestpain_k8_AHA.xlsx')
+TABLE = os.path.join(HERE, '..', '..', 'outputs', 'final_table_chestpain_k8_AHA.xlsx')
 ap = argparse.ArgumentParser(); ap.add_argument('--out', default=TABLE); ap.add_argument('--check', action='store_true')
 args = ap.parse_args()
 

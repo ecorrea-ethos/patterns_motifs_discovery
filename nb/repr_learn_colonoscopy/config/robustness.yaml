@@ -1,0 +1,46 @@
+# Parameters of Colonoscopy_NMF_PrefixSpan_v1.ipynb. Every key is read by the notebook (run it from nb/repr_learn_colonoscopy/).
+# Preprocessing FILTERS are not here on purpose: they live in the notebook's filter cell, each with its rationale.
+paths:
+  extract_dir: "../../inputs/colonoscopy_cohort/"     # extract_cohort() output
+  cohort_sql: "../../sql/colonoscopy_cohort.sql"
+  out_dir: "outputs"                                   # npz / json / xlsx / csv written by the notebook (gitignored)
+
+nmf:                                  # Part A: choice of k
+  k_min: 3
+  k_max: 14
+  split_seeds: [1, 2, 3, 4, 5]        # independent train / held-out splits of the cohort
+  n_boot_k: 10                        # bootstrap refits per (k, split) in the sweep
+  n_boot: 10                          # bootstrap refits for the stability table of the chosen k
+  n_sweep_cap: 20000                  # training patients per split (scaled down to 60% of a small cohort)
+  n_held_cap: 10000                   # held-out patients per split
+  n_boot_sample_cap: 20000            # patients per bootstrap resample
+  n_eval_cap: 20000                   # patients used to compare argmax labels between refits
+  min_train_patients: 5               # a code must reach this many patients of a training split (sets the prevalence floor)
+  min_splits_frac: 0.8                # a k must pass on this share of the splits (4 of 5)
+
+mining:                               # Part B: PrefixSpan inside each group
+  rel_sup: 0.15                       # share of the group's patients that must contain a motif
+  max_len: 4
+  min_len: 3                          # report only motifs with >= 3 steps
+  max_cand: 100                       # top-support motifs per group that get scored
+  mine_cap: 5000                      # PrefixSpan runs on at most this many patients per group (runtime); scoring uses everyone
+  n_out: 1500                         # outside patients sampled for sup_out
+  min_group_n: 50                     # groups smaller than this are not mined
+
+scoring:
+  min_lift: 2.0                       # a motif must be at least this specific to its group
+  n_boot: 1000                        # bootstrap draws for the lift interval
+
+stability:
+  split_seeds: [1, 2, 3, 4, 5]        # nominate on one half, score on the other
+  min_splits_ok: 4                    # of the split seeds, for `solid`
+
+heldout:                              # family held-out pass rate (downgrades solid -> suggestive)
+  seeds_from: 101
+  n_seeds: 20                         # both directions scored -> 40 runs
+  min_or: 2.0                         # lower 95% bound of the odds ratio on the held-out half
+  min_rate_lo: 0.70                   # lower Wilson bound of the family pass rate
+  fam_dist: 0.2                       # Jaccard distance below which motifs are one family
+  same_day_ratio: 0.5                 # strict-date support / tie-ordered support below this = same-day bundle
+
+seed: 0

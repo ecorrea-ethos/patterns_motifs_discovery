@@ -263,11 +263,39 @@ def extract_cohort(cohort_sql, out_dir="../data_input", conn=None,
 
 # ==============================================================  LOAD (offline)
 
-def _read(out_dir, table, **kw):
-    p = os.path.join(out_dir, f"{table}.csv")
-    if not os.path.exists(p):
+def _fresh_parquet(out_dir, table):
+    """<table>.parquet (made by csv_to_parquet.py) when it exists and is not older than the CSV, else None."""
+    pqt = os.path.join(out_dir, f"{table}.parquet")
+    csv = os.path.join(out_dir, f"{table}.csv")
+    if os.path.exists(pqt) and (not os.path.exists(csv) or os.path.getmtime(pqt) >= os.path.getmtime(csv)):
+        return pqt
+    return None
+
+
+def _read(out_dir, table, columns=None, **kw):
+    """
+    One extract table as a DataFrame, or None when it is absent.
+
+    Reads <table>.parquet when it is fresh (see _fresh_parquet) and holds every requested column
+    (columns=None = every column of the CSV), else the CSV. columns limits what is loaded and a
+    column the table does not have is skipped. kw go to read_csv only.
+    """
+    pqt = _fresh_parquet(out_dir, table)
+    csv = os.path.join(out_dir, f"{table}.csv")
+    if pqt:
+        import pyarrow.parquet as pq
+        have = set(pq.read_schema(pqt).names)
+        if columns is not None:
+            need = set(columns)
+        else:
+            need = set(pd.read_csv(csv, nrows=0).columns) if os.path.exists(csv) else have
+        if need <= have:
+            return pd.read_parquet(pqt, columns=None if columns is None else list(columns))
+    if not os.path.exists(csv):
         return None
-    return pd.read_csv(p, low_memory=False, **kw)
+    if columns is not None:
+        kw["usecols"] = lambda c: c in columns
+    return pd.read_csv(csv, low_memory=False, **kw)
 
 
 def load_concept(out_dir=OUT_DIR):
@@ -333,7 +361,7 @@ def load_events(out_dir=OUT_DIR, domains=None, standard_only=True):
     for table, cid_col, date_col, domain in EVENT_SOURCES:
         if domains and domain not in domains:
             continue
-        df = _read(out_dir, table)
+        df = _read(out_dir, table, columns=["person_id", cid_col, date_col])
         if df is None or cid_col not in df or date_col not in df:
             continue
         sub = df[["person_id", cid_col, date_col]].rename(
@@ -728,7 +756,12 @@ def describe_extract(out_dir=OUT_DIR):
         base = os.path.basename(p)
         if os.path.islink(p) or base.replace(".csv", "") in MASTER_TO_STANDARD_NAME.values():
             continue
-        n = sum(1 for _ in open(p)) - 1
+        pqt = _fresh_parquet(out_dir, base.replace(".csv", ""))
+        if pqt:                                          # row count from the parquet footer, no pass over the CSV
+            import pyarrow.parquet as pq
+            n = pq.ParquetFile(pqt).metadata.num_rows
+        else:
+            n = sum(1 for _ in open(p)) - 1
         rows.append({"file": os.path.basename(p), "rows": n,
                      "MB": round(os.path.getsize(p) / 1e6, 1)})
     return pd.DataFrame(rows).sort_values("rows", ascending=False)

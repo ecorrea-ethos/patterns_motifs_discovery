@@ -1,0 +1,269 @@
+# Bitacora
+# v2 (this file, "codesets_v2.yaml") - guideline rewrite of codesets.yaml (v1), written beside it; codesets.yaml is untouched.
+#     Sources, both in papers/mammography/:
+#       USPSTF  Screening for Breast Cancer: USPSTF Recommendation Statement. JAMA 2024;331(22):1918-1930. doi:10.1001/jama.2024.5534
+#       ASCO    Nahleh Z, et al. Breast Cancer Follow-Up and Surveillance After Primary Treatment: ASCO Guideline Update. J Clin Oncol 2026.
+#               doi:10.1200/JCO-26-01700 (Table 4 = the recommendations; "Tbl 4 x.y" below refers to its rows)
+#     What changed against v1 (every change is also a `source:` key on the tag; `python check_codesets.py --md` prints them):
+#       * the cohort anchor and the label are untouched: `mammography`, `breast_cancer` and `in_situ` resolve to the SAME concept ids as v1,
+#         so cohort, label, exclusion F2 / F3 and Table 1 are identical and a v1 / v2 run differs only in how features are grouped.
+#       * every v1 tag name is kept (the notebook reads ANCHOR, LABEL_PROXY_TAGS and codesets[...] by name).
+#       * v1 defects fixed: drug patterns were anchored with ^ and missed packs and brand forms (ribociclib "{21 (ribociclib ...) } Pack",
+#         "14 ML pertuzumab ... [Perjeta]", Phesgo, Herceptin Hylecta, Enhertu, Nerlynx, Trodelvy); `mastectomy` held "Mastectomy for
+#         gynecomastia" (benign); `lymph_node_procedure` also claimed the mastectomy concepts that name axillary nodes, and
+#         `lumpectomy` + `radiation_therapy` both claimed the IORT applicator code (3 unexpected overlaps in v1, 0 here);
+#         `radiation_therapy` held the Condition "Stomatitis due to and following radiation therapy"; `breast_reconstruction` held
+#         "tissue expander for other than breast"; `mammographic_finding` mixed breast density with calcifications and findings.
+#       * new tags: breast density (USPSTF: supplemental screening is an I statement for dense breasts), germline susceptibility, genetic
+#         counseling and the ASCO germline panel genes (USPSTF excludes carriers; ASCO Tbl 4 1.3.1 / 3.3), post-mastectomy absence of
+#         breast (Tbl 4 1.2.2 / 1.3.2: no mammography after bilateral mastectomy), CDK4/6 inhibitors and HER2-targeted drugs (the drugs
+#         that set ASCO's surveillance intensity, Tbl 4 1.2.1 / 1.3.1), tumor markers, CBC and chemistry panels (Tbl 4 2.1: not
+#         recommended for surveillance), bone scan and PET (Tbl 4 3.4: not recommended for distant-metastasis surveillance).
+#       * `receptor_assay` also takes the hormone-receptor / triple-negative tumor conditions (ASCO's intensity groups are defined by subtype).
+#     Not possible in this extract, so no tag: contrast-enhanced mammography (0 concepts, Tbl 4 3.2); family history of breast cancer
+#     (an Observation concept, Observation is not loaded); ctDNA (no concept, Tbl 4 2.2); atypical hyperplasia (0 concepts); a
+#     bilateral-mastectomy concept (only "Bilateral acquired absence of breast"); screening vs surveillance mammography (same concept).
+#     Not tagged on purpose: plain CT chest / abdomen / pelvis and brain MRI (Tbl 4 3.4) because they are ubiquitous in ED and
+#     GI / GU care and cannot be told apart from staging scans by concept; LCIS stays inside `in_situ` (the notebook's F3 rule uses it).
+#     `metastasis` is unchanged: this extract names almost no secondary-neoplasm concepts (1 concept), so the tag stays near-empty.
+#
+# ORDER IS LOAD-BEARING. tag_events() gives every concept to the FIRST tag that lists it (`group`; at token_level="group" that is also
+# the NMF token). `groups` (multi_group=True) still lists all tags, so group_mask / label proxies see overlaps. Therefore: specific
+# tags first, `mammography` after screening / diagnostic, umbrella `antineoplastic_drug` after its finer tags. Do not alphabetise.
+# Spec shapes (same as v1):
+#   <tag>: {patterns: [...], vocabularies: [...], domain: ..., exclude: [...], source: "..."}   # name-matched by resolve()
+#   <tag>: {concept_ids: [...]}                                                                  # literal
+# PATTERNS ARE UNANCHORED SUBSTRING REGEX joined with "|" (str.contains, case-insensitive) on concept_name of STANDARD concepts.
+# After editing: python check_codesets.py (matched names per tag, empties, overlaps, v1 diff) and read every changed tag's names.
+
+# ---- 1. Anchor and breast imaging (USPSTF: Screening Tests, Supplemental Screening) ----
+mammography_screening:
+  patterns: ["^screening mammography"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+mammography_diagnostic:
+  patterns: ["^diagnostic mammography"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+mammography:                       # COHORT ANCHOR (identical to v1): any mammography procedure (screening, diagnostic or unspecified)
+  patterns: ["^(?:screening |diagnostic |bilateral |unilateral )?mammography"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_tomosynthesis:              # USPSTF: DBT and digital mammography are both effective screening modalities
+  patterns: ["digital breast tomosynthesis", "digital tomosynthesis of .*breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_ultrasound:                 # USPSTF: supplemental screening with ultrasound or MRI in dense breasts (I statement); ASCO Tbl 4 3.2
+  patterns: ["^ultrasound, breast", "ultrasound of .*breast", "breast ultrasound"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_mri:                        # USPSTF supplemental screening; ASCO Tbl 4 3.1 / 3.3 (carriers, chest radiation, dense breasts)
+  patterns: ["magnetic resonance imaging.*breast", "mri of .*breasts?"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_exam:                       # ASCO Tbl 4 1.1.2 / 1.2.2: history and physical examination at follow-up
+  patterns: ["^examination of breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_density:
+  source: "USPSTF: dense breasts, supplemental screening I statement; ASCO Tbl 4 3.2 / 3.3. Split out of mammographic_finding"
+  patterns: ["mammographic breast density", "dense breast"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+mammographic_finding:              # findings are Condition rows; they are information BEFORE a diagnosis, so they stay features
+  source: "USPSTF Harms: false-positive recall. v2 excludes breast density (own tag)"
+  patterns: ["mammograph", "abnormal findings on diagnostic imaging of breast"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["breast density"]
+
+# ---- 2. Benign disease, symptoms and the recall work-up (USPSTF Harms: additional imaging, biopsy) - unchanged from v1 ----
+breast_symptom:
+  patterns: ["breast lump", "^lump (?:in|of) .*breast", "^mass of .*breast", "breast signs and symptoms", "^pain of breast", "nipple discharge"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+benign_breast_disease:
+  patterns: ["benign neoplasm of .*breast", "fibroadenosis", "fibrocystic", "benign mammary dysplasia", "solitary cyst of breast",
+             "fibrosclerosis of breast", "mammary duct ectasia"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+breast_uncertain_neoplasm:
+  patterns: ["neoplasm of uncertain behavior of .*breast"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+breast_cyst_procedure:
+  patterns: ["puncture aspiration of cyst of breast", "excision of cyst, fibroadenoma"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_biopsy:
+  patterns: ["^biopsy, breast", "biopsy of breast", "breast biopsy", "needle biopsy of breast", "core biopsy of breast",
+             "fine needle aspiration.*breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+breast_localization:
+  patterns: ["^placement of breast localization device"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+
+# ---- 3. Risk context: carriers and prior radiation are outside the USPSTF population and drive ASCO's MRI advice ----
+brca_testing:
+  source: "ASCO Tbl 4 1.3.1 / 3.3 germline panel (BRCA1/2, PALB2, PTEN, TP53, STK11, ATM, BARD1, CDH1, CHEK2, NF1, RAD51C/D); USPSTF excludes carriers. v2 widens the genes and keeps to Measurement"
+  patterns: ["^(?:brca1|brca2|palb2|pten|tp53|stk11|atm|bard1|cdh1|chek2|nf1|rad51c|rad51d)\\b", "hereditary breast"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS", "LOINC"]
+  domain: "Measurement"
+germline_susceptibility:
+  source: "USPSTF: BRCA1/2 variation excluded from the screening recommendation; ASCO Tbl 4 1.3.1 germline mutations"
+  patterns: ["genetic susceptibility to cancer", "cowden syndrome", "pten hamartoma", "li-fraumeni", "peutz-jeghers", "hereditary breast"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+genetic_counseling:
+  source: "USPSTF: separate recommendation on risk assessment, genetic counseling and testing for BRCA-related cancer"
+  patterns: ["genetic counsel"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+radiation_therapy:                 # USPSTF: high-dose chest radiation at a young age; ASCO Tbl 4 3.3 radiation exposure of breast tissue
+  source: "v2: Procedure only (v1 matched the Condition 'Stomatitis due to and following radiation therapy'), no anesthesia code, IORT applicator stays with lumpectomy"
+  patterns: ["radiation therapy", "radiotherapy", "teletherapy", "radiation treatment delivery", "brachytherapy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["anesthesia", "tumor cavity"]
+hormonal_contraceptive:            # includes intrauterine systems; norethindrone is also used for non-contraceptive indications
+  patterns: ["^ethinyl estradiol", "^levonorgestrel", "^norethindrone", "^norgestimate", "^drospirenone", "^desogestrel"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+menopausal_hormone_therapy:
+  patterns: ["^estradiol", "conjugated estrogens", "^estrogens, conjugated", "^esterified estrogens", "^medroxyprogesterone"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+menopause_status:
+  patterns: ["postmenopausal", "menopaus", "perimenopaus", "premature ovarian"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+pregnancy_outcome:                 # parity proxy
+  patterns: ["live birth", "delivery of", "normal delivery", "cesarean", "spontaneous abortion", "missed abortion",
+             "ectopic pregnancy", "stillbirth", "postpartum", "weeks gestation"]
+  vocabularies: ["SNOMED"]
+obesity:
+  patterns: ["^obesity", "morbid obesity"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+t2dm:
+  patterns: ["type 2 diabetes"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+bone_health:
+  patterns: ["bone density", "dual energy x-ray", "absorptiometry", "\\bdexa\\b", "^zoledronic", "^denosumab", "osteoporosis", "osteopenia"]
+  vocabularies: ["SNOMED", "RxNorm", "RxNorm Extension", "CPT4", "HCPCS"]
+
+# ---- 4. Diagnosis and cancer treatment: the label side (ASCO Tbl 4 1.1-1.3 define the intensity groups by these) ----
+receptor_assay:                    # not bare "immunohistochemistry": matches slide digitization
+  source: "ASCO Tbl 4 1.1-1.3: intensity groups are defined by HR / HER2 / triple-negative subtype. v2 adds the receptor-status Conditions"
+  patterns: ["estrogen receptor", "progesterone receptor", "her2", "hormone receptor", "triple.negative",
+             "immunohistochemistry.*(?:breast|estrogen|progesterone)", "^oncology \\(breast"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4"]
+# in_situ is defined BEFORE breast_cancer. The notebook excludes patients with in-situ disease only (ambiguous label). IDENTICAL to v1.
+in_situ:
+  patterns: ["carcinoma in situ of .*breast", "ductal carcinoma in situ"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+# breast_cancer: the name-matched part of the cancer LABEL (unioned with the ICD-defined label concepts, then dropped from the features).
+# IDENTICAL to v1: "malignant neoplasm.*breast" because real names read "Primary malignant neoplasm of lower inner quadrant of breast".
+breast_cancer:
+  patterns:
+    - "malignant (?:neoplasm|tumou?r).*breast"
+    - "carcinoma of (?:the )?(?:female |male )?breast"
+    - "(?:infiltrating|invasive).*carcinoma.*breast"
+    - "breast cancer"
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["family history", "personal history", "history of", "screening", "at risk", "in situ",
+            "benign", "secondary", "uncertain", "hereditary"]
+lumpectomy:                        # before mastectomy: "Partial mastectomy" belongs here first. Unchanged from v1
+  patterns: ["lumpectomy", "partial mastectomy", "excision of breast lesion", "excision of lesion of breast", "breast conserving",
+             "quadrantectomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["radiotherapy", "afterloading"]
+mastectomy:
+  source: "ASCO Tbl 4 1.2.2 / 1.3.2: unilateral vs bilateral mastectomy decides the mammography advice. v2 drops 'Mastectomy for gynecomastia' (benign)"
+  patterns: ["mastectomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["partial", "postmastectomy", "gynecomastia"]
+breast_absence:
+  source: "ASCO Tbl 4 1.2.2 / 1.3.2: after bilateral mastectomy mammography is not recommended. State after mastectomy, so a label proxy in the notebook"
+  patterns: ["absence of breast"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+lymph_node_procedure:
+  source: "v2: Procedure only (v1 also matched a melanoma gene-expression Measurement) and no mastectomy concept (those stay in lumpectomy / mastectomy)"
+  patterns: ["sentinel", "axillary lymph", "axillary node", "lymphatic mapping"]      # not bare "lymphadenectomy": matches mediastinal / chest wall surgery
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["mastectomy"]
+chemotherapy:
+  patterns: ["chemotherapy administration", "administration of antineoplastic", "antineoplastic chemotherapy",
+             "chemotherapy by infusion", "intravenous chemotherapy", "chemotherapy session"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+cdk46_inhibitor:
+  source: "ASCO Tbl 4 1.2.1 / 1.3.1: CDK4/6 inhibitor therapy moves a patient to a higher surveillance intensity. Unanchored: v1 '^ribociclib' missed the Kisqali packs"
+  patterns: ["palbociclib", "ribociclib", "abemaciclib"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+  domain: "Drug"
+her2_targeted:
+  source: "ASCO Tbl 4 1.1-1.3: HER2-positive disease and its therapy set the intensity group. Unanchored: v1 '^pertuzumab' missed Perjeta, Phesgo, Herceptin Hylecta, Enhertu, Nerlynx"
+  patterns: ["trastuzumab", "pertuzumab", "neratinib", "tucatinib", "lapatinib"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+  domain: "Drug"
+antineoplastic_drug:               # UMBRELLA, after cdk46_inhibitor and her2_targeted so they win the token; still groups every drug below
+  source: "v2: unanchored (v1 ^ missed packs and brand forms), adds sacituzumab; cdk46_inhibitor and her2_targeted are inside it"
+  patterns: ["trastuzumab", "cyclophosphamide", "doxorubicin", "paclitaxel", "docetaxel", "carboplatin", "capecitabine",
+             "pertuzumab", "palbociclib", "ribociclib", "abemaciclib", "neratinib", "tucatinib", "lapatinib", "sacituzumab"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+  domain: "Drug"
+endocrine_therapy:                 # aromatase inhibitors, tamoxifen, fulvestrant: adjuvant breast-cancer drugs. Unchanged from v1
+  patterns: ["^letrozole", "^anastrozole", "^exemestane", "^tamoxifen", "^fulvestrant", "^toremifene",
+             "femara", "arimidex", "aromasin", "nolvadex"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+metastasis:                        # unchanged: 1 concept in this extract (see header)
+  patterns: ["secondary malignant neoplasm", "metastasis", "metastatic", "secondary neoplasm", "malignant neoplasm.*metastatic"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+breast_reconstruction:             # after mastectomy, but also elective: NOT treated as a label proxy
+  source: "ASCO Tbl 4 1.2.2 / 1.3.2: mastectomy 'with or without reconstruction'. v2 drops 'tissue expander for other than breast'"
+  patterns: ["reconstruction of breast", "insertion of breast prosthesis", "tissue expander", "breast implant"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["other than breast"]
+
+# ---- 5. Tests ASCO does not recommend for surveillance of asymptomatic survivors (Tbl 4 2.1, 3.4) ----
+tumor_marker:
+  source: "ASCO Tbl 4 2.1: CEA, CA 15-3, CA 27.29 not recommended for asymptomatic surveillance"
+  patterns: ["carcinoembryonic antigen measurement", "tumor antigen, quantitative; ca 15-3", "^tumor marker measurement"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Measurement"
+cbc:
+  source: "ASCO Tbl 4 2.1: routine CBC not recommended for asymptomatic surveillance"
+  patterns: ["^complete blood count", "^blood count"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Measurement"
+  exclude: ["reticulocyte"]
+chemistry_panel:
+  source: "ASCO Tbl 4 2.1: routine chemistry panels not recommended for asymptomatic surveillance"
+  patterns: ["^comprehensive metabolic panel", "^basic metabolic panel"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Measurement"
+bone_scan_pet:
+  source: "ASCO Tbl 4 3.4: imaging for distant metastases not recommended in asymptomatic survivors (bone scan, PET; plain CT and brain MRI are not tagged, see header)"
+  patterns: ["^bone and/or joint imaging", "^positron emission tomography"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+
+# ---- 6. Preventive care (utilisation context: who gets screened for what) - unchanged from v1 ----
+cervical_screening:
+  patterns: ["papanicolaou", "pap smear", "screening cytopathology", "^cytopathology, cervical", "human papillomavirus"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4", "HCPCS"]
+colorectal_screening:             # every colonoscopy (screening and diagnostic) and fecal occult blood tests
+  patterns: ["^colonoscopy", "fecal occult", "occult blood", "stool dna"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4", "HCPCS"]
+
+# Family history of breast cancer, tobacco and alcohol use are OMOP Observation concepts: Observation is not loaded, so they are not
+# available as codesets here.

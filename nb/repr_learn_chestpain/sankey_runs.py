@@ -1,7 +1,7 @@
 """Sankey of patient flow between the bundles of two NMF runs (same cohort, same patients).
 
 usage (conda env ethos_llm, cwd = nb/repr_learn_chestpain/):
-    python sankey_runs.py                       # AHA k=8 vs full k=8 and vs full k=5, writes sankey_*.png
+    python sankey_runs.py                       # AHA k=8 vs full k=8 and vs full k=5, writes outputs/sankey_*.png
     python sankey_runs.py LEFT RIGHT            # run labels as in nmf_k{K}_chestpain_{label}.npz, e.g. AHA full_k8
 
 Left = first run, one node per bundle, height = patients. Band = patients that sit in bundle i of the left run and bundle j of the right
@@ -109,4 +109,4 @@ if __name__ == "__main__":
     pairs = [tuple(sys.argv[1:3])] if len(sys.argv) >= 3 else [("AHA", "full_k8"), ("AHA", "full")]
     for a, b in pairs:
         L, R = load(a), load(b)
-        sankey(L, R, os.path.join(HERE, f"sankey_{L['tag']}_vs_{R['tag']}.png"))
+        sankey(L, R, os.path.join(HERE, "outputs", f"sankey_{L['tag']}_vs_{R['tag']}.png"))

@@ -1,0 +1,281 @@
+ent3     c0      n=69      ecg+abdpain+trop
+       39556629 2024 Am Fam Physician | Diabetic Ketoacidosis: Evaluation and Treatment.
+       34029166 2021 Radiology | Case 294.
+       36123009 2022 BMJ Case Rep | Recurrent biventricular takotsubo cardiomyopathy with fatal outcome.
+ent3     c0      n=4       ecg+abdpain+ondans
+       36925442 2023 J Emerg Med | Droperidol Use in the Emergency Department: A Clinical Review.
+       1425620 1992 Eur J Anaesthesiol Suppl | Clinical pharmacology of ondansetron in postoperative nausea and vomiting.
+       40213180 2025 Ann Med Surg (Lond) | Wild honey grayanotoxin intoxication in rural Himalayan region of Nepal: a case report.
+ent3     c0      n=3       ecg+trop+ondans
+       39803059 2024 Cureus | Hidden Rhythms: A Complex Case of Hyperemesis Gravidarum-Induced Arrhythmias.
+       35072389 2021 Acute Med | Ventricular tachycardia and raised troponin: "What if it's a pheochromocytoma"? Some lessons from a crisis.
+       41613696 2025 Cureus | A Case of Early-Stage Acute Myocarditis in a Child Detected by Focused Cardiac Ultrasound.
+ent3     c0      n=0       abdpain+trop+ondans
+ent_all  c0      n=0       ecg+abdpain+trop+ondans
+ent3     c1      n=47      phys+lipid+prev
+       39067975 2024 Prim Care | Obesity.
+       18212285 2008 Circulation | General cardiovascular risk profile for use in primary care: the Framingham Heart Study.
+       31868718 2020 Work | Risk factors for obstructive sleep apnea among train drivers.
+ent3     c1      n=42      phys+lipid+venip
+       36651514 2022 Acta Pharm | Anti-inflammatory and immunomodulatory effects of rosuvastatin in patients with low-to-moderate cardiovascular
+       25837320 2015 Eur J Obstet Gynecol Reprod Biol | Circulating levels of obestatin and copeptin in obese and nonobese women with polycystic ovary syndrome.
+       25286452 2014 J Nutr Health Aging | Nutritional status of the elderly in rural North China: a cross-sectional study.
+ent3     c1      n=8       phys+lipid+immun
+       28546878 2017 J Aging Res | Effects of Medicare Coverage of a "Welcome-to-Medicare" Visit on Use of Preventive Services among New Medicare
+       17642797 2005 Saudi J Kidney Dis Transpl | Is there a need for establishing a formal nephrologist-directed primary care program in dialysis units?
+       23313038 2013 PM R | Preventive health care among community-dwelling persons with spinal cord injury.
+ent3     c1      n=1       phys+prev+venip
+       30290551 2007 Ir J Psychol Med | High prevalence of risk factors for physical illness in a long-stay psychiatric unit.
+ent3     c1      n=31      phys+prev+immun
+       42886177 2026 Am Fam Physician | Primary Care for People With Alcohol Use Disorder.
+       33516427 2021 Prim Care | Refugee Medical Screening.
+       21289852 1982 Can Fam Physician | Well child care in family medicine: part 1: physical examination, developmental assessment and evaluation of p
+ent3     c1      n=3       phys+venip+immun
+       12481538 2002 Schweiz Arch Tierheilkd | [Ferrets in veterinary practice].
+       9828314 1998 Chemosphere | The immunologic evaluation of the Yucheng children.
+       22743750 2012 Pediatr Emerg Care | Reduced use of occult bacteremia blood screens by emergency medicine physicians using immunization registry fo
+ent3     c1      n=1       lipid+prev+venip
+       30290551 2007 Ir J Psychol Med | High prevalence of risk factors for physical illness in a long-stay psychiatric unit.
+ent3     c1      n=141     lipid+prev+immun
+       28546878 2017 J Aging Res | Effects of Medicare Coverage of a "Welcome-to-Medicare" Visit on Use of Preventive Services among New Medicare
+       21849967 2011 MMWR Surveill Summ | Surveillance of certain health behaviors and conditions among states and selected local areas --- Behavioral R
+       25347766 2014 JAMA Pediatr | Improvement in preventive care of young adults after the affordable care act: the affordable care act is helpi
+ent3     c1      n=1       lipid+venip+immun
+       12907825 2003 Biol Trace Elem Res | Serum zinc in healthy Belgian children.
+ent3     c1      n=2       prev+venip+immun
+       30109720 2019 J Adv Nurs | The fear of needles: A systematic review and meta-analysis.
+       42656565 2026 Front Psychiatry | Factors associated with documented distress during venipuncture in routine health checkups.
+ent_all  c1      n=0       phys+lipid+prev+venip+immun
+ent3     c2      n=0       mpred+amox+azithro
+ent3     c2      n=0       mpred+amox+ppi
+ent3     c2      n=0       mpred+amox+pred
+ent3     c2      n=0       mpred+azithro+ppi
+ent3     c2      n=7       mpred+azithro+pred
+       32573882 2020 Transpl Infect Dis | COVID-19 pneumonia in kidney transplant recipients: Focus on immunosuppression management.
+       31782952 2019 Am J Case Rep | Tumor Lysis Syndrome in Chronic Lymphocytic Leukemia: A Rare Case Report from Nephrology.
+       32961675 2020 Int J Environ Res Public Health | Differences between Clinical Protocols for the Treatment of Coronavirus Disease 2019 (COVID-19) in Andalusia, 
+ent3     c2      n=10      mpred+ppi+pred
+       12428432 2002 Methods Find Exp Clin Pharmacol | Gateways to Clinical Trials.
+       42137921 2026 EuroIntervention | Glucocorticoids to reduce permanent pacemaker implantation after TAVI: the GLUCO-TAVI randomised trial.
+       42697072 2026 EBioMedicine | Discovering repurposable drugs for Alzheimer's disease and related dementias: target trial emulation using dec
+ent3     c2      n=0       amox+azithro+ppi
+ent3     c2      n=1       amox+azithro+pred
+       38003898 2023 J Pers Med | The Impact of Antibiotics and Steroids on the Nasal Microbiome in Patients with Chronic Rhinosinusitis: A Syst
+ent3     c2      n=0       amox+ppi+pred
+ent3     c2      n=2       azithro+ppi+pred
+       33845430 2021 Comput Biol Chem | The role of human C5a as a non-genomic target in corticosteroid therapy for management of severe COVID19.
+       26598102 2015 Pharmacotherapy | Azithromycin-Induced, Biopsy-Proven Acute Interstitial Nephritis in an Adult Successfully Treated with Low-Dos
+ent_all  c2      n=0       mpred+amox+azithro+ppi+pred
+ent3     c3      n=4       bc_scr+gyn+cerv
+       11277547 2001 Am Fam Physician | Cancer screening guidelines.
+       20301443 1993  | Peutz-Jeghers Syndrome.
+       2054549 1991 Bull Pan Am Health Organ | Screening practices for cervical and breast cancer in Costa Rica.
+ent3     c3      n=0       bc_scr+gyn+prev
+ent3     c3      n=118     bc_scr+cerv+prev
+       30947895 2019 J Am Coll Radiol | Modifiers of Cancer Screening Prevention Among Sexual and Gender Minorities in the Behavioral Risk Factor Surv
+       40489104 2025 JAMA Intern Med | Patient Navigation Services for Breast and Cervical Cancer Screening and Follow-Up: A Meta-Analysis.
+       35469700 2022 Am J Prev Med | Cancer Screening Test Use-U.S., 2019.
+ent3     c3      n=12      gyn+cerv+prev
+       32769650 2020 Obstet Gynecol | Gynecologic Care in Women With Down Syndrome: Findings From a National Registry.
+       31331610 2019 J Obstet Gynaecol Can | No. 385-Indications for Pelvic Examination.
+       28267861 2017 JAMA | Periodic Screening Pelvic Examination: Evidence Report and Systematic Review for the US Preventive Services Ta
+ent_all  c3      n=0       bc_scr+gyn+cerv+prev
+ent3     c4      n=4       ther_ex+manual+ther_act
+       31665420 2020 Mil Med | Occupational Therapy Practice Patterns for Military Service Members With Upper Limb Amputation.
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+       34152897 2022 Physiother Theory Pract | Physical therapist guided active intervention of chronic temporomandibular disorder presenting as ear pain: A 
+ent3     c4      n=8       ther_ex+manual+neuro_re
+       31728373 2019 Ann Transl Med | Evidence based treatment options for common knee injuries in runners.
+       28053200 2017 Br J Sports Med | Treatment and prevention of acute and recurrent ankle sprain: an overview of systematic reviews with meta-anal
+       40887656 2025 Eur J Med Res | Knee osteoarthritis rehabilitation: an integrated framework of exercise, nutrition, biomechanics, and physical
+ent3     c4      n=231     ther_ex+manual+pt_eval
+       34580864 2021 Cochrane Database Syst Rev | Exercise therapy for chronic low back pain.
+       34397403 2022 J Back Musculoskelet Rehabil | Physiotherapy treatment of lateral epicondylitis: A systematic review.
+       32723399 2020 Trials | Manual therapy versus therapeutic exercise in non-specific chronic neck pain: a randomized controlled trial.
+ent3     c4      n=1       ther_ex+ther_act+neuro_re
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+ent3     c4      n=12      ther_ex+ther_act+pt_eval
+       34592828 2021 J Orthop Sports Phys Ther | The Relationship Between Changes in Movement and Activity Limitation or Pain in People With Knee Osteoarthriti
+       30204515 2019 Phys Occup Ther Pediatr | Development of a Pediatric Goal-Centered Upper Limb Spasticity Home Exercise Therapy Program for Use in a Phas
+       26166595 2015 Neurosciences (Riyadh) | The effects of electrical stimulation and exercise therapy in patients with limb girdle muscular dystrophy. A 
+ent3     c4      n=15      ther_ex+neuro_re+pt_eval
+       42789630 2026 Am Fam Physician | Physical Therapy: Rehabilitation Principles, Coordination, and Collaboration.
+       23756435 2013 J Orthop Sports Phys Ther | A biomechanical perspective on physical therapy management of knee osteoarthritis.
+       25320703 2014 Iran J Otorhinolaryngol | Management of synkinesis and asymmetry in facial nerve palsy: a review article.
+ent3     c4      n=1       manual+ther_act+neuro_re
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+ent3     c4      n=11      manual+ther_act+pt_eval
+       29308949 2018 Physiother Theory Pract | A comparison of two manual physical therapy approaches and electrotherapy modalities for patients with knee os
+       10721508 2000 J Orthop Sports Phys Ther | Comparison of supervised exercise with and without manual physical therapy for patients with shoulder impingem
+       17333123 2007 Knee Surg Sports Traumatol Arthrosc | Comparison of conservative treatment with and without manual physical therapy for patients with shoulder impin
+ent3     c4      n=12      manual+neuro_re+pt_eval
+       29113569 2018 J Orthop Sports Phys Ther | Physical Therapy Rehabilitation of an Adolescent Preprofessional Dancer Following Os Trigonum Excision: A Case
+       30503726 2019 Sex Med Rev | The Role of Physical Therapy in Sexual Health in Men and Women: Evaluation and Treatment.
+       26075154 2015 Int J Sports Phys Ther | THE MANAGEMENT OF ILIOTIBIAL BAND SYNDROME WITH A MULTIFACETED APPROACH: A DOUBLE CASE REPORT.
+ent3     c4      n=2       ther_act+neuro_re+pt_eval
+       19574657 2009 J Orthop Sports Phys Ther | Rehabilitation and functional outcomes in collegiate wrestlers following a posterior shoulder stabilization pr
+       24406713 2014 J Geriatr Phys Ther | The effects of a Pilates-based exercise rehabilitation program on functional outcome and fall risk reduction i
+ent_all  c4      n=0       ther_ex+manual+ther_act+neuro_re+pt_eval
+ent3     c5      n=449     polypectomy+polyp+surgpath
+       28212588 2017 Endoscopy | Colorectal polypectomy and endoscopic mucosal resection (EMR): European Society of Gastrointestinal Endoscopy 
+       33991693 2022 Clin Gastroenterol Hepatol | Histology, Size, and Number of Advanced Polyps are Associated With Guideline-Discordant Surveillance Recommend
+       39221231 2024 ACG Case Rep J | Villous Adenoma: A Rare Cause of Neural Epidermal Growth Factor-Like 1-Positive Membranous Nephropathy.
+ent3     c5      n=433     polypectomy+polyp+benign_neo
+       27628421 2016 Clin Transl Gastroenterol | Influence of Genetic Polymorphisms in Prostaglandin E2 Pathway (COX-2/HPGD/SLCO2A1/ABCC4) on the Risk for Colo
+       41079276 2025 Ann Gastroenterol | Endoscopic strategies for the management of locally recurrent colorectal adenomas.
+       28402402 2017 Epidemiol Rev | Evaluation of the Effectiveness and Cost-Effectiveness of Personalized Surveillance After Colorectal Adenomato
+ent3     c5      n=1516    polypectomy+polyp+crc_scr
+       28275018 2017 BMJ Case Rep | Brunner's gland hamartoma: a rare cause of iron deficiency anaemia and report of an adapted colonic polyp rese
+       23735109 2013 Gastrointest Endosc Clin N Am | Colonic polyps: are we ready to resect and discard?
+       39139219 2024 J Can Assoc Gastroenterol | Post-polypectomy surveillance: follow-up recommendations from the Alberta Colorectal Cancer Screening Program.
+ent3     c5      n=61      polypectomy+surgpath+benign_neo
+       28986265 2018 Gastrointest Endosc | Risk of advanced colorectal neoplasm by the proposed combined United States and United Kingdom risk stratifica
+       37639719 2023 Ann Intern Med | Real-Time Computer-Aided Detection of Colorectal Neoplasia During Colonoscopy : A Systematic Review and Meta-a
+       38548318 2024 Gut | Microscopic pathology assessment of colorectal polyp size is less accurate than intracolonoscopic assessment.
+ent3     c5      n=282     polypectomy+surgpath+crc_scr
+       28241409 2017 Clin Endosc | Twin Rectal Tonsils Mimicking Carcinoid or Mucosa-Associated Lymphoid Tissue Lymphoma.
+       23964343 2013 Clin Endosc | Endoscopic treatment of a symptomatic ileal lipoma with recurrent ileocolic intussusceptions by using cap-assi
+       37555337 2023 J Gastroenterol Hepatol | Adoption of colonoscopy surveillance intervals in subjects who received polypectomy in southern China: A cost-
+ent3     c5      n=254     polypectomy+benign_neo+crc_scr
+       37555337 2023 J Gastroenterol Hepatol | Adoption of colonoscopy surveillance intervals in subjects who received polypectomy in southern China: A cost-
+       25963078 2015 Gut Liver | The Risk of Metachronous Advanced Colorectal Neoplasia Rises in Parallel with an Increasing Number of High-Ris
+       37639719 2023 Ann Intern Med | Real-Time Computer-Aided Detection of Colorectal Neoplasia During Colonoscopy : A Systematic Review and Meta-a
+ent3     c5      n=363     polyp+surgpath+benign_neo
+       31470178 2020 Clin Gastroenterol Hepatol | Yield of Lynch Syndrome Surveillance for Patients With Pathogenic Variants in DNA Mismatch Repair Genes.
+       32913175 2020 Niger J Clin Pract | Recurrent syringomatous adenoma of the nipple following a misdiagnosis: A case report.
+       21938146 2009 J Cytol | Adenomatatoid tumor: Cytological diagnosis of two cases.
+ent3     c5      n=1046    polyp+surgpath+crc_scr
+       39221231 2024 ACG Case Rep J | Villous Adenoma: A Rare Cause of Neural Epidermal Growth Factor-Like 1-Positive Membranous Nephropathy.
+       36205048 2022 Clin Endosc | Response to Artificial intelligence-based colorectal polyp histology prediction using narrow-band image-magnif
+       36205047 2022 Clin Endosc | Artificial intelligence-based colorectal polyp histology prediction using narrow-band image-magnifying colonos
+ent3     c5      n=2149    polyp+benign_neo+crc_scr
+       23398678 2013 Colorectal Dis | Patients with nonalcoholic fatty liver disease have higher risk of colorectal adenoma after negative baseline 
+       7723538 1995 Lancet | Colorectal adenomas on follow-up colonoscopy: is the cancer risk unchanged?
+       19716434 2010 Clin Gastroenterol Hepatol | Hood-assisted colonoscopy is more effective in detection of colorectal adenomas than narrow-band imaging.
+ent3     c5      n=186     surgpath+benign_neo+crc_scr
+       25963078 2015 Gut Liver | The Risk of Metachronous Advanced Colorectal Neoplasia Rises in Parallel with an Increasing Number of High-Ris
+       37639719 2023 Ann Intern Med | Real-Time Computer-Aided Detection of Colorectal Neoplasia During Colonoscopy : A Systematic Review and Meta-a
+       35664039 2022 World J Gastroenterol | Non-optical polyp-based resect and discard strategy: A prospective clinical study.
+ent_all  c5      n=38      polypectomy+polyp+surgpath+benign_neo+crc_scr
+       37555337 2023 J Gastroenterol Hepatol | Adoption of colonoscopy surveillance intervals in subjects who received polypectomy in southern China: A cost-
+       25963078 2015 Gut Liver | The Risk of Metachronous Advanced Colorectal Neoplasia Rises in Parallel with an Increasing Number of High-Ris
+       37639719 2023 Ann Intern Med | Real-Time Computer-Aided Detection of Colorectal Neoplasia During Colonoscopy : A Systematic Review and Meta-a
+ent3     c6      n=30      vitd+b12+t4
+       35743024 2022 Int J Mol Sci | Metabolic Characteristics of Hashimoto's Thyroiditis Patients and the Role of Microelements and Diet in the Di
+       35440339 2022 Endocr Metab Immune Disord Drug Targets | Role of Dietary Supplements in Thyroid Diseases.
+       39107936 2024 J Cosmet Dermatol | A comprehensive investigation of biochemical status in patients with telogen effluvium: Analysis of Hb, ferrit
+ent3     c6      n=278     vitd+b12+iron
+       34130207 2021 Nutr Res | Nutrient status and growth in vegan children.
+       38276922 2024 Gastroenterology | AGA Clinical Practice Update on Diet and Nutritional Therapies in Patients With Inflammatory Bowel Disease: Ex
+       41382333 2026 Crit Rev Food Sci Nutr | Lacto-ovo-vegetarian and vegan diets in children and adolescents: a systematic review and meta-analysis of nut
+ent3     c6      n=11      vitd+b12+testo
+       3467425 1986 Scand J Rheumatol | Primary fibromyalgia. A clinical and laboratory study of 55 patients.
+       930924 1977 Am J Hum Genet | Detection of genetic variation with radioactive ligands. I. Electrophoretic screening of plasma proteins with 
+       32567529 2022 Acta Clin Belg | Sense and nonsense concerning biotin interference in laboratory tests.
+ent3     c6      n=52      vitd+t4+iron
+       28290237 2017 Thyroid | Multiple Nutritional Factors and the Risk of Hashimoto's Thyroiditis.
+       20301489 1993  | Glycogen Storage Disease Type I.
+       39107936 2024 J Cosmet Dermatol | A comprehensive investigation of biochemical status in patients with telogen effluvium: Analysis of Hb, ferrit
+ent3     c6      n=32      vitd+t4+testo
+       20301574 1993  | Cystinosis.
+       9626030 1998 Am J Med | Osteoporosis after organ transplantation.
+       31377561 2019 Pharmacol Rep | The effect of vitamin D on thyroid autoimmunity in euthyroid men with autoimmune thyroiditis and testosterone 
+ent3     c6      n=21      vitd+iron+testo
+       28290964 2017 Mil Med | Anabolic Adaptations Occur in Conscripts During Basic Military Training Despite High Prevalence of Vitamin D D
+       36574415 2022 PLoS One | Factors associated with high-level endurance performance: An expert consensus derived via the Delphi technique
+       20301349 1993  | HAMP- and HJV-Related Hemochromatosis.
+ent3     c6      n=48      b12+t4+iron
+       32869910 2020 J Clin Lab Anal | The impact of pre-analytical variations on biochemical analytes stability: A systematic review.
+       39107936 2024 J Cosmet Dermatol | A comprehensive investigation of biochemical status in patients with telogen effluvium: Analysis of Hb, ferrit
+       36847953 2023 J Assist Reprod Genet | Clock 3111 T/C and Period3 VNTR gene polymorphisms and proteins, and melatonin levels in women with infertilit
+ent3     c6      n=7       b12+t4+testo
+       38454827 2024 Investig Clin Urol | The association of reproductive hormones, thyroid function, and vitamin levels with premature ejaculation: A p
+       36847953 2023 J Assist Reprod Genet | Clock 3111 T/C and Period3 VNTR gene polymorphisms and proteins, and melatonin levels in women with infertilit
+       19676149 2009 Clin Chem Lab Med | Evaluation of the BD Vacutainer PST II blood collection tube for special chemistry analytes.
+ent3     c6      n=10      b12+iron+testo
+       36847953 2023 J Assist Reprod Genet | Clock 3111 T/C and Period3 VNTR gene polymorphisms and proteins, and melatonin levels in women with infertilit
+       19676149 2009 Clin Chem Lab Med | Evaluation of the BD Vacutainer PST II blood collection tube for special chemistry analytes.
+       32567529 2022 Acta Clin Belg | Sense and nonsense concerning biotin interference in laboratory tests.
+ent3     c6      n=21      t4+iron+testo
+       36847953 2023 J Assist Reprod Genet | Clock 3111 T/C and Period3 VNTR gene polymorphisms and proteins, and melatonin levels in women with infertilit
+       19676149 2009 Clin Chem Lab Med | Evaluation of the BD Vacutainer PST II blood collection tube for special chemistry analytes.
+       15365265 2004 Skinmed | Klinefelter's syndrome presenting with leg ulcers.
+ent_all  c6      n=0       vitd+b12+t4+iron+testo
+pattern  r2      n=313     ecg+chem
+       32352727 2020 Am Fam Physician | Chronic Dyspnea: Diagnosis and Evaluation.
+       12537168 2003 Am Fam Physician | Diagnosing secondary hypertension.
+       39078295 2024 Radiology | Case 331.
+pattern  r3      n=61      ecg+chem+CBC
+       32352727 2020 Am Fam Physician | Chronic Dyspnea: Diagnosis and Evaluation.
+       39078295 2024 Radiology | Case 331.
+       37465444 2022 J Educ Teach Emerg Med | 3rd-Degree Atrioventricular Block.
+pattern  r4      n=0       ecg+venip+chem
+pattern  r5      n=13      phys+lipid+psa
+       16732838 2006 Headache | Testosterone replacement therapy for treatment refractory cluster headache.
+       20112889 2010 Am Fam Physician | Management of erectile dysfunction.
+       25723617 2015 Scand J Clin Lab Invest | Serum prostate-specific antigen levels in men with prediabetes: a cross-sectional study.
+pattern  r6      n=3       venip+lipid+psa
+       30282216 2008 Ir J Psychol Med | Bone mineral density and general health of long-term residential psychiatric inpatients.
+       39565982 2025 Clin Chem Lab Med | Comparison of capillary finger stick and venous blood sampling for 34 routine chemistry analytes: potential fo
+       42206470 2026 J Appl Lab Med | Feasibility of Capillary Self-Collected Blood Specimens for Routine Outpatient Laboratory Testing.
+pattern  r7      n=5       phys+lipid+crc_scr
+       18332903 2008 Nat Clin Pract Gastroenterol Hepatol | Detection of an aortoenteric fistula in a patient with intermittent bleeding.
+       38393721 2024 JAMA Health Forum | Incarceration History and Access to and Receipt of Health Care in the US.
+       30586131 2019 JAMA Dermatol | Association Between Health Maintenance Practices and Skin Cancer Risk as a Possible Source of Detection Bias.
+pattern  r8      n=123     ppi+azithro
+       32612804 2020 Ther Adv Psychopharmacol | Emerging and experimental treatments for COVID-19 and drug interactions with psychotropic agents.
+       35308291 2022 Front Nutr | On Therapeutic Plasma Exchange Against Severe COVID-19-Associated Pneumonia: An Observational Clinical Study.
+       33787023 2021 Rev Fac Cien Med Univ Nac Cordoba | [COVID 19 infection in young patient with pectus excavatum].
+pattern  r9      n=14      amox+ppi
+       17102189 2006 Health Aff (Millwood) | Extensions of intellectual property rights and delayed adoption of generic drugs: effects on medicaid spending
+       29913468 2018 Med Lett Drugs Ther | Clarithromycin in patients with coronary artery disease.
+       41345999 2025 Pharmacoepidemiol Drug Saf | High-Throughput Screening Using the Self-Controlled Tree-Based Scan Statistic to Identify Medications Associat
+pattern  r10     n=14      ppi+amox
+       17102189 2006 Health Aff (Millwood) | Extensions of intellectual property rights and delayed adoption of generic drugs: effects on medicaid spending
+       29913468 2018 Med Lett Drugs Ther | Clarithromycin in patients with coronary artery disease.
+       41345999 2025 Pharmacoepidemiol Drug Saf | High-Throughput Screening Using the Self-Controlled Tree-Based Scan Statistic to Identify Medications Associat
+pattern  r11     n=118     cerv+prev+bc_scr
+       40489104 2025 JAMA Intern Med | Patient Navigation Services for Breast and Cervical Cancer Screening and Follow-Up: A Meta-Analysis.
+       35469700 2022 Am J Prev Med | Cancer Screening Test Use-U.S., 2019.
+       41505583 2024  | 
+pattern  r12     n=0       bc_scr+prev+gyn
+pattern  r13     n=50      prev+gyn
+       19305342 2009 Obstet Gynecol | Adolescent gynecology.
+       25108582 2014 Contraception | Obstetrician-gynecologists' beliefs on the importance of pelvic examinations in assessing hormonal contracepti
+       29447724 2018 J Obstet Gynaecol Can | No. 127-The Evaluation of Stress Incontinence Prior to Primary Surgery.
+pattern  r14     n=4       manual+ther_ex+ther_act
+       31665420 2020 Mil Med | Occupational Therapy Practice Patterns for Military Service Members With Upper Limb Amputation.
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+       34152897 2022 Physiother Theory Pract | Physical therapist guided active intervention of chronic temporomandibular disorder presenting as ear pain: A 
+pattern  r15     n=4       manual+ther_ex+ther_act
+       31665420 2020 Mil Med | Occupational Therapy Practice Patterns for Military Service Members With Upper Limb Amputation.
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+       34152897 2022 Physiother Theory Pract | Physical therapist guided active intervention of chronic temporomandibular disorder presenting as ear pain: A 
+pattern  r16     n=4       ther_ex+manual+ther_act
+       31665420 2020 Mil Med | Occupational Therapy Practice Patterns for Military Service Members With Upper Limb Amputation.
+       29373057 2019 J Athl Train | Athletic Training Service Characteristics for Patients With Ankle Sprains Sustained During High School Athleti
+       34152897 2022 Physiother Theory Pract | Physical therapist guided active intervention of chronic temporomandibular disorder presenting as ear pain: A 
+pattern  r17     n=27      divert+polyp+polypectomy
+       8646956 1996 Dis Colon Rectum | Endoscopic and surgical complications of work-up in screening for colorectal cancer.
+       26907484 2016 Korean J Gastroenterol | [Role of Colonoscopy in Patients with Hematochezia].
+       11310651 2001 Am Fam Physician | Flexible sigmoidoscopy.
+pattern  r18     n=326     polyp+biopsy+polypectomy
+       38670139 2024 Endoscopy | Colorectal polypectomy and endoscopic mucosal resection: European Society of Gastrointestinal Endoscopy (ESGE)
+       22943008 2012 J Gastrointest Oncol | Colorectal carcinoma: Pathologic aspects.
+       20301390 1993  | Lynch Syndrome.
+pattern  r19     n=19      divert+polyp+polypectomy+crc_scr
+       33930589 2021 Clin Res Hepatol Gastroenterol | Inverted colonic diverticulum (ICD): report of two cases and literature review of a not that unusual endoscopi
+       18416471 2008 World J Gastroenterol | Association between colonic polyps and diverticular disease.
+       25278696 2014 World J Gastroenterol | Improving quality measures in colonoscopy and its therapeutic intervention.
+pattern  r20     n=32      lipid+vitd+t4
+       20301489 1993  | Glycogen Storage Disease Type I.
+       25556309 2015 J Ren Nutr | Endocrine and metabolic changes affecting cardiovascular disease in dialysis patients.
+       40895625 2025 Front Endocrinol (Lausanne) | Correlation analysis of thyroid function and vitamin D levels in patients with type 2 diabetes.
+pattern  r21     n=19      vitd+A1c+t4
+       35801218 2022 Porto Biomed J | Vitamin D levels in a population from Argentina with metabolic disorders.
+       40895625 2025 Front Endocrinol (Lausanne) | Correlation analysis of thyroid function and vitamin D levels in patients with type 2 diabetes.
+       35498428 2022 Front Endocrinol (Lausanne) | Factors Defining the Association Between Vitamin D and Testosterone in Males With Type 2 Diabetes and Hypogona
+pattern  r22     n=16      lipid+vitd+b12+A1c
+       30323637 2018 Clinicoecon Outcomes Res | The role of a best practice alert in the electronic medical record in reducing repetitive lab tests.
+       39336575 2024 Medicina (Kaunas) | Bariatric Surgery and Metabolic Status.
+       32616391 2020 Prim Care Diabetes | Serum 25-hydroxyvitamin D is associated with insulin resistance independently of obesity in children ages 5-17

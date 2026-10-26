@@ -1,0 +1,441 @@
+# Config of the one-file chest pain page. Build: python <skill>/scripts/build_page.py chest_pain_page.yaml
+# Format: .claude/skills/bundle-predicate-page/references/config_format.md. Paths are relative to this file.
+title: 'Chest Pain Predicates and Composites: All Care Patterns'
+status_line: Working Draft — October 2026
+cohort_n: 139416
+run_text: the k=8 run of the data method (`nmf_k8_chestpain_AHA`)
+files:
+  final_table: outputs/final_table_chestpain_k8_AHA.xlsx
+  members: token_members_k8_chestpain_AHA.csv
+  literature: outputs/final_table_chestpain_k8_AHA_literature_verified.csv
+output: outputs/chest_pain_all_patterns.md
+anchor:
+  key: cp
+  name: chest pain
+  pred: chest_pain
+  desc: chest pain diagnosis
+  codes_text: The list holds chest pain (77670), precordial pain (134159), chest pain on breathing (4168213), and pain of the space between the ribs (42539051).
+window_days: 1
+min_entities: 3
+sequence_rates_note: The shares count the steps in this order at any time. They do not use the 1-day limit. The other care patterns are a random sample of 1,500 patients. The held-out check repeats the test on random halves of the patients, in 40 runs.
+sequence_check_name: held-out check
+references:
+- Gulati M, et al. *2021 AHA/ACC/ASE/CHEST/SAEM/SCCT/SCMR Guideline for the Evaluation and Diagnosis of Chest Pain.* Circulation 2021;144:e368. doi:10.1161/CIR.0000000000001029.
+skip_pmids: ['34709879']
+families:
+  Diagnoses: [hld, gerd, lbp, cough, uri, pharyngitis]
+  Lab tests: [trop, lipase, lipid, venip, cmp, cbc, hba1c, b12, vitd, t4, iron, ferritin, upt, sti, cyto, antigen, path]
+  Procedures, imaging, and visits: [ecg, cxr, ivpush, genexam, gyn, periodic, crc, egd, therproc, ther97110, manual, theract]
+  Drugs: [methylpred, amoxclav, azithro, ppi, pred]
+entities:
+  lipid:
+    name: Lipid panel
+    noun: lipid panel
+    sents:
+    - A lipid panel is a blood test for cholesterol and other fats.
+    - Doctors order it at check-ups, so it alone does not show chest pain care.
+    pred: lipid_panel
+    desc: lipid panel
+    vocab: CPT4
+    code: '80061'
+  venip:
+    name: Venipuncture
+    noun: venipuncture
+    sents:
+    - Venipuncture is a blood draw from a vein.
+    - It does not show which test.
+    pred: venipuncture
+    desc: venipuncture for a blood test
+    vocab: SNOMED
+    code: '28520004'
+  genexam:
+    name: General examination
+    noun: general examination
+    sents:
+    - The general examination is the routine physical examination of a visit.
+    - Most patients at a check-up have it.
+    pred: general_exam
+    desc: general examination of the patient
+    vocab: SNOMED
+    code: '162673000'
+  ecg:
+    name: ECG
+    noun: ECG
+    sents:
+    - The ECG (electrocardiogram) is a heart tracing.
+    - The list holds 5 ECG codes, with or without the report.
+    pred: ecg
+    desc: ECG (any of 5 codes)
+    token: ekg
+  cmp:
+    name: CMP
+    noun: CMP test
+    sents:
+    - The CMP (comprehensive metabolic panel) is a blood chemistry test.
+    - It measures kidney function, liver function, and blood salts.
+    pred: cmp
+    desc: comprehensive metabolic panel
+    vocab: SNOMED
+    code: '371361000119107'
+  cbc:
+    name: CBC
+    noun: CBC test
+    sents:
+    - The CBC is the complete blood count with a white cell count.
+    - It counts the cells of the blood.
+    pred: cbc
+    desc: complete blood count with white cell count
+    vocab: SNOMED
+    code: '9564003'
+  hld:
+    name: Hyperlipidemia
+    noun: hyperlipidemia diagnosis
+    sents:
+    - Hyperlipidemia is a high level of fats in the blood.
+    - The list holds 6 diagnosis codes.
+    pred: hyperlipidemia
+    desc: hyperlipidemia diagnosis (any of 6 codes)
+    token: hyperlipidemia
+  hba1c:
+    name: HbA1c
+    noun: HbA1c test
+    sents:
+    - HbA1c is a blood test for the average blood sugar of the last 3 months.
+    - The list holds 1 code.
+    pred: hba1c
+    desc: HbA1c test
+    token: hba1c
+  methylpred:
+    name: Methylprednisolone
+    noun: methylprednisolone prescription
+    sents: [Methylprednisolone is a steroid drug., The code is the 21-tablet dose pack.]
+    pred: methylprednisolone
+    desc: methylprednisolone 21-tablet pack
+    vocab: RxNorm
+    code: '762675'
+  amoxclav:
+    name: Amoxicillin with clavulanate
+    noun: amoxicillin with clavulanate prescription
+    sents:
+    - Amoxicillin with clavulanate is an antibiotic.
+    - The code is the tablet of 875 mg with 125 mg.
+    pred: amoxicillin_clavulanate
+    desc: amoxicillin 875 mg with clavulanate 125 mg tablet
+    vocab: RxNorm
+    code: '562508'
+  azithro:
+    name: Azithromycin
+    noun: azithromycin prescription
+    sents:
+    - Azithromycin is an antibiotic.
+    - The code is the pack of 6 tablets of 250 mg.
+    pred: azithromycin
+    desc: azithromycin 6-tablet pack
+    vocab: RxNorm
+    code: '749783'
+  ppi:
+    name: PPI or H2 blocker
+    noun: PPI or H2 blocker prescription
+    sents:
+    - A PPI or an H2 blocker is a drug that lowers stomach acid.
+    - The list holds 85 drug codes.
+    pred: ppi_h2
+    desc: PPI or H2 blocker drug (any of 85 codes)
+    token: ppi_h2
+  pred:
+    name: Prednisone
+    noun: prednisone prescription
+    sents: [Prednisone is a steroid drug., The code is the tablet of 20 mg.]
+    pred: prednisone
+    desc: prednisone 20 mg tablet
+    vocab: RxNorm
+    code: '312615'
+  gyn:
+    name: Gynecologic examination
+    noun: gynecologic examination
+    sents:
+    - The gynecologic examination is the pelvic examination of a woman.
+    - It is part of women's check-ups.
+    pred: gyn_exam
+    desc: gynecologic examination
+    vocab: SNOMED
+    code: '83607001'
+  sti:
+    name: STI test
+    noun: STI test
+    sents:
+    - The STI test finds the DNA or RNA of an infection that passes by sex.
+    - The list holds the chlamydia code and the gonorrhea code. The engine counts them as one service.
+    pred: sti_nucleic_acid_test
+    desc: STI nucleic acid test (chlamydia OR gonorrhea)
+    union: [[CPT4, '87491'], [CPT4, '87591']]
+  cyto:
+    name: Cervical cytology
+    noun: cervical cytology test
+    sents:
+    - Cervical cytology is a test of cells from the cervix or the vagina.
+    - It is also the Pap test.
+    pred: cervical_cytology
+    desc: cervical or vaginal cytology
+    vocab: CPT4
+    code: '88175'
+  upt:
+    name: Urine pregnancy test
+    noun: urine pregnancy test
+    sents:
+    - The urine pregnancy test is a quick test for a pregnancy.
+    pred: urine_pregnancy_test
+    desc: urine pregnancy test
+    vocab: SNOMED
+    code: '104405006'
+  path:
+    name: Surgical pathology
+    noun: surgical pathology exam
+    sents:
+    - Surgical pathology is the study of a tissue sample by eye and under a microscope.
+    - A biopsy gives such a sample.
+    pred: surgical_pathology
+    desc: surgical pathology level IV
+    vocab: CPT4
+    code: '88305'
+  crc:
+    name: Colon cancer screening
+    noun: colon cancer screening
+    sents:
+    - Colon cancer screening is a test for colon cancer in a person with no symptoms.
+    pred: colon_cancer_screening
+    desc: screening for malignant neoplasm of colon
+    vocab: SNOMED
+    code: '275978004'
+  egd:
+    name: Upper endoscopy with biopsy
+    noun: upper endoscopy with biopsy
+    sents:
+    - Upper endoscopy is a look into the food pipe and the stomach with a camera.
+    - The doctor also takes a tissue sample.
+    pred: upper_endoscopy_biopsy
+    desc: endoscopy and biopsy of the upper gastrointestinal tract
+    vocab: SNOMED
+    code: '445982009'
+  gerd:
+    name: GERD
+    noun: GERD diagnosis
+    sents:
+    - GERD is acid reflux from the stomach into the food pipe.
+    - The list holds 4 diagnosis codes, and heartburn is one of them.
+    pred: gerd
+    desc: GERD diagnosis (any of 4 codes)
+    token: gerd
+  periodic:
+    name: Periodic preventive visit
+    noun: periodic preventive visit
+    sents:
+    - The periodic preventive visit is the check-up of an adult of 40 to 64 years.
+    pred: periodic_preventive_visit
+    desc: periodic comprehensive preventive visit (99396)
+    vocab: CPT4
+    code: '99396'
+  therproc:
+    name: Therapeutic procedure
+    noun: therapeutic procedure
+    sents:
+    - A therapeutic procedure is physical therapy in units of 15 minutes.
+    - The list holds the exercise code (97110) and the movement training code (97112). The engine counts them as one service.
+    pred: therapeutic_procedure
+    desc: therapeutic procedure (97110 OR 97112)
+    union: [[CPT4, '97110'], [CPT4, '97112']]
+  trop:
+    name: Troponin
+    noun: troponin test
+    sents:
+    - Troponin is a blood test for injury to the heart muscle.
+    - The data does not show the type of test. A high-sensitivity test and a standard test look the same.
+    pred: troponin
+    desc: troponin test
+    token: troponin
+  lipase:
+    name: Lipase
+    noun: lipase test
+    sents:
+    - Lipase is a blood test for the pancreas.
+    - Doctors also use it for abdominal pain.
+    pred: lipase
+    desc: lipase test
+    vocab: SNOMED
+    code: '104988000'
+  cxr:
+    name: Chest X-ray
+    noun: chest X-ray
+    sents:
+    - The list holds X-rays of 1, 2, 3, and 4 or more views.
+    pred: cxr
+    desc: chest X-ray
+    token: chest_xray
+  ivpush:
+    name: IV push
+    noun: IV push
+    sents:
+    - An IV push puts a drug into a vein with a syringe.
+    - The list holds the first drug and each additional drug. The engine counts them as one service.
+    pred: iv_push
+    desc: IV push (first drug OR each additional drug)
+    union: [[CPT4, '96374'], [CPT4, '96375']]
+  ther97110:
+    name: Therapeutic exercise
+    noun: therapeutic exercise session
+    sents:
+    - Therapeutic exercise is physical therapy with exercises, in units of 15 minutes.
+    - It is one code of the therapeutic procedure list.
+    pred: therapeutic_exercise
+    desc: therapeutic exercise (97110)
+    vocab: CPT4
+    code: '97110'
+  manual:
+    name: Manual therapy
+    noun: manual therapy session
+    sents:
+    - Manual therapy is hands-on treatment by a therapist, for example joint movement.
+    pred: manual_therapy
+    desc: manual therapy techniques
+    vocab: CPT4
+    code: '97140'
+  theract:
+    name: Therapeutic activities
+    noun: therapeutic activities session
+    sents:
+    - Therapeutic activities are one-on-one physical therapy with movements of daily life.
+    pred: therapeutic_activities
+    desc: therapeutic activities
+    vocab: CPT4
+    code: '97530'
+  lbp:
+    name: Low back pain
+    noun: low back pain diagnosis
+    sents:
+    - Low back pain is a diagnosis of pain in the lower back.
+    pred: low_back_pain
+    desc: low back pain diagnosis
+    vocab: SNOMED
+    code: '279039007'
+  b12:
+    name: Vitamin B12
+    noun: vitamin B12 test
+    sents:
+    - Vitamin B12 is a blood test for the level of this vitamin.
+    pred: vitamin_b12
+    desc: vitamin B12 measurement
+    vocab: SNOMED
+    code: '14598005'
+  vitd:
+    name: Vitamin D
+    noun: vitamin D test
+    sents:
+    - The vitamin D test measures 25-hydroxy vitamin D in the blood.
+    pred: vitamin_d
+    desc: 25-hydroxy vitamin D measurement
+    vocab: SNOMED
+    code: '12199005'
+  t4:
+    name: Free T4
+    noun: free T4 test
+    sents:
+    - Free T4 is a blood test for the level of the thyroid hormone.
+    pred: free_t4
+    desc: free T4 measurement
+    vocab: SNOMED
+    code: '5113004'
+  iron:
+    name: Iron
+    noun: iron test
+    sents:
+    - The iron test measures the iron of the blood.
+    pred: iron
+    desc: iron measurement
+    vocab: SNOMED
+    code: '42950004'
+  ferritin:
+    name: Ferritin
+    noun: ferritin test
+    sents:
+    - Ferritin is a blood test for the iron stores of the body.
+    pred: ferritin
+    desc: ferritin measurement
+    vocab: SNOMED
+    code: '489004'
+  cough:
+    name: Cough
+    noun: cough diagnosis
+    sents: [Cough is a diagnosis of a cough.]
+    pred: cough
+    desc: cough diagnosis
+    vocab: SNOMED
+    code: '49727002'
+  uri:
+    name: Acute upper respiratory infection
+    noun: acute upper respiratory infection diagnosis
+    sents:
+    - Acute upper respiratory infection is a cold or a similar infection of the nose and throat.
+    pred: upper_respiratory_infection
+    desc: acute upper respiratory infection diagnosis
+    vocab: SNOMED
+    code: '54398005'
+  pharyngitis:
+    name: Acute pharyngitis
+    noun: acute pharyngitis diagnosis
+    sents:
+    - Acute pharyngitis is a sore throat from an infection.
+    pred: pharyngitis
+    desc: acute pharyngitis diagnosis
+    vocab: SNOMED
+    code: '363746003'
+  antigen:
+    name: Rapid antigen test
+    noun: rapid antigen test
+    sents:
+    - A rapid antigen test finds an infection by a protein of the germ.
+    - The list holds 2 codes (87880 and 87804). The engine counts them as one service.
+    pred: rapid_antigen_test
+    desc: rapid antigen test (87880 OR 87804)
+    union: [[CPT4, '87880'], [CPT4, '87804']]
+care_patterns:
+  c0:
+    prefix: checkup
+    name: outpatient check-up and elective cardiac testing
+    services: [[lipid, [0]], [venip, [1]], [genexam, [2]], [ecg, [3]], [cmp, [4]]]
+    pats: [[cp, ecg, hld], [cp, genexam, lipid], [cp, ecg, genexam]]
+  c1:
+    prefix: rx
+    name: prescriptions for acute and chronic illness
+    services: [[methylpred, [0]], [amoxclav, [1]], [azithro, [2]], [ppi, [3]], [pred, [4]]]
+    pats: [[methylpred, cp, ecg], [azithro, cp, ecg], [cp, ecg, methylpred]]
+  c2:
+    prefix: womens
+    name: women's health and urinary tract
+    services: [[gyn, [0]], [sti, [1, 2]], [cyto, [3]], [upt, [4]]]
+    pats: [[cp, cbc, venip], [cp, venip, x2], [venip, cp, ecg]]
+  c3:
+    prefix: ed_workup
+    name: ED work-up
+    services: [[trop, [0]], [ivpush, [1, 4]], [lipase, [2]], [cxr, [3]]]
+    pats: [[cp, cxr, trop, cmp], [cp, ecg, trop, cmp], [cp, trop, cmp, cbc]]
+  c4:
+    prefix: gi
+    name: stomach and bowel work-up and cancer screening
+    services: [[path, [0]], [crc, [1]], [egd, [2]], [gerd, [3]], [periodic, [4]]]
+    pats: [[cp, gerd, egd], [cp, path, egd], [cp, gerd, path]]
+  c5:
+    prefix: msk
+    name: muscle and bone care and physical therapy
+    services: [[therproc, [0, 4]], [manual, [1]], [theract, [2]], [lbp, [3]]]
+    pats: [[cp, manual, ther97110], [cp, manual, x2], [cp, ther97110, manual]]
+  c6:
+    prefix: labs
+    name: nutrition and hormone blood tests
+    services: [[b12, [0]], [vitd, [1]], [t4, [2]], [iron, [3]], [ferritin, [4]]]
+    pats: [[cp, lipid, vitd], [cp, lipid, hba1c], [cp, ecg, lipid]]
+  c7:
+    prefix: resp
+    name: acute respiratory infection
+    services: [[cough, [0]], [uri, [1]], [pharyngitis, [2]], [antigen, [3, 4]]]
+    pats: [[pharyngitis, cp, ecg], [cp, ecg, uri], [cough, cp, ecg]]
+

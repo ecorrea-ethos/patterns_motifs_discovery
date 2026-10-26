@@ -1,0 +1,463 @@
+# Config of the one-file colonoscopy page. Build: python <skill>/scripts/build_page.py colonoscopy_page.yaml
+# Format: .claude/skills/bundle-predicate-page/references/config_format.md. Paths are relative to this file.
+# Style rule: write the full term first and the abbreviation after it, in brackets. List every abbreviation in `abbreviations`.
+title: 'Colonoscopy Predicates and Composites: All Care Patterns'
+status_line: Working Draft — October 2026
+cohort_n: 211291
+run_text: the k=7 run of the data method (`nmf_k7_colonoscopy_v1`)
+files:
+  final_table: outputs/final_table_colonoscopy_k7_v1.xlsx
+  members: outputs/token_members_k7_colonoscopy_v1.csv
+output: outputs/colonoscopy_all_patterns.md
+anchor:
+  key: col
+  name: colonoscopy
+  pred: colonoscopy
+  desc: colonoscopy procedure
+  codes_text: The list holds every colonoscopy procedure code. The main codes are diagnostic colonoscopy (CPT4 45378), colonoscopy with biopsy (CPT4 45380), and colonoscopy with polyp removal (CPT4 45385).
+  has: a colonoscopy event
+window_days: 1
+min_entities: 3
+abbreviations:
+  CPT4: Current Procedural Terminology, fourth edition
+  SNOMED: Systematized Nomenclature of Medicine
+  ECG: electrocardiogram
+  CBC: complete blood count
+  PSA: prostate specific antigen
+  PPI: proton pump inhibitor
+  H2: histamine-2
+  HPV: human papillomavirus
+  HbA1c: hemoglobin A1c
+  T4: thyroxine
+extra_overview:
+- RxNorm is the drug code system of the National Library of Medicine.
+- The cohort has patients of both sexes with at least one colonoscopy procedure. The data method does not use a colorectal cancer diagnosis to group the patients.
+- In care pattern c5, colonoscopy with polyp removal is itself a colonoscopy event, so it is always in the window. The other 4 entities of c5 have a median of 0 days against the first colonoscopy.
+sequence_rule: A sequence is a list of events in a fixed order. Other events between the steps do not break the sequence. A sequence has no time limit between its steps. The data method found the sequences in the full history of the patient, with or without a colonoscopy step. A step is true for any code of its list.
+sequence_rates_note: The shares count the steps in this order at any time. They have no time limit between the steps. The other care patterns are a random sample of 1,500 patients. The re-test splits the patients of a care pattern into 2 random halves, 5 times. It finds the sequence on one half and checks it on the other half. The column shows in how many of the 5 re-tests the sequence held.
+sequence_check_name: re-test
+references:
+- US Preventive Services Task Force. *Screening for Colorectal Cancer, Recommendation Statement.* JAMA 2021;325(19):1965-1977. doi:10.1001/jama.2021.6238.
+- Gupta S, et al. *Recommendations for Follow-Up After Colonoscopy and Polypectomy, A Consensus Update by the US Multi-Society Task Force on Colorectal Cancer.* Gastroenterology 2020;158:1131-1153. doi:10.1053/j.gastro.2019.10.026.
+families:
+  Diagnoses: [abdpain, polyp, benign, diverticular]
+  Lab tests: [lipid, venip, trop, chem, cbc, psa, b12, vitd, t4, iron, testosterone, hba1c, cervical, surgpath]
+  Procedures, imaging, and visits: [genexam, periodic, gyn, immun, ecg, ecg93005, crcvisit, bcscreen, bcvisit, polypectomy, biopsy, therproc, ther97110, manual, theract, pteval]
+  Drugs: [methylpred, amoxclav, azithro, pred, ppi, ondansetron]
+entities:
+  abdpain:
+    name: Abdominal pain
+    noun: abdominal pain diagnosis
+    sents:
+    - Abdominal pain is a diagnosis of pain in the belly.
+    - The list holds 6 codes, for example epigastric pain, lower abdominal pain, and swelling of the belly from gas.
+    pred: abdominal_pain
+    desc: abdominal pain diagnosis (any of 6 codes)
+    token: abdominal_pain
+  polyp:
+    name: Colorectal polyp
+    noun: colorectal polyp diagnosis
+    sents:
+    - A colorectal polyp is a growth on the wall of the colon or the rectum.
+    - The list holds 2 diagnosis codes, one for the colon and one for the rectum.
+    pred: colorectal_polyp
+    desc: colorectal polyp diagnosis (colon OR rectum)
+    token: colorectal_polyp
+  benign:
+    name: Benign colorectal neoplasm
+    noun: benign colorectal neoplasm diagnosis
+    sents:
+    - A benign colorectal neoplasm is a growth of the colon or the rectum that is not cancer.
+    - The list holds 11 diagnosis codes for the colon, the rectum, the appendix, and the anus.
+    pred: benign_colorectal_neoplasm
+    desc: benign colorectal neoplasm diagnosis (any of 11 codes)
+    token: benign_colorectal_neoplasm
+  diverticular:
+    name: Diverticular disease
+    noun: diverticular disease diagnosis
+    sents:
+    - Diverticular disease is a condition with small pouches in the wall of a hollow organ.
+    - The list holds 24 diagnosis codes, with and without inflammation of the pouches. Most are for the large intestine.
+    pred: diverticular_disease
+    desc: diverticular disease diagnosis (any of 24 codes)
+    token: diverticular_disease
+  lipid:
+    name: Lipid panel
+    noun: lipid panel
+    sents:
+    - A lipid panel is a blood test for cholesterol and other fats.
+    - Doctors order it at check-ups, so it alone does not show the type of care.
+    pred: lipid_panel
+    desc: lipid panel
+    vocab: CPT4
+    code: '80061'
+  venip:
+    name: Venipuncture
+    noun: venipuncture
+    sents:
+    - Venipuncture is a blood draw from a vein.
+    - It does not show which test.
+    pred: venipuncture
+    desc: venipuncture for a blood test
+    vocab: SNOMED
+    code: '28520004'
+  trop:
+    name: Troponin
+    noun: troponin test
+    sents:
+    - Troponin is a blood test for injury to the heart muscle.
+    - The list holds the quantitative test.
+    pred: troponin_quantitative
+    desc: quantitative troponin test
+    vocab: CPT4
+    code: '84484'
+  chem:
+    name: Chemistry panel
+    noun: chemistry panel
+    sents:
+    - A chemistry panel is a blood test of kidney function, blood sugar, and blood salts.
+    - The list holds the comprehensive panel and 2 basic panels.
+    pred: chemistry_panel
+    desc: chemistry panel (any of 3 codes)
+    token: chemistry_panel
+  cbc:
+    name: CBC
+    noun: CBC test
+    sents:
+    - The complete blood count (CBC) counts the cells of the blood.
+    - The list holds 5 codes of blood cell counts.
+    pred: complete_blood_count
+    desc: complete blood count (any of 5 codes)
+    token: cbc
+  psa:
+    name: PSA
+    noun: PSA test
+    sents:
+    - The prostate specific antigen (PSA) test is a blood test for a protein of the prostate.
+    - Doctors use it to screen for prostate problems.
+    pred: prostate_specific_antigen
+    desc: total prostate specific antigen level
+    vocab: SNOMED
+    code: '377981000000102'
+  b12:
+    name: Vitamin B12
+    noun: vitamin B12 test
+    sents:
+    - Vitamin B12 is a blood test for the level of this vitamin.
+    pred: vitamin_b12
+    desc: vitamin B12 measurement
+    vocab: SNOMED
+    code: '14598005'
+  vitd:
+    name: Vitamin D
+    noun: vitamin D test
+    sents:
+    - The vitamin D test measures 25-hydroxy vitamin D in the blood.
+    pred: vitamin_d
+    desc: 25-hydroxy vitamin D measurement
+    vocab: SNOMED
+    code: '12199005'
+  t4:
+    name: Free T4
+    noun: free T4 test
+    sents:
+    - Free thyroxine (T4) is a blood test for the level of the thyroid hormone.
+    pred: free_t4
+    desc: free T4 measurement
+    vocab: SNOMED
+    code: '5113004'
+  iron:
+    name: Iron studies
+    noun: iron study
+    sents:
+    - Iron studies are blood tests for the iron of the body.
+    - The list holds 3 codes, for ferritin, iron, and total iron binding capacity.
+    pred: iron_studies
+    desc: iron studies (any of 3 codes)
+    token: iron_studies
+  testosterone:
+    name: Testosterone
+    noun: testosterone test
+    sents:
+    - Testosterone is a blood test for a sex hormone.
+    - The code is the total testosterone.
+    pred: testosterone
+    desc: total testosterone measurement
+    vocab: SNOMED
+    code: '85470006'
+  hba1c:
+    name: HbA1c
+    noun: HbA1c test
+    sents:
+    - Hemoglobin A1c (HbA1c) is a blood test for the average blood sugar of the last 3 months.
+    pred: hba1c
+    desc: HbA1c test
+    vocab: SNOMED
+    code: '43396009'
+  cervical:
+    name: Cervical screening
+    noun: cervical screening test
+    sents:
+    - Cervical screening is a group of tests of the cervix for cancer or for the human papillomavirus (HPV).
+    - The list holds 39 codes, for example cervical cytology (the Pap test) and the HPV test.
+    pred: cervical_screening
+    desc: cervical screening test (any of 39 codes)
+    token: cervical_screening
+  surgpath:
+    name: Surgical pathology
+    noun: surgical pathology exam
+    sents:
+    - Surgical pathology is the study of a tissue sample by eye and under a microscope.
+    - A biopsy gives such a sample. The list holds 3 codes, for the levels 3, 4, and 5 of the exam.
+    pred: surgical_pathology
+    desc: surgical pathology (levels 3, 4, and 5)
+    token: surgical_pathology
+  genexam:
+    name: General examination
+    noun: general examination
+    sents:
+    - The general examination is the routine physical examination of a visit.
+    - Most patients at a check-up have it.
+    pred: general_exam
+    desc: general examination of the patient
+    vocab: SNOMED
+    code: '162673000'
+  periodic:
+    name: Periodic preventive visit
+    noun: periodic preventive visit
+    sents:
+    - The periodic preventive visit is the check-up of an adult of 40 to 64 years.
+    pred: periodic_preventive_visit
+    desc: periodic comprehensive preventive visit (99396)
+    vocab: CPT4
+    code: '99396'
+  gyn:
+    name: Gynecologic examination
+    noun: gynecologic examination
+    sents:
+    - The gynecologic examination is the pelvic examination of a woman.
+    - It is part of women's check-ups.
+    pred: gyn_exam
+    desc: gynecologic examination
+    vocab: SNOMED
+    code: '83607001'
+  immun:
+    name: Immunization
+    noun: immunization
+    sents:
+    - An immunization is a vaccine or an antibody given to protect against a disease.
+    - It is a routine part of check-ups.
+    pred: immunization
+    desc: active or passive immunization
+    vocab: SNOMED
+    code: '127785005'
+  ecg:
+    name: ECG report or tracing
+    noun: ECG
+    sents:
+    - The electrocardiogram (ECG) is a heart tracing.
+    - The list holds the report code (93010) and the tracing code (93005). The engine counts them as one service.
+    pred: ecg_report_or_tracing
+    desc: ECG (report 93010 OR tracing 93005)
+    union:
+    - [CPT4, '93010']
+    - [CPT4, '93005']
+  ecg93005:
+    name: ECG tracing
+    noun: ECG tracing
+    sents:
+    - The ECG tracing is the record of the signal of the heart.
+    - It is one code of the ECG list.
+    pred: ecg_tracing
+    desc: ECG tracing (93005)
+    vocab: CPT4
+    code: '93005'
+  crcvisit:
+    name: Colorectal screening visit
+    noun: colorectal screening visit
+    sents:
+    - The colorectal screening visit is a screening for cancer of the colon or the rectum in a person with no symptoms.
+    - The list holds 2 codes, one for the colon and one for the rectum.
+    pred: colorectal_screening_visit
+    desc: screening for malignant neoplasm of colon OR rectum
+    token: colorectal_screening_visit
+  bcscreen:
+    name: Breast cancer screening tests
+    noun: breast cancer screening test
+    sents:
+    - Breast cancer screening tests are X-rays of the breasts of a woman with no symptoms.
+    - The list holds 6 codes, for screening mammography and breast tomosynthesis.
+    pred: breast_cancer_screening_test
+    desc: breast cancer screening test (any of 6 codes)
+    token: breast_cancer_screening
+  bcvisit:
+    name: Breast cancer screening visit
+    noun: breast cancer screening visit
+    sents:
+    - The breast cancer screening visit is a screening for breast cancer in a person with no symptoms.
+    pred: breast_cancer_screening_visit
+    desc: screening for malignant neoplasm of breast
+    vocab: SNOMED
+    code: '268547008'
+  polypectomy:
+    name: Colonoscopy with polyp removal
+    noun: colonoscopy with polyp removal
+    sents:
+    - A colonoscopy with polyp removal is a colonoscopy in which the doctor removes polyps or other lesions.
+    - The list holds 7 codes. The main code is 45385.
+    pred: colonoscopy_polypectomy
+    desc: colonoscopy with polyp removal (any of 7 codes)
+    token: colonoscopy_polypectomy
+  biopsy:
+    name: Colonoscopy with biopsy
+    noun: colonoscopy with biopsy
+    sents:
+    - A colonoscopy with biopsy is a colonoscopy in which the doctor takes a tissue sample.
+    - The list holds 2 codes. The main code is 45380.
+    pred: colonoscopy_biopsy
+    desc: colonoscopy with biopsy (any of 2 codes)
+    token: colonoscopy_biopsy
+  therproc:
+    name: Therapeutic procedure
+    noun: therapeutic procedure
+    sents:
+    - A therapeutic procedure is physical therapy in units of 15 minutes.
+    - The list holds the exercise code (97110) and the movement training code (97112). The engine counts them as one service.
+    pred: therapeutic_procedure
+    desc: therapeutic procedure (97110 OR 97112)
+    union:
+    - [CPT4, '97110']
+    - [CPT4, '97112']
+  ther97110:
+    name: Therapeutic exercise
+    noun: therapeutic exercise session
+    sents:
+    - Therapeutic exercise is physical therapy with exercises, in units of 15 minutes.
+    - It is one code of the therapeutic procedure list.
+    pred: therapeutic_exercise
+    desc: therapeutic exercise (97110)
+    vocab: CPT4
+    code: '97110'
+  manual:
+    name: Manual therapy
+    noun: manual therapy session
+    sents:
+    - Manual therapy is hands-on treatment by a therapist, for example joint movement.
+    pred: manual_therapy
+    desc: manual therapy techniques
+    vocab: CPT4
+    code: '97140'
+  theract:
+    name: Therapeutic activities
+    noun: therapeutic activities session
+    sents:
+    - Therapeutic activities are one-on-one physical therapy with movements of daily life.
+    pred: therapeutic_activities
+    desc: therapeutic activities
+    vocab: CPT4
+    code: '97530'
+  pteval:
+    name: Physical therapy evaluation
+    noun: physical therapy evaluation
+    sents:
+    - The physical therapy evaluation is the first assessment by a therapist.
+    - The list holds the low complexity code.
+    pred: physical_therapy_evaluation
+    desc: physical therapy evaluation (low complexity)
+    vocab: CPT4
+    code: '97161'
+  methylpred:
+    name: Methylprednisolone
+    noun: methylprednisolone prescription
+    sents:
+    - Methylprednisolone is a steroid drug.
+    - The code is the 21-tablet dose pack.
+    pred: methylprednisolone
+    desc: methylprednisolone 21-tablet pack
+    vocab: RxNorm
+    code: '762675'
+  amoxclav:
+    name: Amoxicillin with clavulanate
+    noun: amoxicillin with clavulanate prescription
+    sents:
+    - Amoxicillin with clavulanate is an antibiotic.
+    - The code is the tablet of 875 mg with 125 mg.
+    pred: amoxicillin_clavulanate
+    desc: amoxicillin 875 mg with clavulanate 125 mg tablet
+    vocab: RxNorm
+    code: '562508'
+  azithro:
+    name: Azithromycin
+    noun: azithromycin prescription
+    sents:
+    - Azithromycin is an antibiotic.
+    - The code is the pack of 6 tablets of 250 mg.
+    pred: azithromycin
+    desc: azithromycin 6-tablet pack
+    vocab: RxNorm
+    code: '749783'
+  pred:
+    name: Prednisone
+    noun: prednisone prescription
+    sents:
+    - Prednisone is a steroid drug.
+    - The code is the tablet of 20 mg.
+    pred: prednisone
+    desc: prednisone 20 mg tablet
+    vocab: RxNorm
+    code: '312615'
+  ppi:
+    name: PPI or H2 blocker
+    noun: PPI or H2 blocker prescription
+    sents:
+    - A proton pump inhibitor (PPI) or a histamine-2 (H2) blocker is a drug that lowers stomach acid.
+    - The list holds 80 drug codes.
+    pred: ppi_h2
+    desc: PPI or H2 blocker drug (any of 80 codes)
+    token: ppi_h2
+  ondansetron:
+    name: Ondansetron
+    noun: ondansetron injection
+    sents:
+    - Ondansetron is a drug against nausea and vomiting.
+    - The code is the injection.
+    pred: ondansetron_injection
+    desc: ondansetron injection
+    vocab: RxNorm
+    code: '1740463'
+care_patterns:
+  c0:
+    prefix: acute
+    name: acute care work-up, bowel complications, and colorectal cancer treatment
+    services: [[ecg, [0, 1]], [abdpain, [2]], [trop, [3]], [ondansetron, [4]]]
+    pats: [[ecg93005, chem, x2], [ecg93005, chem, cbc], [ecg93005, venip, chem]]
+  c1:
+    prefix: checkup
+    name: preventive check-up and screening labs
+    services: [[genexam, [0]], [lipid, [1]], [periodic, [2]], [venip, [3]], [immun, [4]]]
+    pats: [[genexam, lipid, psa], [venip, lipid, psa], [genexam, lipid, crcvisit]]
+  c2:
+    prefix: rx
+    name: prescriptions for acute illness and bowel preparation
+    services: [[methylpred, [0]], [amoxclav, [1]], [azithro, [2]], [ppi, [3]], [pred, [4]]]
+    pats: [[ppi, x2, azithro], [amoxclav, ppi, x2], [ppi, x2, amoxclav]]
+  c3:
+    prefix: womens
+    name: women's preventive care
+    services: [[bcscreen, [0]], [gyn, [1]], [cervical, [2]], [periodic, [3]], [bcvisit, [4]]]
+    pats: [[cervical, periodic, bcscreen], [bcscreen, periodic, gyn], [periodic, x2, gyn]]
+  c4:
+    prefix: pt
+    name: physical therapy and muscle and bone pain
+    services: [[therproc, [0, 3]], [manual, [1]], [theract, [2]], [pteval, [4]]]
+    pats: [[manual, ther97110, x2, theract], [manual, ther97110, theract], [ther97110, manual, x2, theract]]
+  c5:
+    prefix: procedure
+    name: colonoscopy procedure episode
+    services: [[polypectomy, [0]], [polyp, [1]], [surgpath, [2]], [benign, [3]], [crcvisit, [4]]]
+    pats: [[diverticular, polyp, polypectomy], [polyp, biopsy, polypectomy], [diverticular, polyp, polypectomy, crcvisit]]
+  c6:
+    prefix: labs
+    name: endocrine, nutrient, and iron blood tests
+    services: [[vitd, [0]], [b12, [1]], [t4, [2]], [iron, [3]], [testosterone, [4]]]
+    pats: [[lipid, vitd, t4], [vitd, hba1c, t4], [lipid, vitd, b12, hba1c]]

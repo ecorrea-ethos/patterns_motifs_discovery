@@ -1,0 +1,49 @@
+<!-- 1 · cover -->
+<section class="slide hero" data-sec="Cover">
+  <svg class="motif" viewBox="0 0 1920 1080" aria-hidden="true" data-motif></svg>
+  <div class="eyebrow">Product team review · illustrative case</div>
+  <h1 class="title">Halving<br>review <em>time</em></h1>
+  <div class="rule"></div>
+  <p class="team">A fictional case that shows every part of this template</p>
+  <div class="people" data-people></div>
+  <svg class="logo" viewBox="0 0 720 139" role="img" aria-label="Your logo"><use href="#logo-word"/></svg>
+  <aside class="notes">Welcome. This is the starter deck that ships with the html-deck skill. It tells a fictional story, how a product team halved its review time, and every number in it is illustrative. Replace the content, keep the structure. Keys: arrows move, S shows these notes, O opens the overview, T cycles the themes, F goes full screen, and a question mark lists every key.</aside>
+</section>
+
+<!-- 2 · statement with a big number -->
+<section class="slide statement" data-sec="The result" data-d="kpi">
+  <div class="st"><div class="kicker">The result</div>
+    <p class="num">{{kpi.cut|pct0}}</p>
+    <p class="cap">shorter median review time, from {{kpi.before}} hours to {{kpi.after}} hours, after four changes.</p></div>
+  <aside class="notes">Here is the result first. The median review went from {{kpi.before}} hours to {{kpi.after}} hours, a cut of {{kpi.cut|pct0}}. This is an illustrative case, so the numbers are made up to show the template, and the label on the slide says so. Next, we look at where the time went before the change.</aside>
+</section>
+
+<!-- 3 · ranked bars -->
+<section class="slide" data-sec="The problem">
+  <div class="head"><div class="kicker">01 · The problem</div>
+    <h1>Most of the delay was waiting, not reviewing.</h1>
+    <p class="lede">Share of review time by stage, before the change.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="rankedBars" data-d="delay" data-o='{"head":"Stage of a review","note":["Waiting for a reviewer is the","largest block. Fixing the queue","matters more than reading faster."],"top":1,"fmt":"pct0"}'
+       role="img" aria-label="Horizontal bars: waiting for a reviewer takes {{delay.rows.0.v|pct0}} of review time, rework {{delay.rows.1.v|pct0}}, reading and commenting {{delay.rows.2.v|pct0}}, merging {{delay.rows.3.v|pct0}}."></svg>
+  <aside class="notes">Before the change, review time had four parts. Waiting for a reviewer to pick up the request took {{delay.rows.0.v|pct0}} of the time, more than any other part. Rework after comments took {{delay.rows.1.v|pct0}}, reading and commenting {{delay.rows.2.v|pct0}}, and merging {{delay.rows.3.v|pct0}}. This is elapsed time, not effort. Next, we look at the four changes that attacked the waiting.</aside>
+</section>
+
+<!-- 4 · cards -->
+<section class="slide" data-sec="What we changed">
+  <div class="head"><div class="kicker">02 · What we changed</div>
+    <h1>Four small habits did the work.</h1>
+    <p class="lede">Each habit removes waiting or rework, and none needs a new tool.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="cards" data-d="habits" role="img" aria-label="Four habit cards: small requests, named reviewers, same-day first look, comment templates."></svg>
+  <aside class="notes">We made four changes. Requests stay small, so a review fits in one sitting. Each request names its reviewer, so nobody wonders whose turn it is. The first look happens the same day. Comment templates cut rework because authors know what a good request contains. All four are habits, not tools. These are illustrative, and the takeaway on each card says what to remember. Next, the questions.</aside>
+</section>
+
+<!-- 5 · closing -->
+<section class="slide hero close" data-sec="Closing">
+  <svg class="motif" viewBox="0 0 1920 1080" aria-hidden="true" data-motif></svg>
+  <div class="eyebrow">Thank you</div>
+  <h1 class="title">Questions?</h1>
+  <div class="rule" style="top:520px"></div>
+  <div class="people" style="top:600px" data-people></div>
+  <svg class="logo" viewBox="0 0 720 139" role="img" aria-label="Your logo"><use href="#logo-word"/></svg>
+  <aside class="notes">Thank you. We have time for questions.</aside>
+</section>

@@ -24,7 +24,7 @@ import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LABELS, MEMBERS, CODESETS = "chestpain_plain_labels.yaml", "token_members_k8_chestpain_AHA.csv", "codesets_v2.yaml"
-CSV_OUT, ENGINE_MD = "chestpain_plain_english_omop_map.csv", "Chestpain_Workup_Predicate_Engine_v2.md"
+CSV_OUT, ENGINE_MD = "chestpain_plain_english_omop_map.csv", "outputs/Chestpain_Workup_Predicate_Engine_v2.md"
 BEGIN, END = "<!-- ANNEX:BEGIN -->", "<!-- ANNEX:END -->"
 REG_BEGIN, REG_END = "<!-- REGISTRY:BEGIN -->", "<!-- REGISTRY:END -->"
 EXTRA_FAMILY = "Other codes used by the engine"

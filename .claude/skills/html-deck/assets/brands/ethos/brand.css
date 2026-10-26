@@ -1,0 +1,22 @@
+/* >>> BRAND SLOT START */
+/* Ethos Brand Guidelines 2026. Fill or edit ONLY this block to re-brand. Light-theme neutral value of each token is noted in the last comment line. */
+/* @font-face example (brand fonts are licensed, not bundled): local() first, then a relative file.
+   @font-face { font-family:"Portada"; font-weight:600; src:local("Portada Semibold"), local("Portada-Semibold"), url("fonts/Portada-Semibold.woff2") format("woff2"); }
+   @font-face { font-family:"Hauss"; font-weight:400; src:local("Hauss Regular"), local("Hauss-Regular"), url("fonts/Hauss-Regular.woff2") format("woff2"); } */
+html[data-theme="brand"] {
+  --bg:#FFFFFF; --bg-alt:#FAF9F5; --surface:#FFFFFF; --surface-2:#EFECE2; --bg-dark:#05594F; --letterbox:#272727;                /* Dark Cypress, Light Truffle, Truffle, Night */
+  --ink:#272727; --ink-2:#5D5D5D; --ink-3:#6B6B6B; --ink-on-dark:#FFFFFF; --ink-2-on-dark:#D2ECE7; --ink-3-on-dark:#A9D8CF;       /* ink-3 and the on-dark greys are derived */
+  --line:#D4D4D4; --line-strong:#8F8F8F; --line-on-dark:#2B7168; --line-strong-on-dark:#5FA095;
+  --accent:#05594F; --accent-tint:#E3F8F6; --accent-ink:#05594F; --accent-on-dark:#59F8B1; --accent-contrast:#FFFFFF;             /* Dark Cypress, Light Cypress, Bright Clover */
+  --positive:#17835F; --positive-tint:#E4F6EE; --positive-ink:#0F5C43; --positive-on-dark:#7DE8B8;                                 /* derived: the brand has no status colors */
+  --caution:#9A5B00; --caution-tint:#FFF1D9; --caution-ink:#6F4100; --caution-on-dark:#FFD27A;
+  --negative:#B3321F; --negative-tint:#FDE7E3; --negative-ink:#8A2314; --negative-on-dark:#FFB3A6;
+  --info:#0B4368; --info-tint:#E3EEF6; --info-ink:#0B4368; --info-on-dark:#9CD0F2;                                                 /* Neptune: factual and informative content */
+  --s2:#2F6FB5; --s3:#8A7B00; --s4:#7A4FA0; --s5:#C0508A; --s6:#078476; --s7:#6B7280; --s8:#A0522D;                                 /* derived categorical set */
+  --font-display:"Portada", "Merriweather", "Iowan Old Style", Georgia, serif;
+  --font-body:"Hauss", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --w-display:600; --radius-card:20px; --radius-inner:12px; --stroke:3px;
+  --motif-a:var(--accent-on-dark); --motif-b:#078476; --motif-alpha:.55; --photo-ring:var(--accent-on-dark);
+  /* neutral (light) values of the tokens above: accent #1556C0, bg-dark #0F1B2D, ink #131A24, positive #0F7B55, caution #B85309, negative #B3321F, info #0E7490, display weight 300, radius-card 24px */
+}
+/* <<< BRAND SLOT END */

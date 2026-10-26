@@ -1,0 +1,414 @@
+# Bitacora
+# v1 (this file, "codesets.yaml") - first codeset file of the colonoscopy cohort, written 2026-10-19 from the four documents in papers/colonoscopy/.
+#     Format, matching rules and load-bearing ORDER are the same as nb/repr_learn_mammography/codesets_v2.yaml (read that header first).
+#     Sources (every tag carries a `source:` key when one document, section or row justifies it):
+#       UW      "Colonoscopy and Underwriting.docx": indications, who is NOT average risk, the "Useful codes" table (ICD-10 / CPT / HCPCS) and the
+#               underwriting approach per code. Not a guideline: an internal note that cites ACS 2026, ASGE 2024 colonoscopy quality indicators,
+#               AGA IBD surveillance and a 2004 Arch Intern Med paper on HNPCC.
+#       USPSTF  Screening for Colorectal Cancer: USPSTF Recommendation Statement. JAMA 2021;325(19):1965-1977. doi:10.1001/jama.2021.6238
+#               (Table 1 = the screening strategies; Figure 1 = who is average risk; Harms = bleeding, perforation, sedation)
+#       USMSTF  Gupta S, et al. Recommendations for Follow-Up After Colonoscopy and Polypectomy: A Consensus Update by the US Multi-Society
+#               Task Force on Colorectal Cancer. Gastroenterology 2020;158:1131-1153. doi:10.1053/j.gastro.2019.10.026
+#               (Table 3 = polyp terms; Table 4 = interval after normal colonoscopy / adenomas; Table 5 = serrated polyps)
+#       ASGE-GERD  Desai M, et al. ASGE guideline on the diagnosis and management of GERD. Gastrointest Endosc 2025;101:267-284.
+#               WARNING: the file is named papers/colonoscopy/colonoscopy_asg_endoscopy.pdf but it is the GERD guideline (upper endoscopy),
+#               not an ASGE colonoscopy document. The UW note cites "Quality Indicators for Colonoscopy, Am J Gastroenterol 2024;119:1754-1780",
+#               which is NOT in the folder. Section 6 below (upper GI) is the only part taken from the GERD file, as context for patients who
+#               also get an EGD; swap or drop it if the right ASGE document is added.
+#     Naming: the roles of the mammography tags are kept, so a notebook cloned from the mammography one still finds what it reads by name:
+#         ANCHOR `colonoscopy` (was `mammography`), label `colorectal_cancer` (was `breast_cancer`), `in_situ` (same name, colorectal),
+#         LABEL_PROXY_TAGS candidates = in_situ, colectomy, chemotherapy, antineoplastic_drug, radiation_therapy, ostomy (section 4).
+#         The clone must rename the breast-specific names it reads (`mammography_screening`, `mammography_diagnostic`, ...).
+#     Policy carried over from the mammography notebooks: in-situ-only patients (here carcinoma in situ of colon / rectum, ICD-10 D01.0-D01.2)
+#         are kept by default, count as "no cancer" in the label, are pre-cancer with some risk and need manual review (UW: "colon cancer guidelines").
+#
+# VALIDATION STATUS - READ BEFORE USING. There is no colonoscopy extract yet (no cohort SQL, no inputs/colonoscopy_cohort/). The patterns were
+#     tested only against the union of the concept.csv files of the four existing extracts (breast cancer, chest pain, letrozole, mammography; 32 109
+#     concepts, 721 of them GI-related), i.e. concepts that happen to occur in those cohorts. A tag that is thin or empty here can be rich in the
+#     real extract (and the reverse). Re-run the check against the colonoscopy concept table as soon as it exists; read every matched name.
+#     Result on that union (2026-10-19, `python check_codesets.py`): 66 tags, 757 distinct concepts, no overlap except the colonoscopy umbrella, and 7 tags EMPTY:
+#     colonoscopy_high_risk_screening (HCPCS G0105 not in those extracts), advanced_adenoma_histology, adenomatous_polyp, polyp_history, personal_history_crc,
+#     occult_blood_positive, colon_mass_or_abnormal_imaging. Empty here means unverified, not wrong: their patterns follow the usual SNOMED / ICD names and
+#     must be checked against the colonoscopy concept table. polyp_history and personal_history_crc are Observation concepts (see below).
+#
+# Not possible / not tagged on purpose:
+#     * Family history of CRC, personal history of CRC / polyps (ICD-10 Z80.0, Z85.038, Z86.010x) and smoking / alcohol are OMOP Observation
+#       concepts. `family_history_crc`, `personal_history_crc` and `polyp_history` exist but stay EMPTY while Observation is not loaded (as in the
+#       mammography notebooks); the UW note treats them as the main risk modifiers, so decide whether to load Observation for this cohort.
+#     * Colonoscopy findings that live only in the procedure report (polyp size, number, histology grade, prep quality, cecal intubation) are not
+#       OMOP concepts: USMSTF Table 3 / 4 intervals (1-2 vs 3-4 vs 5-10 adenomas, >=10 mm) cannot be rebuilt from codes. Only the histology
+#       Conditions that exist as concepts are tagged (villous, tubulovillous, high-grade dysplasia, serrated).
+#     * Screening vs diagnostic colonoscopy are different concepts only for some codes (SNOMED "Screening colonoscopy", HCPCS G0121 / G0105);
+#       CPT 45378 / 45380 / 45385 do not say why the test was done.
+#     * History of abdominal / pelvic radiation (UW: not average risk) is a state, an Observation concept; pelvic radiation EVENTS are tagged `radiation_therapy`.
+#     * Age at first colonoscopy (UW: age < 45 with colonoscopy -> suspect HNPCC) is a derived feature, not a codeset.
+#     * CPT II / HCPCS quality codes (3775F, 3776F, 3017F, 3018F, 0528F, 0529F, G9612, G9614, M1379) carry adenoma detection, prep quality and the recommended
+#       interval, but they are Observation-domain concepts: they only appear if the extract loads Observation or if the pipeline put them in another table.
+#     * Blood-based CRC tests are tagged apart (USPSTF 2021 does not include serum tests).
+#
+# ORDER IS LOAD-BEARING (same rule as mammography v2): tag_events() gives every concept to the FIRST tag that lists it. Specific tags first,
+# `colonoscopy` (anchor, umbrella over every colonoscopy code) after its finer procedure tags, `antineoplastic_drug` last in its block.
+# Spec shapes: <tag>: {patterns: [...], vocabularies: [...], domain: ..., exclude: [...], source: "..."}  |  <tag>: {concept_ids: [...]}
+# PATTERNS ARE UNANCHORED SUBSTRING REGEX joined with "|" (case-insensitive) on concept_name of STANDARD concepts.
+
+# ---- 1. Colonoscopy and the other ways to look for colorectal neoplasia (USPSTF Table 1; UW "Useful codes") ----
+colonoscopy_high_risk_screening:
+  source: "UW: HCPCS G0105 'screening colonoscopy, high risk' implies a known risk factor (family history, polyps, IBD, prior CRC)"
+  patterns: ["colorectal cancer screening; colonoscopy on individual at high risk"]
+  vocabularies: ["HCPCS", "CPT4"]
+  domain: "Procedure"
+colonoscopy_screening:
+  source: "UW: HCPCS G0121 screening colonoscopy, average risk; USPSTF: colonoscopy every 10 years. SNOMED has a 'Screening colonoscopy' concept; CPT 45378 does not say why"
+  patterns: ["^screening colonoscopy", "colorectal cancer screening; colonoscopy on individual not meeting criteria"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+colonoscopy_polypectomy:
+  source: "UW: CPT 45384 hot forceps, 45385 snare (subject to follow-up). USMSTF Tables 4 / 5: surveillance interval depends on what was removed; piecemeal resection of lesions >= 20 mm -> 6 months. Includes EMR / ESD"
+  patterns: ["^colonoscopy.*(removal of tumor|removal of .*polyp|ablation of tumor|endoscopic mucosal resection)", "endoscopic submucosal dissection",
+             "^colonoscopy through stoma.*removal of tumor"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+colonoscopy_biopsy:
+  source: "UW: CPT 45380 colonoscopy with biopsy (subject to follow-up); also the way IBD and abnormal screening results are worked up"
+  patterns: ["^colonoscopy.*with biopsy", "^colonoscopy through stoma.*with biopsy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+colonoscopy_other_intervention:
+  source: "USPSTF Harms: bleeding and perforation after colonoscopy; therapeutic colonoscopy other than polyp removal (bleeding control, injection, dilation, stent, decompression, foreign body, band ligation)"
+  patterns: ["^colonoscopy.*(control of bleeding|submucosal injection|dilation|stent|decompression|foreign body|band ligation|ultrasound)",
+             "^colonoscopy through stoma.*(injection|dilation)"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["removal of tumor", "ablation of tumor", "mucosal resection"]      # 45388 ablation says "dilation" too: it is a polypectomy-type code
+colonoscopy:                       # COHORT ANCHOR candidate: any colonoscopy (screening, diagnostic, through stoma, unspecified)
+  source: "UW: colonoscopy is indicated for screening and surveillance, GI bleeding / iron-deficiency anemia, unexplained luminal symptoms and IBD. Includes CPT 45378 'diagnostic'"
+  patterns: ["^colonoscopy", "^screening colonoscopy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+sigmoidoscopy:
+  source: "USPSTF Table 1: flexible sigmoidoscopy every 5 years, or every 10 years with annual FIT; abnormal result -> colonoscopy"
+  patterns: ["sigmoidoscop"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+ct_colonography:
+  source: "USPSTF Table 1: CT colonography every 5 years; abnormal result -> colonoscopy"
+  patterns: ["colonography", "virtual colonoscopy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+stool_dna_test:
+  source: "USPSTF Table 1: stool DNA-FIT every 1 to 3 years (the only FDA-approved one is multitarget, with a FIT component); abnormal result -> colonoscopy"
+  patterns: ["^oncology \\(colorectal\\) screening", "stool dna", "multitarget stool", "cologuard"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS", "LOINC"]
+  domain: "Measurement"
+fecal_occult_blood_test:
+  source: "USPSTF Table 1: high-sensitivity gFOBT or FIT every year; abnormal result -> colonoscopy. UW: positive occult blood with no colonoscopy after is a pending work-up flag"
+  patterns: ["occult blood", "^blood, occult", "fecal immunochem", "guaiac", "fecal hemoglobin", "colorectal cancer screening; fecal occult"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS", "LOINC"]
+  domain: "Measurement"
+  exclude: ["gastric", "vomit", "urine", "^oncology"]      # the 10-marker stool DNA codes also say "fecal hemoglobin": they belong to stool_dna_test
+crc_blood_test:
+  source: "USPSTF: serum tests are NOT part of the recommendation (limited evidence). Kept apart so they are not mistaken for stool screening"
+  patterns: ["oncology \\(colorectal cancer\\), analysis of cell-free", "cell-free dna.*colorectal"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS", "LOINC"]
+  domain: "Measurement"
+capsule_endoscopy:
+  source: "USPSTF: capsule endoscopy is NOT part of the recommendation (limited evidence)"
+  patterns: ["capsule endoscopy", "intraluminal.*capsule"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+colorectal_screening_visit:
+  source: "UW: ICD-10 Z12.11 screening for malignant neoplasm of colon (screening visit, no adverse signal alone) / rectum"
+  patterns: ["^screening for malignant neoplasm of (?:colon|rectum|large intestine)", "^screening for colorectal"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  exclude: ["occult"]
+bowel_prep:
+  source: "USPSTF: every direct-visualization test needs bowel preparation; USMSTF: intervals assume adequate preparation (quality of prep is not a concept)"
+  patterns: ["picosulfate", "sodium sulfate.*magnesium sulfate", "polyethylene glycol 3350.*(?:electrolytes|sodium sulfate|ascorbate)",
+             "golytely", "moviprep", "suprep", "plenvu", "osmoprep", "visicol", "clenpiq", "prepopik"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+  domain: "Drug"
+endoscopy_anesthesia:
+  source: "USPSTF: sedation or anesthesia varies by screening test and adds harm (cardiovascular events). CPT 00810-00813 lower / combined upper and lower GI endoscopy; 00812 is the screening code"
+  patterns: ["^anesthesia for (?:lower intestinal|combined upper and lower|upper gastrointestinal) endoscop", "moderate sedation"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+procedural_sedation_drug:          # propofol / midazolam / fentanyl are also peri-operative drugs (mammography c6); here they mark endoscopy sedation
+  source: "USPSTF Practice Considerations: sedation during the test"
+  patterns: ["^(?:propofol|midazolam|fentanyl|meperidine).*inject"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+  domain: "Drug"
+surgical_pathology:
+  source: "UW / USMSTF: polyps and biopsies are classified by histology (adenoma type, serrated, dysplasia, cancer); CPT 88305 level IV is the usual code"
+  patterns: ["^level (?:iii|iv|v|vi) - surgical pathology"]
+  vocabularies: ["CPT4", "HCPCS"]
+  domain: "Procedure"
+
+adenoma_detected:
+  source: "USMSTF Tables 3-4: adenomas found at screening colonoscopy decide the surveillance interval. CPT II 3775F (SCADR quality measure); Observation / Procedure domain in OMOP"
+  patterns: ["^adenoma\\(s\\) or other neoplasm detected during screening colonoscopy"]
+  vocabularies: ["CPT4", "HCPCS"]
+adenoma_not_detected:
+  source: "USMSTF Table 4: normal colonoscopy -> 10 years. CPT II 3776F"
+  patterns: ["neoplasm not detected during screening colonoscopy"]
+  vocabularies: ["CPT4", "HCPCS"]
+colonoscopy_quality_documentation:
+  source: "USMSTF: every interval assumes a complete examination (cecum reached, photo-documented landmarks) with adequate bowel preparation; UW cites the ASGE 2024 colonoscopy quality indicators. CPT II 3018F, HCPCS G9612 / G9614 (deprecated); CPT II 3017F results documented"
+  patterns: ["quality of the bowel prep", "cecal landmark", "depth of insertion", "colorectal cancer screening results documented"]
+  vocabularies: ["CPT4", "HCPCS"]
+surveillance_interval_documentation:
+  source: "USMSTF Table 4: 10 years after a normal colonoscopy, 7-10 / 3-5 / 3 years after adenomas. CPT II 0528F, 0529F, HCPCS M1379 document the recommended interval"
+  patterns: ["follow-up interval for (?:repeat )?colonoscopy", "interval of 3 or more years since patient's last colonoscopy"]
+  vocabularies: ["CPT4", "HCPCS"]
+
+# ---- 2. Findings: polyps, adenomas, serrated lesions (USMSTF Tables 3-5; UW "Useful codes") ----
+# Order inside this block: histology that raises risk first, then adenoma, then the generic polyp, then benign neoplasm of the site.
+advanced_adenoma_histology:
+  source: "USMSTF Table 3: advanced adenoma = >= 10 mm, tubulovillous / villous histology or high-grade dysplasia (size is not a concept; histology is). Table 4: interval 3 years"
+  patterns: ["(?:tubulovillous|villous) adenoma", "adenoma.*high.?grade dysplasia", "high.?grade dysplasia.*(?:colon|rectum|adenoma)"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["cervix", "cervical", "anal intraepithelial", "esophag", "gastric", "stomach", "duoden", "prostat"]
+serrated_polyp:
+  source: "USMSTF Table 5: SSP, TSA, hyperplastic polyps >= 10 mm or proximal; intervals 3-10 years. Hyperplastic polyps < 10 mm in rectum / sigmoid count as a normal colonoscopy"
+  patterns: ["sessile serrated", "traditional serrated", "serrated (?:polyp|adenoma|lesion)", "hyperplastic polyp"]
+  vocabularies: ["SNOMED", "HCPCS", "CPT4"]
+  exclude: ["nasal", "vocal", "stomach", "gastric"]
+adenomatous_polyp:
+  source: "UW: D12.x benign neoplasm of colon (polyp removed; standard) / Z86.0101 adenomatous = ask about size and number. USMSTF Table 4: 1-2, 3-4, 5-10 tubular adenomas"
+  patterns: ["adenomatous polyp", "tubular adenoma", "adenoma of (?:colon|rectum|large intestine|sigmoid|cecum)", "colonic adenoma", "colorectal adenoma"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["stomach", "gastric", "duoden", "esophag", "prostat", "adrenal", "pituitary", "thyroid", "liver", "hepat", "renal", "kidney"]
+colorectal_polyp:
+  source: "UW: ICD-10 K63.5 polyp of colon, K62.1 rectal polyp (often hyperplastic or unspecified; usually standard); USMSTF: polyps are risk-stratified by histology, number, size, location"
+  patterns: ["polyp of (?:colon|rectum|large intestine|sigmoid|cecum|anus|anal)", "colonic polyp", "rectal polyp", "polyp of .*(?:colon|rectum)", "colorectal polyp"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["stomach", "gastric", "gallbladder", "uterus", "endometri", "cervix", "nasal", "vocal", "polypoid dysplasia"]
+benign_colorectal_neoplasm:
+  source: "UW: ICD-10 D12.0-D12.9 benign neoplasm of colon, rectum or anus (appendix, cecum, ascending / transverse / descending / sigmoid colon, rectosigmoid, rectum, anus)"
+  patterns: ["^benign neoplasm of (?:colon|cecum|appendix|ascending colon|transverse colon|descending colon|sigmoid colon|rectosigmoid|rectum|anus|anal canal|large intestine|hepatic flexure|splenic flexure)"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+colorectal_uncertain_neoplasm:
+  patterns: ["neoplasm of uncertain behavior of (?:colon|rectum|large intestine|anus|rectosigmoid|appendix)"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+polyp_history:
+  source: "UW: ICD-10 Z86.0100 / .0101 / .0102 / .0109 history of colon polyps (adenomatous = ask about size and number). Observation concept: empty while Observation is not loaded"
+  patterns: ["history of (?:colonic|colon|colorectal|rectal) polyp", "personal history of.*polyp"]
+  vocabularies: ["SNOMED"]
+  exclude: ["family history", "nasal", "uterine", "endometri"]
+
+# ---- 3. Risk context: who is NOT average risk (USPSTF Figure 1 exclusions; UW "What is not an average risk") ----
+hereditary_crc_syndrome:
+  source: "Polyposis syndromes beyond FAP / Lynch (MUTYH, Gardner, Turcot, Peutz-Jeghers, juvenile, Cowden, serrated polyposis) are added from clinical convention, not named in the documents. USPSTF: Lynch syndrome and FAP are outside the average-risk population; UW: confirmed or suspected hereditary syndrome (FAP, Lynch / HNPCC) and 'age < 45 with colonoscopy -> suspect HNPCC'; USMSTF: serrated polyposis syndrome and hereditary syndromes excluded from the interval tables"
+  patterns: ["lynch syndrome", "hereditary (?:non-?polyposis|nonpolyposis)", "hnpcc", "familial adenomatous polyposis", "familial (?:multiple )?polyposis", "polyposis syndrome", "attenuated.*polyposis",
+             "mutyh", "gardner", "serrated polyposis", "juvenile polyposis", "peutz-jeghers", "turcot", "cowden", "hereditary.*colorectal", "hereditary.*colon"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+hereditary_crc_testing:
+  source: "UW / USMSTF Table 4 note e: > 10 adenomas or young age -> genetic testing. Mismatch-repair / MSI testing and the Lynch / polyposis genes"
+  patterns: ["^(?:mlh1|msh2|msh6|pms2|epcam|apc|mutyh)\\b", "microsatellite instability", "mismatch repair", "lynch syndrome.*(?:sequenc|analysis|panel)", "hereditary colon"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS", "LOINC"]
+  domain: "Measurement"
+ibd:
+  source: "USPSTF: IBD is outside the average-risk population; UW: ICD-10 K50 Crohn's, K51 ulcerative colitis (usually standard); colonoscopy for diagnosis, treatment monitoring, surveillance every 2 years after initial diagnosis (AGA)"
+  patterns: ["crohn", "regional enteritis", "ulcerative colitis", "ulcerative proctitis", "ulcerative pancolitis", "inflammatory bowel disease", "idiopathic proctocolitis"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["family history", "history of"]
+ibd_drug:                          # ALSO used in rheumatoid arthritis, psoriasis, asthma: a hint, not proof, of IBD
+  source: "UW: IBD treatment monitoring is a colonoscopy indication"
+  patterns: ["mesalamine", "mesalazine", "sulfasalazine", "balsalazide", "olsalazine", "infliximab", "vedolizumab", "ustekinumab", "adalimumab", "golimumab",
+             "mercaptopurine", "azathioprine", "tofacitinib", "upadacitinib", "risankizumab", "ozanimod"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+  domain: "Drug"
+family_history_crc:
+  source: "UW / USPSTF / USMSTF: family history of CRC or advanced adenoma (first-degree relative < 60, or >= 2 relatives) -> colonoscopy every 5 years from 10 years before the youngest case (or age 40). Observation concept: empty while Observation is not loaded"
+  patterns: ["family history of.*(?:colon|colorectal|large intestine|rectal|rectum|bowel)"]
+  vocabularies: ["SNOMED"]
+personal_history_crc:
+  source: "UW / USPSTF: personal history of CRC is outside the average-risk population; Observation / Condition depending on the concept"
+  patterns: ["(?:personal )?history of.*(?:malignant|cancer|carcinoma).*(?:colon|colorectal|large intestine|rectum|rectosigmoid)", "history of (?:colon|colorectal|rectal) cancer"]
+  vocabularies: ["SNOMED"]
+  exclude: ["family history"]
+obesity:
+  source: "USPSTF Assessment of Risk: obesity, diabetes, long-term smoking and unhealthy alcohol use raise CRC risk (but all adults >= 45 are screened)"
+  patterns: ["^obesity", "morbid obesity"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+t2dm:
+  source: "USPSTF Assessment of Risk"
+  patterns: ["type 2 diabetes", "type ii diabetes"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+tobacco:
+  source: "USPSTF Assessment of Risk: long-term smoking. Mostly an Observation concept, so thin while Observation is not loaded"
+  patterns: ["tobacco", "nicotine dependence", "smoker"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["accident", "inhalation", "burn", "fire"]
+
+# ---- 4. Cancer, in situ first (UW: C18-C20 colon cancer guidelines; D01.0-D01.2 carcinoma in situ) ----
+# in_situ is defined BEFORE colorectal_cancer, as in the mammography file: the notebook's rule for in-situ-only patients reads it.
+in_situ:
+  source: "UW: ICD-10 D01.0 colon, D01.1 rectosigmoid junction, D01.2 rectum. Pre-cancer with some risk, manual review (see the policy line in the header)"
+  patterns: ["carcinoma in situ of (?:colon|rectum|rectosigmoid|large intestine|sigmoid|cecum)", "carcinoma in situ.*(?:colon|rectum|rectosigmoid)", "intramucosal.*(?:colon|rectum)"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+# colorectal_cancer: the name-matched part of the cancer LABEL (to be unioned with the ICD-defined concepts C18-C20 in the notebook, then dropped
+# from the features, as breast_cancer is in the mammography notebook). C21 (anus) is not colorectal in the UW table and is not matched.
+colorectal_cancer:
+  source: "UW: ICD-10 C18-C20 colon, rectosigmoid junction, rectum"
+  patterns:
+    - "malignant (?:neoplasm|tumou?r).*(?:colon|rectum|rectosigmoid|large intestine|sigmoid|cecum|caecum|flexure)"
+    - "(?:adeno)?carcinoma (?:of|in) (?:the )?(?:colon|rectum|rectosigmoid|sigmoid|cecum|large intestine)"
+    - "colorectal cancer"
+    - "colon cancer"
+    - "rectal cancer"
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["family history", "personal history", "history of", "screening", "at risk", "in situ", "benign", "secondary", "uncertain", "hereditary", "anus", "anal canal"]
+colectomy:
+  source: "Treatment of CRC and of advanced polyps (outside the four documents' scope; mirrors the mastectomy proxy of the breast notebooks). Includes proctectomy, low anterior / abdominoperineal resection"
+  patterns: ["colectomy", "proctectomy", "hemicolectomy", "low anterior resection", "abdominoperineal", "proctosigmoidectomy", "resection of rectosigmoid"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+ostomy:
+  source: "As colectomy: consequence of surgery for CRC or IBD (also of diverticulitis / trauma)"
+  patterns: ["colostomy", "ileostomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["colectomy", "proctectomy", "resection"]      # a colectomy with an ostomy is one concept and stays with colectomy
+chemotherapy:
+  patterns: ["chemotherapy administration", "administration of antineoplastic", "antineoplastic chemotherapy", "chemotherapy by infusion", "intravenous chemotherapy", "chemotherapy session"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+radiation_therapy:                 # pelvic radiation for rectal cancer; Procedure only, no anesthesia code
+  patterns: ["radiation therapy", "radiotherapy", "teletherapy", "radiation treatment delivery", "brachytherapy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+  exclude: ["anesthesia", "tumor cavity"]
+antineoplastic_drug:               # UMBRELLA: standard colorectal-cancer drugs (clinical convention, not from the four documents)
+  source: "Not from the papers: capecitabine, fluorouracil, oxaliplatin, irinotecan, leucovorin, bevacizumab, cetuximab, panitumumab, regorafenib, trifluridine / tipiracil, encorafenib"
+  patterns: ["capecitabine", "fluorouracil", "oxaliplatin", "irinotecan", "leucovorin", "bevacizumab", "cetuximab", "panitumumab", "regorafenib", "trifluridine", "tipiracil", "encorafenib",
+             "cyclophosphamide", "doxorubicin", "paclitaxel", "carboplatin"]
+  vocabularies: ["RxNorm", "RxNorm Extension"]
+  domain: "Drug"
+metastasis:                        # kept for parity with the breast notebooks; expect it to stay thin
+  patterns: ["secondary malignant neoplasm", "metastasis", "metastatic", "secondary neoplasm", "malignant neoplasm.*metastatic"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+tumor_marker:
+  source: "Surveillance convention (CEA); not in the four documents"
+  patterns: ["carcinoembryonic antigen measurement", "^tumor marker measurement"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Measurement"
+
+# ---- 5. Diagnostic indications: signs, symptoms and abnormal screening results (UW "Colonoscopy is indicated for ..."; USMSTF intro; ASGE alarm symptoms) ----
+occult_blood_positive:
+  source: "UW: ICD-10 R19.5 other fecal abnormalities incl. positive occult blood (pending work-up flag if no colonoscopy follows); USPSTF: abnormal stool test -> colonoscopy"
+  patterns: ["occult blood in (?:stool|feces|faeces)", "(?:stool|fecal|faecal) occult blood.*positive", "positive.*(?:occult|fecal immunochemical)", "abnormal stool"]
+  vocabularies: ["SNOMED"]
+  exclude: ["screening"]
+gi_bleeding:
+  source: "UW: colonoscopy is indicated for evaluation of GI bleeding; ASGE-GERD alarm symptom"
+  patterns: ["rectal bleeding", "hematochezia", "melena", "gastrointestinal hemorrhage", "hemorrhage of (?:rectum|anus)", "blood in stool", "lower gastrointestinal bleeding",
+             "bright red blood per rectum", "gastrointestinal bleeding"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["occult", "newborn", "fetal", "neonat"]
+iron_deficiency_anemia:
+  source: "UW: colonoscopy is indicated for evaluation of iron-deficiency anemia; ASGE-GERD alarm symptom (unexplained iron deficiency anemia)"
+  patterns: ["iron deficiency anemia", "iron deficiency anaemia", "anemia due to chronic blood loss", "chronic blood loss anemia", "microcytic anemia", "sideropenic"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+iron_studies:
+  source: "UW / ASGE-GERD: work-up of iron deficiency"
+  patterns: ["^ferritin measurement", "^iron measurement", "^total iron binding", "transferrin saturation"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS", "LOINC"]
+  domain: "Measurement"
+bowel_habit_change:
+  source: "UW: unexplained luminal symptoms"
+  patterns: ["constipation", "^diarrh", "change in bowel habit", "altered bowel habit", "tenesmus", "fecal incontinence", "narrowing of stool", "irritable bowel"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["newborn", "neonat", "infectious", "due to"]
+abdominal_pain:
+  source: "UW: unexplained luminal symptoms. Ubiquitous in ED and primary care: a weak signal"
+  patterns: ["abdominal pain", "abdominal distension", "abdominal bloating", "pain in lower abdomen", "epigastric pain"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+weight_loss:
+  source: "UW / ASGE-GERD alarm symptom"
+  patterns: ["weight loss", "loss of weight"]
+  vocabularies: ["SNOMED"]                                   # 'Abnormal weight loss' is an Observation concept: thin while Observation is not loaded
+  exclude: ["surgery", "program", "counsel", "diet", "bariatric"]
+diverticular_disease:
+  source: "Common colonoscopy indication and a harm-risk context (USPSTF Harms: perforation, bleeding)"
+  patterns: ["diverticul"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+anorectal_disease:
+  source: "Cause of rectal bleeding that is worked up with colonoscopy or anoscopy"
+  patterns: ["hemorrhoid", "anal fissure", "fissure in ano", "anal fistula", "perianal abscess", "anorectal", "proctitis"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+  exclude: ["ulcerative"]
+colon_mass_or_abnormal_imaging:
+  source: "USPSTF: abnormal CT colonography -> colonoscopy; mass or thickening of the colon found by other imaging"
+  patterns: ["mass of (?:colon|rectum|bowel|large intestine)", "abnormal.*imaging.*(?:digestive|gastrointestinal|colon|bowel)", "thickening of (?:colon|bowel|rectal)", "colonic mass"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+postprocedural_complication:
+  source: "USPSTF Harms: bleeding and perforation after colonoscopy (about 0.8 perforations and 15 bleeds per 10 000 screening colonoscopies; more with age and with polypectomy)"
+  patterns: ["perforation of (?:intestine|colon|bowel|rectum)", "postprocedural (?:hemorrhage|bleeding)", "hemorrhage.*(?:following|complicating).*(?:endoscop|polypectomy|procedure)",
+             "iatrogenic.*(?:perforation|hemorrhage)", "postpolypectomy"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+
+# ---- 6. Upper GI context (ASGE-GERD file; for patients who also have an EGD; see the WARNING in the header) ----
+upper_endoscopy:
+  source: "ASGE-GERD: upper endoscopy for GERD with alarm symptoms, several Barrett's risk factors or after sleeve gastrectomy. Often done in the same session as a colonoscopy (CPT 00813 combined anesthesia)"
+  patterns: ["esophagogastroduodenoscopy", "upper gastrointestinal endoscopy", "^egd\\b", "esophagoscopy", "^endoscopy of upper"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+gerd:
+  source: "ASGE-GERD (restricted to Conditions, as in the chest pain file)"
+  patterns: ["gastroesophageal reflux", "gastro-esophageal reflux", "heartburn", "reflux esophagitis", "erosive esophagitis"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+barrett_esophagus:
+  source: "ASGE-GERD: Barrett's esophagus risk factors and surveillance"
+  patterns: ["barrett"]
+  vocabularies: ["SNOMED"]
+  domain: "Condition"
+hiatal_hernia_antireflux:
+  source: "ASGE-GERD: hiatal hernia, fundoplication, TIF, sleeve gastrectomy"
+  patterns: ["hiatal hernia", "hiatus hernia", "fundoplication", "sleeve gastrectomy"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  exclude: ["congenital"]
+ppi_h2:
+  source: "ASGE-GERD: PPIs at the lowest dose for the shortest duration (same list as the chest pain file)"
+  patterns: ["omeprazole", "esomeprazole", "pantoprazole", "lansoprazole", "rabeprazole", "famotidine", "ranitidine", "cimetidine"]
+  vocabularies: ["RxNorm"]
+  domain: "Drug"
+
+# ---- 7. Preventive care (utilisation context: who is screened for what) ----
+breast_cancer_screening:
+  source: "Utilisation context shared with the mammography cohort"
+  patterns: ["^screening mammography", "digital breast tomosynthesis"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Procedure"
+cervical_screening:
+  patterns: ["papanicolaou", "pap smear", "screening cytopathology", "^cytopathology, cervical", "human papillomavirus"]
+  vocabularies: ["SNOMED", "LOINC", "CPT4", "HCPCS"]
+cbc:
+  patterns: ["^complete blood count", "^blood count"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Measurement"
+  exclude: ["reticulocyte"]
+chemistry_panel:
+  patterns: ["^comprehensive metabolic panel", "^basic metabolic panel"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  domain: "Measurement"
