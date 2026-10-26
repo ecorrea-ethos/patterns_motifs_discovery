@@ -5,6 +5,7 @@
  "wordmark": "Ethos",
  "inject": {
   "rows": "inject/rows.json",
-  "photo": "inject/photo.json"
+  "photo": "inject/photo.json",
+  "preds": "inject/preds.json"
  }
 }

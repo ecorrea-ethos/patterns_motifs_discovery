@@ -27,6 +27,11 @@ h1{text-wrap:balance;font-family:var(--font-display);font-weight:var(--w-display
 .dark,.hero,.divider{color:var(--ink-on-dark)}
 .dark{background:var(--bg-dark)}
 .dark .kicker{color:var(--accent-on-dark)} .dark .lede{color:var(--ink-2-on-dark)} .dark .foot{color:var(--ink-3-on-dark)}
+/* room: one open question for the audience, a band above the footnote; the graphic must end above y 860 */
+.room{position:absolute;left:var(--margin-x);right:var(--margin-x);bottom:154px;display:flex;align-items:center;gap:26px;padding:14px 32px;border-radius:var(--radius-card);background:var(--accent-tint);color:var(--ink);font-size:var(--fs-label);line-height:1.2}
+.room.big{bottom:70px;gap:32px;padding:20px 40px;font-size:var(--fs-title2);line-height:1.22}
+.room.big b{font-size:var(--fs-label)}
+.room b{flex:none;font-size:var(--fs-foot);font-weight:var(--w-strong);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--accent-ink)}
 .dark .chip{background:color-mix(in srgb, var(--positive-on-dark) 22%, transparent);color:var(--positive-on-dark)}
 .dark .chip.estimate{background:color-mix(in srgb, var(--caution-on-dark) 22%, transparent);color:var(--caution-on-dark)}
 /* hero: cover and closing */

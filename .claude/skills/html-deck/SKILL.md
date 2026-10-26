@@ -16,7 +16,7 @@ Why this shape: a deck that physicians and underwriters must *use* needs graphic
 | `assets/engine/` | The ENGINE, topic-free: head, theme tokens, base CSS, sprites (icons, logo), chrome, helpers, builder library, boot, `?check`. Never edit it for one deck. |
 | `assets/brands/ethos/` | Ethos preset: `brand.css` (the BRAND SLOT block) and `logo.svgfrag`. `neutral/` is the placeholder logo. |
 | `assets/starter/` | Smallest working deck (5 slides, fictional, all numbers illustrative). Copy it to begin. |
-| `assets/example-chest-pain/` | Worked example: 26 slides for physicians and underwriters, with its own `builders.js`, injected rows and the script that built them. Read it to see the patterns. |
+| `assets/example-chest-pain/` | Worked example: 29 slides for physicians and underwriters (a working session with open questions), with its own `builders.js`, injected tables and the scripts that built them. Read it to see the patterns. |
 | `scripts/assemble.py` | Concatenates engine + a deck folder into the one HTML file. |
 | `references/engine.md` | Contracts: file layout, DATA schema, `{{ }}` binding, builder catalogue and data shapes, slide kinds, flags, how to add a builder, gotchas. Read before writing slides. |
 | `references/spec.md` | The full design specification (the original prompt, v1): theme rules, chart grammar, narrative rules, geometry, acceptance checklist. Read before the art-director pass. |
@@ -56,6 +56,7 @@ Why this shape: a deck that physicians and underwriters must *use* needs graphic
 
 - **Abbreviations: full term first, abbreviation in brackets after it** ("complete blood count (CBC)", never "CBC (complete blood count)"), in slides, notes and aria-labels. After building, scan for stragglers: `grep -noE "\b[A-Z]{2,}[0-9-]*\b" slides/<name>/slides.html slides/<name>/data.js | sort -t: -k3 -u`. Code identifiers that are the subject (ICD-10 codes such as R07.89) are fine.
 - Titles are claims of at most about 70 characters, two lines at most; the lede is exactly one line (about 105 characters). Say "we", not "you", in notes.
+- For a working session (the audience is asked to decide what is missing, not to hear results), end content slides with a room band (`<p class="room">`, engine.md section 3): one open question each, never leading. Gather the gaps on one slide with evidence and a question per row, and rank nothing, so the room does.
 - Notes are spoken, first person plural, 40 to 150 words on content slides, one sentence on dividers. Each carries the caveat and the hand-off to the next slide; the cover note lists the keys.
 - Define each new term in a card the first time it appears. Say what a number is not ("elapsed time, not effort", "care delivered, not diagnosis").
 - Estimates start with `≈`, use the caution color, show their formula in the footnote, and the notes say "estimate" aloud. Illustrative data keeps its label on the slide.

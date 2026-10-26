@@ -24,9 +24,9 @@ function decorate() {
   slides.forEach((s, i) => {
     const key = s.dataset.d || (s.querySelector('svg[data-d]') || {}).dataset?.d, ds = DATA[key], kind = ds && ds.kind;
     if (kind && kind !== 'concept' && s.dataset.chip !== 'none') { const c = document.createElement('div'); c.className = 'chip ' + kind; c.textContent = KIND[kind]; s.append(c); }
-    const fp = ds && s.dataset.chip !== 'none' && footParts(ds);
+    const bare = s.dataset.foot === 'none', fp = ds && !bare && s.dataset.chip !== 'none' && footParts(ds);
     if (fp && (fp.left || fp.right)) { const f = document.createElement('div'); f.className = 'fn'; ['left', 'right'].forEach(k => { const sp = document.createElement('span'); sp.textContent = fp[k]; f.append(sp); }); s.append(f); }
-    if (!/\b(hero|divider)\b/.test(s.className)) { const f = document.createElement('div'); f.className = 'foot'; f.innerHTML = '<span></span><span></span>'; f.firstChild.textContent = DECK.name + ' | ' + s.dataset.sec; f.lastChild.textContent = i + 1; s.append(f); }
+    if (!bare && !/\b(hero|divider)\b/.test(s.className)) { const f = document.createElement('div'); f.className = 'foot'; f.innerHTML = '<span></span><span></span>'; f.firstChild.textContent = DECK.name + ' | ' + s.dataset.sec; f.lastChild.textContent = i + 1; s.append(f); }
   });
 }
 function renderAll() {

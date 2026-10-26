@@ -9,10 +9,10 @@ const label = (g, x, y, text, w, o = {}) => { const f = fit(text, w, { max: o.ma
 const caps = (g, x, y, text, fill, a) => T(g, x, y, text, { size: S.axis, w: W.strong, fill, ls: .12, caps: true, a });
 
 /* rankedBars: horizontal bars sorted by value, the first `top` highlighted, optional reference line and a callout card */
-G.meta.rankedBars = { use: 'compare a few categories on one measure; the claim is that one or two lead', data: 'values.rows[{k, l?, v, hi?}], optional values.bar', limits: '2 to 8 rows', notes: 'o: head, note[], top, together (word before the summed share), scale, ref, refLabel, fmt' };
+G.meta.rankedBars = { use: 'compare a few categories on one measure; the claim is that one or two lead', data: 'values.rows[{k, l?, v, hi?}], optional values.bar', limits: '2 to 8 rows', notes: 'o: head, note[], top (rows in accent, default 1, 0 for none; r.hi still marks single rows), together (word before the summed share), scale, ref, refLabel, fmt, pitch (row spacing in px, default min(104, 520 / rows); 60 keeps 7 rows above y 860 for a room band)' };
 G.rankedBars = function (svg, ds, o) {
-  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows, fm = F[o.fmt || 'pct1'], top = o.top || 1;
-  const bx = 600, bw = 520, y0 = 410, pitch = Math.min(104, 520 / rows.length), sc = o.scale || Math.max(...rows.map(r => r.v)) * 1.06, X = v => bx + v / sc * bw;
+  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows, fm = F[o.fmt || 'pct1'], top = o.top === undefined ? 1 : o.top;
+  const bx = 600, bw = 520, y0 = 410, pitch = o.pitch || Math.min(104, 520 / rows.length), sc = o.scale || Math.max(...rows.map(r => r.v)) * 1.06, X = v => bx + v / sc * bw;
   if (o.head) caps(svg, ZONE.x0, 366, o.head, P.ink3);
   Ln(svg, bx, y0 - 14, bx, y0 + rows.length * pitch - 10, { stroke: P.lineStrong, sw: 2 });
   rows.forEach((r, i) => {

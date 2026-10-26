@@ -25,8 +25,8 @@ const DATA = {
       { t: 'Sequences', d: 'Ordered steps around chest pain, top {{cohort.perPattern}} per pattern, validated on unseen halves', i: 'branch', hot: true, art: 'sequence' },
       { t: 'Literature', d: 'A language model searches PubMed for published support', i: 'search', art: 'pubmed' }] } },
   terms: { id: 'terms', title: 'Terms', unit: '', kind: 'concept', values: { cards: [
-    { t: 'Care pattern', pos: 'noun', d: 'A group of codes that tend to appear together in the same applicants\' records.', k: 'Describes care delivered, not diagnosis.', i: 'layers' },
-    { t: 'Sequence', pos: 'noun', d: 'Codes in the order they appear around chest pain. We keep the top {{cohort.perPattern}} per pattern.', k: 'Same-day steps have no true order.', i: 'branch' },
+    { t: 'Care pattern', pos: 'noun', d: 'A group of standardized codes (SNOMED) that tend to appear together in the same applicants\' records.', k: 'Describes care delivered, not diagnosis.', i: 'layers' },
+    { t: 'Sequence', pos: 'noun', d: 'SNOMED codes in the order they appear around chest pain. We keep the top {{cohort.perPattern}} per pattern.', k: 'Same-day steps have no true order.', i: 'branch' },
     { t: 'Times as common', pos: 'noun phrase', d: 'Share of the pattern\'s applicants with a sequence, divided by the share among everyone else.', k: 'Specific to a pattern, not necessarily important.', i: 'chart-bar' },
     { t: 'Validation', pos: 'noun', d: 'We re-test each sequence on a random half the pattern was not built from, {{cohort.heldRuns}} times.', k: 'Repeatable is not the same as clinically true.', i: 'refresh' }] } },
   patterns: { id: 'patterns', title: 'Care patterns, entities and top sequences', unit: 'applicants', kind: 'counted', window: 'full history of each applicant',
@@ -53,6 +53,26 @@ const DATA = {
     { t: 'Many codes are generic', d: 'A blood draw, a general examination and a lipid panel appear at most check-ups. Troponin type is not shown.', k: 'Some events say little alone.', i: 'layers' },
     { t: 'Same-day order is a rule', d: 'Claims carry dates, not times. {{limits.sameDay}} of {{limits.total}} sequences happen mostly on one day.', k: 'Read them as sets, not steps.', i: 'clock' },
     { t: 'Patterns are care, not diagnosis', d: 'We hold no confirmed cardiac outcome to test against. A missing code is not proof of absence.', k: 'Nothing here is validated against outcomes.', i: 'target' }] } },
+  preds: { id: 'preds', title: 'Care predicates', unit: 'predicates', kind: 'counted', window: 'one definition per predicate, shared by every pattern',
+    denominator: '{{preds.care}} care predicates; the chest pain entry rule is counted apart', exclusions: 'entry rule', source: 'chest_pain_all_patterns.md, codesets_v2.yaml',
+    formula: 'predicates named on the page, by family and by the patterns that cite them', values: /*INJECT:preds*/{} },
+  anatomy: { id: 'anatomy', title: 'Anatomy of a predicate', unit: '', kind: 'concept', values: { join: '→', top: 'Example: troponin present, one yes-or-no question', parts: [
+    { t: 'Code list', d: 'The troponin group holds {{preds.examples.troponin}} codes. Any one of them counts.', chips: ['Any troponin code'] },
+    { t: 'Time window', d: 'The event falls within {{rule.windowDays}} day of a chest pain event.', chips: ['Same day', 'Day before', 'Day after'] },
+    { t: 'Answer', d: 'Only true or false. The level, the test type and the reading are not recorded.', chips: ['True', 'False'] }] } },
+  cover: { id: 'cover', title: 'Guideline code groups behind the predicates', unit: 'code groups', kind: 'counted', window: 'the guideline code file, 2021 guideline',
+    denominator: '{{preds.guideline.groups}} code groups in the guideline code file', exclusions: 'two umbrella tags overlap the other groups', source: 'codesets_v2.yaml, chest_pain_all_patterns.md',
+    formula: 'groups a predicate draws on ÷ groups in the family', values: { rows: null } },
+  gaps: { id: 'gaps', title: 'Gaps between the predicates and a usable rule', unit: '', kind: 'counted', window: 'as stated in each row', denominator: 'each row states its own', exclusions: 'none',
+    source: 'chest_pain_all_patterns.md, codesets_v2.yaml, validation table', formula: '', values: { n: 8, cols: ['Gap', 'What the data show', 'Question for the room'], rows: [
+      { t: 'Entry rule', e: '{{icd.top2|pct0}} carry a nonspecific code. The guideline also lists dyspnea, palpitations and syncope; they do not enter.', q: 'Should dyspnea, palpitations or syncope open a pattern?' },
+      { t: 'One-day window', e: '{{preds.windowFit.out}} of {{preds.windowFit.total}} main events have a median more than a day from first chest pain.', q: 'Which patterns need a different window?' },
+      { t: 'Guideline coverage', e: 'Predicates draw on {{preds.guideline.used}} of {{preds.guideline.groups}} guideline code groups; no stress test or cardiac cause is among them.', q: 'Which missing group would you add first?' },
+      { t: 'Results not seen', e: 'A predicate sees that a test happened. Troponin level and type, and the electrocardiogram reading, are not in the data.', q: 'Is the test alone enough, or is its result needed?' },
+      { t: 'Shared predicates', e: '{{preds.reuse.multi|Word}} predicates serve several patterns; the electrocardiogram serves {{preds.reuse.max|word}} of the {{cohort.patterns|word}}.', q: 'Which shared predicates should never count alone?' },
+      { t: 'Draft thresholds', e: 'The {{rule.windowDays|word}}-day window and the {{rule.minEntities|word}}-event minimum are drafts. No rate is measured for any predicate or composite.', q: 'Are one day and three events sensible to start?' },
+      { t: 'Unstable patterns', e: 'All {{verdicts.unstable}} unstable sequences belong to two patterns: check-up care and women\'s health.', q: 'Is a check-up or women\'s health pattern meaningful here?' },
+      { t: 'No outcome label', e: 'No confirmed cardiac outcome is in the data, so nothing is tested against what happened next.', q: 'Which outcome would you test these against?' }] } },
   rule: { id: 'rule', title: 'From pattern to rule', unit: '', kind: 'draft', window: '', denominator: '', exclusions: '', source: 'Atypical Chest Pain - Insights report', formula: 'pattern rule = chest pain AND entities rule AND sequence rule',
     values: { legend: "Each box at the bottom is one yes-or-no question about an applicant's records.", windowDays: 1, minEntities: 3, entityCount: 4, sequences: 3, top: 'Emergency work-up rule: true when all three parts are true', parts: [
       { t: 'Chest pain present', d: 'At least one chest pain event', chips: ['Chest pain diagnosis'] },
@@ -63,16 +83,24 @@ const DATA = {
   asks: { id: 'asks', title: 'Questions', unit: '', kind: 'concept', values: { rows: [
     { q: 'Which patterns describe a real cardiac work-up, and which are routine care that only sits next to chest pain?', t: 'Patterns' },
     { q: 'Does the order of steps matter clinically, or is it a same-day artifact?', t: 'Sequences' },
-    { q: 'Which single events carry clinical weight alone, and which are generic?', t: 'Events' },
-    { q: 'What is missing from a code that you would need: a result, a test type, a severity?', t: 'Gaps' },
-    { q: 'Are the draft settings sensible: a one-day window and three or more events?', t: 'Settings' }] } }
+    { q: 'Which predicates carry clinical weight alone, and which are too generic to count by themselves?', t: 'Predicates' },
+    { q: 'Is chest pain alone the right way in, and is a one-day window the right window?', t: 'Entry and window' },
+    { q: 'What would you add first: a result, a test type, or a guideline group?', t: 'Missing detail' }] } }
 };
 DATA.timing.values.rows = DATA.patterns.values.rows;
+DATA.cover.values.rows = DATA.preds.values.guideline.families.map(f => ({ k: f.k, l: f.used + ' of ' + f.total + ' groups', v: f.used / f.total, hi: f.k === 'Cardiac causes' || f.k === 'Test ladder' }));
 
 /* data checks run by ?check: each returns '' when fine or one issue sentence */
 DECK.checks = [
   () => { const V = DATA.verdicts.values, all = DATA.patterns.values.rows.flatMap(r => r.seqs), tally = k => all.filter(s => s.verdict === k).length;
     return tally('Solid') !== V.solid || tally('Suggestive') !== V.suggestive || tally('Unstable') !== V.unstable || all.length !== V.total || V.solid + V.suggestive !== V.hold ? 'data: verdict tallies do not match the 24 sequences' : ''; },
   () => DATA.patterns.values.rows.flatMap(r => r.seqs).filter(s => s.order === 'same-day').length !== DATA.limits.values.sameDay ? 'data: same-day count does not match' : '',
-  () => DATA.patterns.values.rows.reduce((a, r) => a + r.n, 0) !== DATA.cohort.values.n ? 'data: pattern sizes do not add up to the cohort' : ''
+  () => DATA.patterns.values.rows.reduce((a, r) => a + r.n, 0) !== DATA.cohort.values.n ? 'data: pattern sizes do not add up to the cohort' : '',
+  () => { const V = DATA.preds.values, items = V.families.flatMap(f => f.items);
+    return V.families.reduce((a, f) => a + f.n, 0) !== V.care || items.length !== V.care || V.reuse.single + V.reuse.multi !== V.care || V.reuse.rows.length !== V.reuse.multi ? 'data: predicate counts do not add up' : ''; },
+  () => { const W = DATA.preds.values.windowFit, rows = DATA.patterns.values.rows, out = rows.reduce((a, r) => a + r.ents.filter(e => Math.abs(e.med) > DATA.rule.values.windowDays).length, 0), tot = rows.reduce((a, r) => a + r.ents.length, 0);
+    return W.rows.reduce((a, r) => a + r.out, 0) !== W.out || W.rows.reduce((a, r) => a + r.of, 0) !== W.total ? 'data: window-fit rows do not add up' : out !== W.out || tot !== W.total ? 'data: window-fit count ' + W.out + ' of ' + W.total + ' differs from the timing dots, ' + out + ' of ' + tot : ''; },
+  () => { const G = DATA.preds.values.guideline; return G.families.reduce((a, f) => a + f.total, 0) !== G.groups || G.families.reduce((a, f) => a + f.used, 0) !== G.used ? 'data: guideline group counts do not add up' : ''; },
+  () => { const ids = new Set(DATA.patterns.values.rows.filter(r => r.seqs.some(s => s.verdict === 'Unstable')).map(r => r.id)); return [...ids].sort().join() !== 'c0,c2' ? 'data: the gap row on unstable patterns names c0 and c2 but the data say ' + [...ids].sort().join() : ''; },
+  () => DATA.gaps.values.rows.length !== DATA.gaps.values.n ? 'data: gap count does not match its rows' : ''
 ];

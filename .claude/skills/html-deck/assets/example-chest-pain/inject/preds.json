@@ -1,0 +1,451 @@
+{
+ "care": 40,
+ "families": [
+  {
+   "id": "dx",
+   "name": "Diagnoses",
+   "n": 6,
+   "items": [
+    {
+     "k": "Hyperlipidemia",
+     "pats": [
+      "c0"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Acid reflux",
+     "pats": [
+      "c4"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Low back pain",
+     "pats": [
+      "c5"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Cough",
+     "pats": [
+      "c7"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Upper respiratory infection",
+     "pats": [
+      "c7"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Sore throat (pharyngitis)",
+     "pats": [
+      "c7"
+     ],
+     "n": 1
+    }
+   ]
+  },
+  {
+   "id": "lab",
+   "name": "Lab tests",
+   "n": 17,
+   "items": [
+    {
+     "k": "Troponin test",
+     "pats": [
+      "c3"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Lipase test",
+     "pats": [
+      "c3"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Lipid panel",
+     "pats": [
+      "c0",
+      "c6"
+     ],
+     "n": 2
+    },
+    {
+     "k": "Blood draw",
+     "pats": [
+      "c0",
+      "c2"
+     ],
+     "n": 2
+    },
+    {
+     "k": "Comprehensive metabolic panel",
+     "pats": [
+      "c0",
+      "c3"
+     ],
+     "n": 2
+    },
+    {
+     "k": "Complete blood count",
+     "pats": [
+      "c2",
+      "c3"
+     ],
+     "n": 2
+    },
+    {
+     "k": "Hemoglobin A1c test",
+     "pats": [
+      "c6"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Vitamin B12 test",
+     "pats": [
+      "c6"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Vitamin D test",
+     "pats": [
+      "c6"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Free thyroxine test",
+     "pats": [
+      "c6"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Iron test",
+     "pats": [
+      "c6"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Ferritin test",
+     "pats": [
+      "c6"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Urine pregnancy test",
+     "pats": [
+      "c2"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Infection test (DNA or RNA)",
+     "pats": [
+      "c2"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Cervical cytology",
+     "pats": [
+      "c2"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Rapid antigen test",
+     "pats": [
+      "c7"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Tissue pathology exam",
+     "pats": [
+      "c4"
+     ],
+     "n": 1
+    }
+   ]
+  },
+  {
+   "id": "proc",
+   "name": "Procedures, imaging, and visits",
+   "n": 12,
+   "items": [
+    {
+     "k": "Electrocardiogram",
+     "pats": [
+      "c0",
+      "c1",
+      "c2",
+      "c3",
+      "c6",
+      "c7"
+     ],
+     "n": 6
+    },
+    {
+     "k": "Chest X-ray",
+     "pats": [
+      "c3"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Intravenous push",
+     "pats": [
+      "c3"
+     ],
+     "n": 1
+    },
+    {
+     "k": "General examination",
+     "pats": [
+      "c0"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Gynecologic examination",
+     "pats": [
+      "c2"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Periodic preventive visit",
+     "pats": [
+      "c4"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Colon cancer screening",
+     "pats": [
+      "c4"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Upper endoscopy with biopsy",
+     "pats": [
+      "c4"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Therapeutic procedure",
+     "pats": [
+      "c5"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Therapeutic exercise",
+     "pats": [
+      "c5"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Manual therapy",
+     "pats": [
+      "c5"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Therapeutic activities",
+     "pats": [
+      "c5"
+     ],
+     "n": 1
+    }
+   ]
+  },
+  {
+   "id": "drug",
+   "name": "Drugs",
+   "n": 5,
+   "items": [
+    {
+     "k": "Methylprednisolone",
+     "pats": [
+      "c1"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Amoxicillin with clavulanate",
+     "pats": [
+      "c1"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Azithromycin",
+     "pats": [
+      "c1"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Acid-lowering drug",
+     "pats": [
+      "c1"
+     ],
+     "n": 1
+    },
+    {
+     "k": "Prednisone",
+     "pats": [
+      "c1"
+     ],
+     "n": 1
+    }
+   ]
+  }
+ ],
+ "reuse": {
+  "single": 35,
+  "multi": 5,
+  "max": 6,
+  "maxName": "Electrocardiogram",
+  "rows": [
+   {
+    "k": "Electrocardiogram",
+    "n": 6
+   },
+   {
+    "k": "Blood draw",
+    "n": 2
+   },
+   {
+    "k": "Complete blood count",
+    "n": 2
+   },
+   {
+    "k": "Comprehensive metabolic panel",
+    "n": 2
+   },
+   {
+    "k": "Lipid panel",
+    "n": 2
+   }
+  ]
+ },
+ "windowFit": {
+  "out": 27,
+  "total": 40,
+  "rows": [
+   {
+    "id": "c0",
+    "out": 3,
+    "of": 5
+   },
+   {
+    "id": "c1",
+    "out": 5,
+    "of": 5
+   },
+   {
+    "id": "c2",
+    "out": 5,
+    "of": 5
+   },
+   {
+    "id": "c3",
+    "out": 0,
+    "of": 5
+   },
+   {
+    "id": "c4",
+    "out": 4,
+    "of": 5
+   },
+   {
+    "id": "c5",
+    "out": 5,
+    "of": 5
+   },
+   {
+    "id": "c6",
+    "out": 4,
+    "of": 5
+   },
+   {
+    "id": "c7",
+    "out": 1,
+    "of": 5
+   }
+  ]
+ },
+ "guideline": {
+  "groups": 70,
+  "used": 8,
+  "usedNames": [
+   "chest_pain",
+   "chest_xray",
+   "ekg",
+   "gerd",
+   "hba1c",
+   "hyperlipidemia",
+   "ppi_h2",
+   "troponin"
+  ],
+  "families": [
+   {
+    "k": "Chest pain and equivalents",
+    "total": 5,
+    "used": 1
+   },
+   {
+    "k": "Test ladder",
+    "total": 19,
+    "used": 3
+   },
+   {
+    "k": "Cardiac causes",
+    "total": 12,
+    "used": 0
+   },
+   {
+    "k": "Noncardiac causes",
+    "total": 14,
+    "used": 1
+   },
+   {
+    "k": "Risk factors and history",
+    "total": 8,
+    "used": 2
+   },
+   {
+    "k": "Therapy",
+    "total": 10,
+    "used": 1
+   },
+   {
+    "k": "Umbrella tags",
+    "total": 2,
+    "used": 0
+   }
+  ]
+ },
+ "examples": {
+  "troponin": 2,
+  "ecg": 5
+ }
+}

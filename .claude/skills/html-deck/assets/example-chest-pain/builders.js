@@ -82,11 +82,12 @@ G.seqStrip = function (svg, ds, o) {
 };
 
 /* timeline: dot plot of median days against an anchor event, one row per group; zero is the anchor */
-G.meta.timeline = { use: 'when events happen relative to an anchor, across groups', data: 'values.rows[{id, name, ents[{k, med}]}]', limits: '4 to 10 rows, 3 to 6 dots', notes: 'compressed (symlog) axis; o.highlight/o.also rows in accent' };
+G.meta.timeline = { use: 'when events happen relative to an anchor, across groups', data: 'values.rows[{id, name, ents[{k, med}]}]', limits: '4 to 10 rows, 3 to 6 dots', notes: 'compressed (symlog) axis; o.highlight/o.also rows in accent; o.pitch row spacing (default 64); o.window shades the draft window around day zero (width from DATA.rule.values.windowDays)' };
 G.timeline = function (svg, ds, o) {
-  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows, x0 = 600, x1 = 1740, s0 = symlog(-250), s1 = symlog(190), X = d => lin(s0, s1, x0, x1)(symlog(d)), y0 = 384, pitch = 64, ticks = [-180, -90, -30, 0, 30, 90, 180];
+  svg.textContent = ''; const P = pal(svg), rows = ds.values.rows, x0 = 600, x1 = 1740, s0 = symlog(-250), s1 = symlog(190), X = d => lin(s0, s1, x0, x1)(symlog(d)), y0 = 384, pitch = o.pitch || 64, ticks = [-180, -90, -30, 0, 30, 90, 180], win = o.window ? DATA.rule.values.windowDays : 0;
+  if (win) A(R(svg, X(-win), y0 - 10, X(win) - X(-win), rows.length * pitch + 2, { fill: P.accentTint, stroke: P.accent, sw: 2 }), 'fade');
   ticks.forEach(t => { Ln(svg, X(t), y0 - 10, X(t), y0 + rows.length * pitch - 8, { stroke: t ? P.line : P.ink2, sw: t ? 1.5 : 2, dash: t ? undefined : '2 8' }); T(svg, X(t), y0 + rows.length * pitch + 26, t ? F.delta(t) : '0', { size: S.axis, fill: P.ink3, a: 'middle' }); });
-  T(svg, X(0), y0 - 20, 'first chest pain', { size: S.axis, w: W.strong, fill: P.ink2, a: 'middle' });
+  T(svg, X(0), y0 - 20, win ? 'first chest pain · shaded: ' + F.word(win) + '-day window' : 'first chest pain', { size: S.axis, w: W.strong, fill: P.ink2, a: 'middle' });
   T(svg, ZONE.x0, y0 + rows.length * pitch + 26, 'Days (compressed scale)', { size: S.axis, fill: P.ink3 });
   rows.forEach((r, i) => {
     const cy = y0 + i * pitch + pitch / 2 - 10, hot = i === o.highlight || i === o.also, g = Gr(svg);
@@ -142,3 +143,38 @@ G.bundleCard = function (svg, ds, o) {
     T(svg, 1210 + w + 14, y + 153, s.order === 'same-day' ? 'same-day steps' : 'order shows in dates', { size: S.axis, fill: P.ink3 });
   });
 };
+
+/* chipField: an inventory in labelled panels; a chip's weight shows how many groups use it */
+G.meta.chipField = { use: 'a whole inventory on one page, grouped, with reuse visible', data: 'values.families[{id, name, n, items[{k, n}]}]; ids lab, proc left to right on top, dx, drug below', limits: 'about 40 chips in 4 panels, names up to 30 characters', notes: 'chips with n >= 2 carry a times-n tag and the accent tint; the most used is filled; ends above y 860' };
+G.chipField = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), fam = ds.values.families, by = id => fam.find(f => f.id === id), top = Math.max(...fam.flatMap(f => f.items.map(i => i.n)));
+  const PW = 805, GAP = 40, CH = 38, PITCH = 46, SZ = S.axis, X = [ZONE.x0, ZONE.x0 + PW + GAP];
+  const flow = f => { let cx = 0, cy = 0; const out = f.items.map(it => { const txt = it.k + (it.n > 1 ? '  ×' + it.n : ''), w = Math.ceil(measure(txt, SZ, W.strong)) + 30;
+      if (cx + w > PW) { cx = 0; cy += PITCH; } const r = { it, txt, w, x: cx, y: cy }; cx += w + 10; return r; }); return { out, h: cy + CH }; };
+  const panel = (f, x, y) => { const L = flow(f); caps(svg, x, y, f.name + ' · ' + f.n, P.ink3); Ln(svg, x, y + 14, x + PW, y + 14, { stroke: P.line, sw: 2 });
+    L.out.forEach(c => { const hot = c.it.n === top, mid = c.it.n > 1, cy = y + 34 + c.y;
+      A(R(svg, x + c.x, cy, c.w, CH, { rx: CH / 2, fill: hot ? P.accent : mid ? P.accentTint : P.surface2, stroke: hot || mid ? P.accent : P.line, sw: 2 }), 'fade');
+      T(svg, x + c.x + 15, cy + 26, c.txt, { size: SZ, w: W.strong, fill: hot ? P.accentContrast : mid ? P.accentInk : P.ink }); });
+    return 34 + L.h; };
+  const y1 = 346, h1 = Math.max(panel(by('lab'), X[0], y1), panel(by('proc'), X[1], y1)), y2 = y1 + h1 + 46;
+  panel(by('dx'), X[0], y2); panel(by('drug'), X[1], y2);
+};
+
+/* gapTable: numbered findings with the evidence and the question for the room side by side */
+G.meta.gapTable = { use: 'a numbered list of findings with the evidence and one open question each', data: 'values.cols[3], values.rows[{t, e, q}]', limits: '5 to 8 rows; evidence about 120 characters, question about 60', notes: 'each cell fits in two lines; the question column is tinted' };
+G.gapTable = function (svg, ds) {
+  svg.textContent = ''; const P = pal(svg), v = ds.values, rows = v.rows, gx = 35, cw = [372, 700, 508], xs = [ZONE.x0, ZONE.x0 + cw[0] + gx, ZONE.x0 + cw[0] + cw[1] + 2 * gx], pitch = Math.min(70, 540 / rows.length), y0 = 372;
+  v.cols.forEach((c, i) => caps(svg, xs[i] + (i === 2 ? 20 : 0), 344, c, P.ink3)); Ln(svg, ZONE.x0, 358, ZONE.x1, 358, { stroke: P.lineStrong, sw: 2 });
+  rows.forEach((r, i) => {
+    const y = y0 + i * pitch, cy = y + pitch / 2, g = Gr(svg);
+    if (i) Ln(g, ZONE.x0, y, ZONE.x1, y, { stroke: P.line, sw: 1.5 });
+    R(g, xs[2], y + 5, cw[2], pitch - 10, { rx: SH.radiusInner, fill: P.accentTint });
+    Ci(g, ZONE.x0 + 20, cy, 20, { fill: P.accent }); T(g, ZONE.x0 + 20, cy + 8, String(i + 1), { size: S.label, w: W.strong, fill: P.accentContrast, a: 'middle' });
+    const cell = (x, w, text, max, wt, fill) => { const f = fit(resolve(text), w, { max, min: 20, lines: 2, w: wt }), lh = f.size * 1.2; TL(g, x, cy + f.size * .32 - (f.lines.length - 1) * lh / 2, f.lines, { size: f.size, w: wt, fill, lh }); };
+    cell(ZONE.x0 + 54, cw[0] - 54, r.t, S.body, W.strong, P.ink);
+    cell(xs[1], cw[1], r.e, S.label, W.body, P.ink);
+    cell(xs[2] + 20, cw[2] - 40, r.q, S.label, W.strong, P.accentInk);
+    A(g, 'fade');
+  });
+};
+
