@@ -73,6 +73,15 @@ const DATA = {
       { t: 'Draft thresholds', e: 'The {{rule.windowDays|word}}-day window and the {{rule.minEntities|word}}-event minimum are drafts. No rate is measured for any predicate or composite.', q: 'Are one day and three events sensible to start?' },
       { t: 'Unstable patterns', e: 'All {{verdicts.unstable}} unstable sequences belong to two patterns: check-up care and women\'s health.', q: 'Is a check-up or women\'s health pattern meaningful here?' },
       { t: 'No outcome label', e: 'No confirmed cardiac outcome is in the data, so nothing is tested against what happened next.', q: 'Which outcome would you test these against?' }] } },
+  biases: { id: 'biases', title: 'Biases that can shape the patterns', unit: '', kind: 'concept', values: { n: 8, epi: 5, stat: 3, cols: ['Bias', 'How it can show up here', 'How we read the results'], rows: [
+    { g: 'Epidemiological', t: 'Selection', e: 'Everyone here applied for life insurance and has a chest pain code. Applicants with serious disease may never have applied.', q: 'Pattern sizes describe applicants, not the population.' },
+    { g: 'Epidemiological', t: 'Detection', e: 'More care leaves more codes. A check-up pattern may show who sees a doctor often, not who is sick.', q: 'A pattern can reflect access to care.' },
+    { g: 'Epidemiological', t: 'Misclassification', e: 'A code shows a test, not its result, and {{icd.top2|pct0}} of applicants carry a nonspecific chest pain code.', q: 'Care delivered, not diagnosis.' },
+    { g: 'Epidemiological', t: 'Confounding by indication', e: 'Tests follow the symptom. A troponin test is ordered because of chest pain, so a pattern may mirror what clinicians suspected.', q: 'A pattern is not evidence of a cardiac cause.' },
+    { g: 'Epidemiological', t: 'Incomplete records', e: 'Claims hold only billed care, and histories differ in length. A missing code is not proof of absence.', q: 'Shares depend on how fully we see each applicant.' },
+    { g: 'Statistical', t: 'Best of many', e: 'We kept the top {{cohort.perPattern}} sequences of each pattern by how common they are. The best of many looks better than it is.', q: 'Times as common is optimistic for chosen sequences.' },
+    { g: 'Statistical', t: 'Internal validation only', e: 'Validation re-tests {{cohort.heldRuns}} random halves of the same applicants. No new population and no outcome.', q: 'Repeatable is not the same as clinically true.' },
+    { g: 'Statistical', t: 'One pattern per applicant', e: 'Each applicant sits in the pattern that dominates their record, so mixed records are forced into one group.', q: 'Mixed care is shown as one pattern.' }] } },
   rule: { id: 'rule', title: 'From pattern to rule', unit: '', kind: 'draft', window: '', denominator: '', exclusions: '', source: 'Atypical Chest Pain - Insights report', formula: 'pattern rule = chest pain AND entities rule AND sequence rule',
     values: { legend: "Each box at the bottom is one yes-or-no question about an applicant's records.", windowDays: 1, minEntities: 3, entityCount: 4, sequences: 3, top: 'Emergency work-up rule: true when all three parts are true', parts: [
       { t: 'Chest pain present', d: 'At least one chest pain event', chips: ['Chest pain diagnosis'] },
@@ -102,5 +111,6 @@ DECK.checks = [
     return W.rows.reduce((a, r) => a + r.out, 0) !== W.out || W.rows.reduce((a, r) => a + r.of, 0) !== W.total ? 'data: window-fit rows do not add up' : out !== W.out || tot !== W.total ? 'data: window-fit count ' + W.out + ' of ' + W.total + ' differs from the timing dots, ' + out + ' of ' + tot : ''; },
   () => { const G = DATA.preds.values.guideline; return G.families.reduce((a, f) => a + f.total, 0) !== G.groups || G.families.reduce((a, f) => a + f.used, 0) !== G.used ? 'data: guideline group counts do not add up' : ''; },
   () => { const ids = new Set(DATA.patterns.values.rows.filter(r => r.seqs.some(s => s.verdict === 'Unstable')).map(r => r.id)); return [...ids].sort().join() !== 'c0,c2' ? 'data: the gap row on unstable patterns names c0 and c2 but the data say ' + [...ids].sort().join() : ''; },
-  () => DATA.gaps.values.rows.length !== DATA.gaps.values.n ? 'data: gap count does not match its rows' : ''
+  () => DATA.gaps.values.rows.length !== DATA.gaps.values.n ? 'data: gap count does not match its rows' : '',
+  () => { const B = DATA.biases.values, r = B.rows, k = g => r.filter(x => x.g === g).length; return r.length !== B.n || k('Epidemiological') !== B.epi || k('Statistical') !== B.stat ? 'data: bias counts do not match the rows' : ''; }
 ];

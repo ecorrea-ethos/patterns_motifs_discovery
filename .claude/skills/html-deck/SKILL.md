@@ -16,7 +16,7 @@ Why this shape: a deck that physicians and underwriters must *use* needs graphic
 | `assets/engine/` | The ENGINE, topic-free: head, theme tokens, base CSS, sprites (icons, logo), chrome, helpers, builder library, boot, `?check`. Never edit it for one deck. |
 | `assets/brands/ethos/` | Ethos preset: `brand.css` (the BRAND SLOT block) and `logo.svgfrag`. `neutral/` is the placeholder logo. |
 | `assets/starter/` | Smallest working deck (5 slides, fictional, all numbers illustrative). Copy it to begin. |
-| `assets/example-chest-pain/` | Worked example: 29 slides for physicians and underwriters (a working session with open questions), with its own `builders.js`, injected tables and the scripts that built them. Read it to see the patterns. |
+| `assets/example-chest-pain/` | Worked example: 30 slides for physicians and underwriters (a working session with open questions), with its own `builders.js`, injected tables and the scripts that built them. Read it to see the patterns. |
 | `scripts/assemble.py` | Concatenates engine + a deck folder into the one HTML file. |
 | `references/engine.md` | Contracts: file layout, DATA schema, `{{ }}` binding, builder catalogue and data shapes, slide kinds, flags, how to add a builder, gotchas. Read before writing slides. |
 | `references/spec.md` | The full design specification (the original prompt, v1): theme rules, chart grammar, narrative rules, geometry, acceptance checklist. Read before the art-director pass. |

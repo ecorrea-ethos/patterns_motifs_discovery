@@ -161,7 +161,7 @@ G.chipField = function (svg, ds) {
 };
 
 /* gapTable: numbered findings with the evidence and the question for the room side by side */
-G.meta.gapTable = { use: 'a numbered list of findings with the evidence and one open question each', data: 'values.cols[3], values.rows[{t, e, q}]', limits: '5 to 8 rows; evidence about 120 characters, question about 60', notes: 'each cell fits in two lines; the question column is tinted' };
+G.meta.gapTable = { use: 'a numbered list of findings with the evidence and one open question each', data: 'values.cols[3], values.rows[{t, e, q}]', limits: '5 to 8 rows; evidence about 120 characters, question about 60', notes: 'each cell fits in two lines; the last column is tinted; optional rows[].g puts a small group label under a one-line title' };
 G.gapTable = function (svg, ds) {
   svg.textContent = ''; const P = pal(svg), v = ds.values, rows = v.rows, gx = 35, cw = [372, 700, 508], xs = [ZONE.x0, ZONE.x0 + cw[0] + gx, ZONE.x0 + cw[0] + cw[1] + 2 * gx], pitch = Math.min(70, 540 / rows.length), y0 = 372;
   v.cols.forEach((c, i) => caps(svg, xs[i] + (i === 2 ? 20 : 0), 344, c, P.ink3)); Ln(svg, ZONE.x0, 358, ZONE.x1, 358, { stroke: P.lineStrong, sw: 2 });
@@ -170,8 +170,9 @@ G.gapTable = function (svg, ds) {
     if (i) Ln(g, ZONE.x0, y, ZONE.x1, y, { stroke: P.line, sw: 1.5 });
     R(g, xs[2], y + 5, cw[2], pitch - 10, { rx: SH.radiusInner, fill: P.accentTint });
     Ci(g, ZONE.x0 + 20, cy, 20, { fill: P.accent }); T(g, ZONE.x0 + 20, cy + 8, String(i + 1), { size: S.label, w: W.strong, fill: P.accentContrast, a: 'middle' });
-    const cell = (x, w, text, max, wt, fill) => { const f = fit(resolve(text), w, { max, min: 20, lines: 2, w: wt }), lh = f.size * 1.2; TL(g, x, cy + f.size * .32 - (f.lines.length - 1) * lh / 2, f.lines, { size: f.size, w: wt, fill, lh }); };
-    cell(ZONE.x0 + 54, cw[0] - 54, r.t, S.body, W.strong, P.ink);
+    const cell = (x, w, text, max, wt, fill, dy = 0) => { const f = fit(resolve(text), w, { max, min: 20, lines: 2, w: wt }), lh = f.size * 1.2; TL(g, x, cy + dy + f.size * .32 - (f.lines.length - 1) * lh / 2, f.lines, { size: f.size, w: wt, fill, lh }); };
+    if (r.g) caps(g, ZONE.x0 + 54, cy + 25, r.g, P.ink3);
+    cell(ZONE.x0 + 54, cw[0] - 54, r.t, S.body, W.strong, P.ink, r.g ? -12 : 0);
     cell(xs[1], cw[1], r.e, S.label, W.body, P.ink);
     cell(xs[2] + 20, cw[2] - 40, r.q, S.label, W.strong, P.accentInk);
     A(g, 'fade');

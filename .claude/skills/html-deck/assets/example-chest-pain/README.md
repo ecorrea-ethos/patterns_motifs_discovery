@@ -1,6 +1,6 @@
 # Worked example: chest pain as care patterns
 
-29 slides for physicians and underwriters (a working session on predicates and composites, decision-free): 16 main slides, an appendix divider, and 12 backup slides (stability, psychiatric timing, identical records, limitations, and one profile card for each of the eight care patterns). It is the deck this skill was extracted from. The live source is `slides/chest-pain/` (edit and rebuild there, output `slides/chest-pain-care-patterns.html`); this folder is a reference copy, so copy `slides.html`, `data.js` and `builders.js` back here after a change. It shows:
+30 slides for physicians and underwriters (a working session on predicates and composites, decision-free): 15 main slides, an appendix divider, and 14 backup slides (stability, validation, guideline coverage, psychiatric timing, identical records, limitations, biases, and one profile card for each of the eight care patterns). It is the deck this skill was extracted from. The live source is `slides/chest-pain/` (edit and rebuild there, output `slides/chest-pain-care-patterns.html`); this folder is a reference copy, so copy `slides.html`, `data.js` and `builders.js` back here after a change. It shows:
 
 - `deck.json`: Ethos brand, injected tables.
 - `slides.html`: every slide kind (cover, statement with a sentence and with a number, content, dark, divider, closing), 14 compositions, and the `.room` band (a label plus one line above the footnote: "For the room" with an open question on four slides, "Goal" on the first content slide) on five slides.
