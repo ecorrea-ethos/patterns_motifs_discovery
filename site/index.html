@@ -251,10 +251,19 @@ body.hp #help{display:flex}
   <svg class="full" viewBox="0 0 1920 1080" data-g="rankedBars" data-d="icd" data-o='{"head":"International Classification of Diseases, tenth revision (ICD-10) code","note":["The guideline flags dx_9487","for manual review. Chest pain","may be cardiac, musculoskeletal,","digestive or anxiety-related."],"top":2,"pitch":88}'
        role="img" aria-label="Horizontal bars: R07.89 other chest pain {{icd.rows.0.v|pct1}} and R07.9 chest pain unspecified {{icd.rows.1.v|pct1}} together make {{icd.top2|pct1}} of {{icd.n|int}} applicants; three smaller codes make the rest."></svg>
   <p class="room big"><b>Goal</b><span>We need you to tell us what each predicate and composite still needs, and which are clinically real.</span></p>
-  <aside class="notes">Here is the goal, up front: we need you to tell us what each predicate and composite still needs, and which are clinically real. A predicate is a yes-or-no question about an applicant's records, and a composite combines predicates into a care pattern. Nothing in this deck recommends an underwriting decision. Now the problem we started from. Two of the five chest pain codes, other chest pain and chest pain unspecified, carry {{icd.top2|pct0}} of applicants, and both are nonspecific. Chest pain can be cardiac, musculoskeletal, digestive or anxiety-related, and the code does not say which. This is the entry rule of every pattern: it records no type of pain, not exertional, not at rest, not atypical. The 2021 guideline advises against the word atypical, so we say chest pain. These shares come from an earlier extract of {{icd.n|int}} applicants; the rest of the talk uses {{cohort.n|int}}. Next, the method.</aside>
+  <aside class="notes">Here is the goal, up front: we need you to tell us what each predicate and composite still needs, and which are clinically real. A predicate is a yes-or-no question about an applicant's records, and a composite combines predicates into a care pattern. Nothing in this deck recommends an underwriting decision. Now the problem we started from. Two of the five chest pain codes, other chest pain and chest pain unspecified, carry {{icd.top2|pct0}} of applicants, and both are nonspecific. Chest pain can be cardiac, musculoskeletal, digestive or anxiety-related, and the code does not say which. This is the entry rule of every pattern: it records no type of pain, not exertional, not at rest, not atypical. The 2021 guideline advises against the word atypical, so we say chest pain. These shares come from an earlier extract of {{icd.n|int}} applicants; the rest of the talk uses {{cohort.n|int}}. Next, why a plain list of codes cannot tell these applicants apart.</aside>
 </section>
 
-<!-- 3 · method -->
+<!-- 3 · identical records -->
+<section class="slide" data-sec="The problem">
+  <div class="head"><div class="kicker">01 · The problem</div>
+    <h1>Two identical-looking records can end very differently.</h1>
+    <p class="lede">A bag of codes lists what was recorded, not the order or the timing of care.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="lanes" data-d="pair" role="img" aria-label="Two applicants share chest pain and an electrocardiogram; later one has an anxiety diagnosis and the other a troponin test."></svg>
+  <aside class="notes">Here is why order matters. Take two applicants whose records look the same: chest pain and an electrocardiogram. Later, one receives an anxiety diagnosis and the other gets a troponin test. A bag of codes cannot tell them apart. That is a limit of the representation, not of the algorithm, so we keep the order of care and look for patterns in it. This is a schematic of two records described in our report, not a rate. Next, how we find the patterns.</aside>
+</section>
+
+<!-- 4 · method -->
 <section class="slide" data-sec="How we find them">
   <div class="head"><div class="kicker">02 · How we find them</div>
     <h1>Six steps take a guideline and raw records to checked care patterns.</h1>
@@ -263,7 +272,7 @@ body.hp #help{display:flex}
   <aside class="notes">This is the whole method in six steps. First, a retrieval-augmented generation (RAG) language model reads the 2021 chest pain guideline of the American Heart Association and the American College of Cardiology and writes the code lists. Second, we take the {{cohort.n|int}} applicants with a chest pain code and pull their records from the Observational Medical Outcomes Partnership (OMOP) tables. Third, each applicant becomes a bag of codes. Fourth, non-negative matrix factorization (NMF) finds {{cohort.patterns}} care patterns, and we keep only those that survive re-runs. Fifth, we mine ordered sequences around chest pain and re-test them on unseen halves. Sixth, a language model searches PubMed for support; the literature can back an event but cannot test its order. Three data rules shape what you will see: visits are removed, refills are collapsed, and same-day steps follow a fixed order. Next, four terms.</aside>
 </section>
 
-<!-- 4 · terms -->
+<!-- 5 · terms -->
 <section class="slide" data-sec="How we find them">
   <div class="head"><div class="kicker">02 · How we find them</div>
     <h1>Four terms carry the whole talk.</h1>
@@ -272,7 +281,7 @@ body.hp #help{display:flex}
   <aside class="notes">Four terms, defined once. A care pattern is a group of standardized codes (SNOMED) that tend to appear together in the same applicants' records. A sequence is a list of SNOMED codes in the order they appear around chest pain; we keep the top {{cohort.perPattern}} per pattern. Times as common compares the share of a pattern's applicants who have a sequence with the share among everyone else. Validation re-tests a sequence on a random half it was not built from, {{cohort.heldRuns}} times. Each card ends with what the term does not mean. Next, what a predicate is.</aside>
 </section>
 
-<!-- 5 · anatomy of a predicate -->
+<!-- 6 · anatomy of a predicate -->
 <section class="slide" data-sec="The predicates">
   <div class="head"><div class="kicker">03 · The predicates</div>
     <h1>A predicate says a test happened, not what it found.</h1>
@@ -282,7 +291,7 @@ body.hp #help{display:flex}
   <aside class="notes">A predicate is the smallest building block. It asks one yes-or-no question of an applicant's records. Take troponin. The code list holds {{preds.examples.troponin}} codes, and any one counts. The event has to fall within {{rule.windowDays|word}} day of a chest pain event. The answer is true or false, nothing more. It does not say what the test found: the troponin level, whether the test was high-sensitivity or standard, and the reading of an electrocardiogram are not in the data. So a true predicate means care was delivered, not that anything was abnormal. Next, the whole set of predicates.</aside>
 </section>
 
-<!-- 6 · the predicate set -->
+<!-- 7 · the predicate set -->
 <section class="slide" data-sec="The predicates">
   <div class="head"><div class="kicker">03 · The predicates</div>
     <h1>Of {{preds.care}} care predicates, {{preds.reuse.single}} serve one pattern; the electrocardiogram serves {{preds.reuse.max|word}}.</h1>
@@ -292,7 +301,7 @@ body.hp #help{display:flex}
   <aside class="notes">This is the whole set, {{preds.care}} care predicates in four families: {{preds.families.0.n}} diagnoses, {{preds.families.1.n}} lab tests, {{preds.families.2.n}} procedures, imaging and visits, and {{preds.families.3.n}} drugs. Each has one definition that every pattern shares. {{preds.reuse.single}} serve a single pattern. {{preds.reuse.multi|Word}} serve more than one, and the electrocardiogram serves {{preds.reuse.max|word}}, mostly as a step in a sequence and not as a main event. A blood draw or a metabolic panel appears in routine care, so it says little alone. The chest pain entry rule sits outside this count. Next, whether the events sit inside the window.</aside>
 </section>
 
-<!-- 7 · window fit -->
+<!-- 8 · window fit -->
 <section class="slide" data-sec="The predicates">
   <div class="head"><div class="kicker">03 · The predicates</div>
     <h1>{{preds.windowFit.out}} of {{preds.windowFit.total}} main events fall outside a {{rule.windowDays|word}}-day window; the emergency work-up has none.</h1>
@@ -302,7 +311,7 @@ body.hp #help{display:flex}
   <aside class="notes">Each dot is one of a pattern's five main events, placed at the median number of days between the applicant's first chest pain and the first time the event appears. Zero is chest pain, and the shaded band is the {{rule.windowDays|word}}-day window the rules use. {{preds.windowFit.out}} of {{preds.windowFit.total}} events fall outside it, and only the emergency work-up has all five inside. Check-up labs, such as the lipid panel and the general examination, sit about {{timing.rows.0.ents.0.med|absmonths}} earlier, which is routine care and not a response to the symptom. We read the first occurrence only, and the rules test any chest pain event, so this is a guide and not the exact test. Next, the eight patterns, each one a composite of these predicates.</aside>
 </section>
 
-<!-- 8 · eight patterns -->
+<!-- 9 · eight patterns -->
 <section class="slide" data-sec="The composites">
   <div class="head"><div class="kicker">04 · The composites</div>
     <h1>{{cohort.patterns|Word}} care patterns cover all {{cohort.n|int}} applicants.</h1>
@@ -311,7 +320,7 @@ body.hp #help{display:flex}
   <aside class="notes">These are the eight patterns, and each one gets a composite: a rule that combines predicates. Each applicant is placed in the pattern that dominates their record, so the tiles add up to all {{cohort.n|int}} applicants. Check-up care is the largest at {{patterns.rows.0.pct|pct0}}. The acute emergency work-up, highlighted, is {{patterns.rows.3.pct|pct0}}, or {{patterns.rows.3.n|int}} applicants. The names are our wording, taken from each pattern's top codes, and they need a clinical read. These describe care delivered, not diagnosis. Next, the pattern that looks most like a cardiac work-up.</aside>
 </section>
 
-<!-- 9 · emergency work-up (dark) -->
+<!-- 10 · emergency work-up (dark) -->
 <section class="slide dark" data-sec="The composites">
   <div class="head"><div class="kicker">04 · The composites</div>
     <h1>One pattern looks like an emergency work-up.</h1>
@@ -320,7 +329,7 @@ body.hp #help{display:flex}
   <aside class="notes">This is the pattern clinicians should recognize. {{patterns.rows.3.n|int}} applicants sit here. Troponin appears in {{patterns.rows.3.ents.0.share|pct0}} of them and a chest X-ray in {{patterns.rows.3.ents.3.share|pct0}}. The top sequence runs chest pain, chest X-ray, troponin, then a comprehensive metabolic panel. {{patterns.rows.3.seqs.0.inB|pct0}} of the pattern follows it, against {{patterns.rows.3.seqs.0.out|pct0}} of everyone else. All three top sequences hold in validation, but all are same-day, so the order is a tie-break and not clock time. Next, how a pattern becomes a rule.</aside>
 </section>
 
-<!-- 10 · rule -->
+<!-- 11 · rule -->
 <section class="slide" data-sec="From pattern to rule">
   <div class="head"><div class="kicker">05 · From pattern to rule</div>
     <h1>Each pattern becomes one yes-or-no rule built from three parts.</h1>
@@ -329,7 +338,7 @@ body.hp #help{display:flex}
   <aside class="notes">To be usable, a pattern has to become a rule, which our page calls a composite. Each rule is a yes-or-no question with three parts: chest pain is present, at least {{rule.minEntities}} of the pattern's main events fall within {{rule.windowDays}} day of chest pain, and at least one of {{rule.sequences}} ordered sequences is present. For the emergency work-up the main events are troponin, intravenous push, lipase and chest X-ray. The window and the count are drafts. We have not calibrated them, and for several patterns the main events sit months before chest pain, so the window may not fit. That is one of your questions. Next, the gaps between these predicates and a usable rule.</aside>
 </section>
 
-<!-- 11 · the gaps -->
+<!-- 12 · the gaps -->
 <section class="slide" data-sec="The gaps">
   <div class="head"><div class="kicker">06 · The gaps</div>
     <h1>{{gaps.n|Word}} gaps stand between these predicates and a usable rule.</h1>
@@ -338,7 +347,7 @@ body.hp #help{display:flex}
   <aside class="notes">{{gaps.n|Word}} gaps, each taken from a slide we have just shown: the entry rule, the {{rule.windowDays|word}}-day window, how little of the guideline the predicates cover, the results a code cannot show, predicates that serve several patterns, thresholds that are only drafts, the patterns that do not hold in validation, and the missing outcome label. We have not ranked them. We would like the room to say which matter most and which are not problems at all. Each row ends with the question we would ask. Next, where underwriting sign-off comes in.</aside>
 </section>
 
-<!-- 12 · quadrant -->
+<!-- 13 · quadrant -->
 <section class="slide" data-sec="Where underwriting sign-off comes in?">
   <div class="head"><div class="kicker">07 · Where underwriting sign-off comes in?</div>
     <h1>Is it clinically real? Would it change what an underwriter looks at?</h1>
@@ -347,7 +356,7 @@ body.hp #help{display:flex}
   <aside class="notes">This is where we would like your help. For each pattern, two questions. Is it clinically real, or only a database correlation? And would it change what an underwriter looks at? We have left the grid empty on purpose, because placing the patterns ourselves would be our opinion and not your judgment. We can do it live, one pattern at a time, or you can take the page away. The backup pages in the appendix show each pattern's events and sequences. Next, five specific questions.</aside>
 </section>
 
-<!-- 13 · asks -->
+<!-- 14 · asks -->
 <section class="slide" data-sec="Where underwriting sign-off comes in?">
   <div class="head"><div class="kicker">07 · Where underwriting sign-off comes in?</div>
     <h1>Open discussion</h1>
@@ -356,7 +365,7 @@ body.hp #help{display:flex}
   <aside class="notes">Five questions. One: which patterns describe a real cardiac work-up, and which are routine care that only sits next to chest pain. Two: does the order of steps matter clinically, or is it a same-day artifact. Three: which predicates carry clinical weight alone, and which are too generic to count by themselves. Four: is chest pain alone the right way in, and is a {{rule.windowDays|word}}-day window the right window. Five: what would you add first, a result, a test type, or a guideline group. We would like to start from the gaps slide and stay on whichever you choose. Thank you.</aside>
 </section>
 
-<!-- 14 · closing -->
+<!-- 15 · closing -->
 <section class="slide hero close" data-sec="Closing">
   <svg class="motif" viewBox="0 0 1920 1080" aria-hidden="true" data-motif></svg>
   <div class="eyebrow">Thank you</div>
@@ -364,19 +373,19 @@ body.hp #help{display:flex}
   <div class="rule" style="top:520px"></div>
   <div class="people" style="top:600px" data-people></div>
   <svg class="logo" viewBox="0 0 720 139" role="img" aria-label="Ethos"><use href="#logo-word"/></svg>
-  <aside class="notes">Thank you. We have about twenty minutes for questions. The appendix has the stability check, the validation verdicts, the guideline coverage, the psychiatric timing, the identical-records example, the four limits of a code, the statistical and epidemiological biases, and one page for each of the eight patterns if you want to look at the events and sequences behind any of them.</aside>
+  <aside class="notes">Thank you. We have about twenty minutes for questions. The appendix has the stability check, the validation verdicts, the guideline coverage, the psychiatric timing, the four limits of a code, the statistical and epidemiological biases, and one page for each of the eight patterns if you want to look at the events and sequences behind any of them.</aside>
 </section>
 
-<!-- 15 · appendix divider -->
+<!-- 16 · appendix divider -->
 <section class="slide divider" data-sec="Appendix">
   <div class="numeral" aria-hidden="true">A</div>
   <svg class="marks" viewBox="0 0 520 300" aria-hidden="true" data-marks></svg>
   <div class="dt"><div class="kicker">Appendix</div><h1>Backup for your questions</h1>
-    <p class="line">Stability, validation, guideline coverage, psychiatric timing, identical records, limitations, biases, then one page per pattern.</p></div>
+    <p class="line">Stability, validation, guideline coverage, psychiatric timing, limitations, biases, then one page per pattern.</p></div>
   <aside class="notes">Backup pages follow.</aside>
 </section>
 
-<!-- 16 · stability -->
+<!-- 17 · stability -->
 <section class="slide" data-sec="Appendix">
   <div class="head"><div class="kicker">Appendix · Stability</div>
     <h1>The same patterns return on re-run: {{stability.rows.0.v|dec2}} against a bar of {{stability.bar|dec2}}.</h1>
@@ -385,7 +394,7 @@ body.hp #help{display:flex}
   <aside class="notes">Backup. We re-ran the pattern search on {{stability.resamples}} resamples of the same applicants and measured how much each applicant's pattern assignment agreed with the base fit. The guideline-list run scores {{stability.rows.0.v|dec2}}, above the {{stability.bar|dec2}} bar we use for solid. Our own lists score {{stability.rows.1.v|dec2}} with five patterns, which clears the bar narrowly, and {{stability.rows.2.v|dec2}} with eight, which does not. We therefore prefer the guideline-list run.</aside>
 </section>
 
-<!-- 17 · verdicts -->
+<!-- 18 · verdicts -->
 <section class="slide" data-sec="Appendix">
   <div class="head"><div class="kicker">Appendix · Validation</div>
     <h1>{{verdicts.hold}} of {{verdicts.total}} sequences hold in validation; {{verdicts.unstable}} do not.</h1>
@@ -394,7 +403,7 @@ body.hp #help{display:flex}
   <aside class="notes">Backup. Every pattern has three top sequences, so there are {{verdicts.total}} cells. We re-tested each on random halves of the pattern. {{verdicts.solid}} are solid: they hold, and the order shows in the dates. {{verdicts.suggestive}} are suggestive: they hold, but the steps happen on the same day, so order is not evidence. {{verdicts.unstable}} are unstable and should not be used. Check-up and women's health care carry all of them. Repeatable does not mean clinically true.</aside>
 </section>
 
-<!-- 18 · guideline coverage -->
+<!-- 19 · guideline coverage -->
 <section class="slide" data-sec="Appendix">
   <div class="head"><div class="kicker">Appendix · Guideline coverage</div>
     <h1>The guideline file has {{preds.guideline.groups}} code groups; the predicates use {{preds.guideline.used}}.</h1>
@@ -404,21 +413,12 @@ body.hp #help{display:flex}
   <aside class="notes">Backup. The code file we built from the 2021 guideline holds {{preds.guideline.groups}} code groups in seven families. The predicates draw on {{preds.guideline.used}} of them: chest pain, electrocardiogram, troponin, chest X-ray, acid reflux, hemoglobin A1c, hyperlipidemia and acid-lowering drugs. The reason is how we built them. Predicates come from the most frequent codes of each pattern, not from the guideline itself. So no stress test, coronary imaging or cardiac cause has a predicate. Two of the {{preds.guideline.groups}} groups are umbrella tags that overlap the others.</aside>
 </section>
 
-<!-- 19 · psych timing -->
+<!-- 20 · psych timing -->
 <section class="slide statement" data-sec="Appendix" data-d="psych">
   <div class="st"><div class="kicker">Appendix · Psychiatric timing</div>
     <p class="num">{{psych.first|pct0}}</p>
     <p class="cap">of the {{psych.n|int}} applicants with both a psychiatric code and a troponin test had the psychiatric code first. Yet no pattern is led by anxiety or panic codes.</p></div>
   <aside class="notes">Backup. We started with the question of whether anxiety or panic explains many chest pain cases. The data answer is awkward. {{psych.first|pct0}} of the {{psych.n|int}} applicants who have both a psychiatric code and a troponin test had the psychiatric code first. But no care pattern in any of our runs is led by anxiety or panic codes; those codes are spread thin across several patterns. So the signal exists in the timing but not as a pattern of its own. Psychiatric evidence here means anxiety, panic, or an evaluation or therapy code.</aside>
-</section>
-
-<!-- 20 · identical records -->
-<section class="slide" data-sec="Appendix">
-  <div class="head"><div class="kicker">Appendix · Identical records</div>
-    <h1>Two identical-looking records can end very differently.</h1>
-    <p class="lede">A bag of codes lists what was recorded, not the order or the timing of care.</p></div>
-  <svg class="full" viewBox="0 0 1920 1080" data-g="lanes" data-d="pair" role="img" aria-label="Two applicants share chest pain and an electrocardiogram; later one has an anxiety diagnosis and the other a troponin test."></svg>
-  <aside class="notes">Backup. Here is why order matters. Take two applicants whose records look the same: chest pain and an electrocardiogram. Later, one receives an anxiety diagnosis and the other gets a troponin test. A bag of codes cannot tell them apart. That is a limit of the representation, not of the algorithm, so we keep the order of care and look for patterns in it. This is a schematic of two records described in our report, not a rate.</aside>
 </section>
 
 <!-- 21 · limits -->
