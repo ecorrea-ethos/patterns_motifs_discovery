@@ -364,7 +364,7 @@ body.hp #help{display:flex}
   <div class="rule" style="top:520px"></div>
   <div class="people" style="top:600px" data-people></div>
   <svg class="logo" viewBox="0 0 720 139" role="img" aria-label="Ethos"><use href="#logo-word"/></svg>
-  <aside class="notes">Thank you. We have about twenty minutes for questions. The appendix has the stability check, the validation verdicts, the guideline coverage, the psychiatric timing, the identical-records example, the four limits of a code, and one page for each of the eight patterns if you want to look at the events and sequences behind any of them.</aside>
+  <aside class="notes">Thank you. We have about twenty minutes for questions. The appendix has the stability check, the validation verdicts, the guideline coverage, the psychiatric timing, the identical-records example, the four limits of a code, the statistical and epidemiological biases, and one page for each of the eight patterns if you want to look at the events and sequences behind any of them.</aside>
 </section>
 
 <!-- 15 · appendix divider -->
@@ -372,7 +372,7 @@ body.hp #help{display:flex}
   <div class="numeral" aria-hidden="true">A</div>
   <svg class="marks" viewBox="0 0 520 300" aria-hidden="true" data-marks></svg>
   <div class="dt"><div class="kicker">Appendix</div><h1>Backup for your questions</h1>
-    <p class="line">Stability, validation, guideline coverage, psychiatric timing, identical records, limitations, then one page per pattern.</p></div>
+    <p class="line">Stability, validation, guideline coverage, psychiatric timing, identical records, limitations, biases, then one page per pattern.</p></div>
   <aside class="notes">Backup pages follow.</aside>
 </section>
 
@@ -430,7 +430,16 @@ body.hp #help{display:flex}
   <aside class="notes">Backup. Four limits to weigh as you read everything else. First, a code shows that a test happened, not what it found: we cannot see a troponin level or an electrocardiogram reading. Second, many codes are generic: a blood draw or a general examination appears at most check-ups, and we cannot see which troponin test was used. Third, claims carry dates, not times, so {{limits.sameDay}} of {{limits.total}} sequences are mostly same-day and their order is a rule. Fourth, we hold no confirmed cardiac outcome, so nothing is validated.</aside>
 </section>
 
-<!-- 22-29 · one page per pattern -->
+<!-- 22 · biases -->
+<section class="slide" data-sec="Appendix">
+  <div class="head"><div class="kicker">Appendix · Biases</div>
+    <h1>{{biases.n|Word}} biases can change what these patterns seem to show.</h1>
+    <p class="lede">{{biases.epi|Word}} epidemiological and {{biases.stat|word}} statistical, with how each can show up here.</p></div>
+  <svg class="full" viewBox="0 0 1920 1080" data-g="gapTable" data-d="biases" role="img" aria-label="{{biases.n|Word}} biases, each with how it can show up and how we read the results. Epidemiological: selection, detection, misclassification, confounding by indication, incomplete records. Statistical: best of many, internal validation only, one pattern per applicant."></svg>
+  <aside class="notes">Backup. {{biases.n|Word}} biases can bend what these patterns seem to show. {{biases.epi|Word}} are epidemiological. Our applicants are a selected group, care leaves codes in proportion to how much care is used, a code is not a diagnosis, tests follow the symptom, and claims miss care that was never billed. {{biases.stat|Word}} are statistical. We kept the best sequences of many, validated them only on the same applicants, and placed each applicant in one pattern. We have not adjusted for any of these, so we read every pattern as care delivered and as a question for clinical review, not as a finding about disease.</aside>
+</section>
+
+<!-- 23-30 · one page per pattern -->
 <section class="slide" data-sec="Appendix">
   <div class="head"><div class="kicker">Appendix · Pattern c0</div>
     <h1>c0: check-up labs sit months before chest pain, and no sequence holds.</h1>
@@ -574,6 +583,15 @@ const DATA = {
       { t: 'Draft thresholds', e: 'The {{rule.windowDays|word}}-day window and the {{rule.minEntities|word}}-event minimum are drafts. No rate is measured for any predicate or composite.', q: 'Are one day and three events sensible to start?' },
       { t: 'Unstable patterns', e: 'All {{verdicts.unstable}} unstable sequences belong to two patterns: check-up care and women\'s health.', q: 'Is a check-up or women\'s health pattern meaningful here?' },
       { t: 'No outcome label', e: 'No confirmed cardiac outcome is in the data, so nothing is tested against what happened next.', q: 'Which outcome would you test these against?' }] } },
+  biases: { id: 'biases', title: 'Biases that can shape the patterns', unit: '', kind: 'concept', values: { n: 8, epi: 5, stat: 3, cols: ['Bias', 'How it can show up here', 'How we read the results'], rows: [
+    { g: 'Epidemiological', t: 'Selection', e: 'Everyone here applied for life insurance and has a chest pain code. Applicants with serious disease may never have applied.', q: 'Pattern sizes describe applicants, not the population.' },
+    { g: 'Epidemiological', t: 'Detection', e: 'More care leaves more codes. A check-up pattern may show who sees a doctor often, not who is sick.', q: 'A pattern can reflect access to care.' },
+    { g: 'Epidemiological', t: 'Misclassification', e: 'A code shows a test, not its result, and {{icd.top2|pct0}} of applicants carry a nonspecific chest pain code.', q: 'Care delivered, not diagnosis.' },
+    { g: 'Epidemiological', t: 'Confounding by indication', e: 'Tests follow the symptom. A troponin test is ordered because of chest pain, so a pattern may mirror what clinicians suspected.', q: 'A pattern is not evidence of a cardiac cause.' },
+    { g: 'Epidemiological', t: 'Incomplete records', e: 'Claims hold only billed care, and histories differ in length. A missing code is not proof of absence.', q: 'Shares depend on how fully we see each applicant.' },
+    { g: 'Statistical', t: 'Best of many', e: 'We kept the top {{cohort.perPattern}} sequences of each pattern by how common they are. The best of many looks better than it is.', q: 'Times as common is optimistic for chosen sequences.' },
+    { g: 'Statistical', t: 'Internal validation only', e: 'Validation re-tests {{cohort.heldRuns}} random halves of the same applicants. No new population and no outcome.', q: 'Repeatable is not the same as clinically true.' },
+    { g: 'Statistical', t: 'One pattern per applicant', e: 'Each applicant sits in the pattern that dominates their record, so mixed records are forced into one group.', q: 'Mixed care is shown as one pattern.' }] } },
   rule: { id: 'rule', title: 'From pattern to rule', unit: '', kind: 'draft', window: '', denominator: '', exclusions: '', source: 'Atypical Chest Pain - Insights report', formula: 'pattern rule = chest pain AND entities rule AND sequence rule',
     values: { legend: "Each box at the bottom is one yes-or-no question about an applicant's records.", windowDays: 1, minEntities: 3, entityCount: 4, sequences: 3, top: 'Emergency work-up rule: true when all three parts are true', parts: [
       { t: 'Chest pain present', d: 'At least one chest pain event', chips: ['Chest pain diagnosis'] },
@@ -603,7 +621,8 @@ DECK.checks = [
     return W.rows.reduce((a, r) => a + r.out, 0) !== W.out || W.rows.reduce((a, r) => a + r.of, 0) !== W.total ? 'data: window-fit rows do not add up' : out !== W.out || tot !== W.total ? 'data: window-fit count ' + W.out + ' of ' + W.total + ' differs from the timing dots, ' + out + ' of ' + tot : ''; },
   () => { const G = DATA.preds.values.guideline; return G.families.reduce((a, f) => a + f.total, 0) !== G.groups || G.families.reduce((a, f) => a + f.used, 0) !== G.used ? 'data: guideline group counts do not add up' : ''; },
   () => { const ids = new Set(DATA.patterns.values.rows.filter(r => r.seqs.some(s => s.verdict === 'Unstable')).map(r => r.id)); return [...ids].sort().join() !== 'c0,c2' ? 'data: the gap row on unstable patterns names c0 and c2 but the data say ' + [...ids].sort().join() : ''; },
-  () => DATA.gaps.values.rows.length !== DATA.gaps.values.n ? 'data: gap count does not match its rows' : ''
+  () => DATA.gaps.values.rows.length !== DATA.gaps.values.n ? 'data: gap count does not match its rows' : '',
+  () => { const B = DATA.biases.values, r = B.rows, k = g => r.filter(x => x.g === g).length; return r.length !== B.n || k('Epidemiological') !== B.epi || k('Statistical') !== B.stat ? 'data: bias counts do not match the rows' : ''; }
 ];
 
 /* ===== 6. HELPERS [ENGINE] ===== */
@@ -1142,7 +1161,7 @@ G.chipField = function (svg, ds) {
 };
 
 /* gapTable: numbered findings with the evidence and the question for the room side by side */
-G.meta.gapTable = { use: 'a numbered list of findings with the evidence and one open question each', data: 'values.cols[3], values.rows[{t, e, q}]', limits: '5 to 8 rows; evidence about 120 characters, question about 60', notes: 'each cell fits in two lines; the question column is tinted' };
+G.meta.gapTable = { use: 'a numbered list of findings with the evidence and one open question each', data: 'values.cols[3], values.rows[{t, e, q}]', limits: '5 to 8 rows; evidence about 120 characters, question about 60', notes: 'each cell fits in two lines; the last column is tinted; optional rows[].g puts a small group label under a one-line title' };
 G.gapTable = function (svg, ds) {
   svg.textContent = ''; const P = pal(svg), v = ds.values, rows = v.rows, gx = 35, cw = [372, 700, 508], xs = [ZONE.x0, ZONE.x0 + cw[0] + gx, ZONE.x0 + cw[0] + cw[1] + 2 * gx], pitch = Math.min(70, 540 / rows.length), y0 = 372;
   v.cols.forEach((c, i) => caps(svg, xs[i] + (i === 2 ? 20 : 0), 344, c, P.ink3)); Ln(svg, ZONE.x0, 358, ZONE.x1, 358, { stroke: P.lineStrong, sw: 2 });
@@ -1151,8 +1170,9 @@ G.gapTable = function (svg, ds) {
     if (i) Ln(g, ZONE.x0, y, ZONE.x1, y, { stroke: P.line, sw: 1.5 });
     R(g, xs[2], y + 5, cw[2], pitch - 10, { rx: SH.radiusInner, fill: P.accentTint });
     Ci(g, ZONE.x0 + 20, cy, 20, { fill: P.accent }); T(g, ZONE.x0 + 20, cy + 8, String(i + 1), { size: S.label, w: W.strong, fill: P.accentContrast, a: 'middle' });
-    const cell = (x, w, text, max, wt, fill) => { const f = fit(resolve(text), w, { max, min: 20, lines: 2, w: wt }), lh = f.size * 1.2; TL(g, x, cy + f.size * .32 - (f.lines.length - 1) * lh / 2, f.lines, { size: f.size, w: wt, fill, lh }); };
-    cell(ZONE.x0 + 54, cw[0] - 54, r.t, S.body, W.strong, P.ink);
+    const cell = (x, w, text, max, wt, fill, dy = 0) => { const f = fit(resolve(text), w, { max, min: 20, lines: 2, w: wt }), lh = f.size * 1.2; TL(g, x, cy + dy + f.size * .32 - (f.lines.length - 1) * lh / 2, f.lines, { size: f.size, w: wt, fill, lh }); };
+    if (r.g) caps(g, ZONE.x0 + 54, cy + 25, r.g, P.ink3);
+    cell(ZONE.x0 + 54, cw[0] - 54, r.t, S.body, W.strong, P.ink, r.g ? -12 : 0);
     cell(xs[1], cw[1], r.e, S.label, W.body, P.ink);
     cell(xs[2] + 20, cw[2] - 40, r.q, S.label, W.strong, P.accentInk);
     A(g, 'fade');
