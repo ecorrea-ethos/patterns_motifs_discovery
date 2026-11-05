@@ -1,0 +1,136 @@
+# Bitacora
+# v1 ("codesets_sean.yaml", 2026-11-02) - STANDALONE code sets for Sean's underwriting view of chest pain (Drive: "Chest Pain
+#     Workflow Draft.docx"). Separate test: this file holds ONLY Sean's features, none of the guideline tags of codesets_v3.yaml
+#     (no test ladder, cardiac / noncardiac cause families, risk factors, therapy classes or psych sets). A notebook that reads
+#     tags by name (ethos_omop.PSYCH_TAGS / CARDIAC_TAGS, the FOCUS sets) needs its own copy pointed at this file.
+#     Sean's feature -> tag:
+#       anchor     Patient with chest pain                  -> chest_pain
+#       HIGH RISK  Previous Dx of CAD                       -> uw_cad_dx
+#                  Abnormal EKG                             -> uw_abnormal_ekg
+#                  Additional cardiac testing (echo, cath,  -> uw_cardiac_testing
+#                    CCTA, etc.)
+#                  Rx nitrates                              -> nitrates (nitroglycerin, isosorbide mononitrate, isosorbide dinitrate)
+#       LOW RISK   Troponin testing                         -> troponin
+#                  EKG                                      -> ekg
+#                  GERD                                     -> gerd
+#                  Anxiety                                  -> anxiety
+#       "later coded as"  GI-related Dx other than GERD     -> uw_gi_dx
+#                  muscle strain                            -> uw_muscle_strain
+#                  costochondritis                          -> costochondritis
+#                  intercostal / non-cardiac chest pain     -> uw_noncardiac_cp (overlay on chest_pain, see its note)
+#     Where Sean's feature already had a tag in codesets_v3.yaml (chest_pain, ekg, troponin, gerd, anxiety, costochondritis) the
+#     definition is copied unchanged, so the same clinical concept means the same concepts in both files.
+#     NOT code sets, so not here: age and sex thresholds (male > 45, female > 55: demographics), the current table (TO) rating
+#     (underwriting data, not claims), "any abnormal testing" (needs result values, claims carry none), the time windows
+#     (< 6 months, > 2 years, < 1 year) and the approve / refer / decline outcomes (the project stays decision-free).
+#     Run: python check_codesets.py codesets_sean.yaml --baseline codesets_sean.yaml
+#
+# ORDER IS LOAD-BEARING. tag_events() gives every concept to the FIRST tag that lists it; `groups` (multi_group=True) lists all.
+# The tags below are disjoint except the overlay `uw_noncardiac_cp`, listed LAST (and named in check_codesets.UMBRELLA).
+# Patterns are regex, case-insensitive, UNANCHORED substring matches on concept_name of STANDARD concepts. After any edit run
+# the check above and read the matched names.
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Anchor
+# ----------------------------------------------------------------------------------------------------------------------
+chest_pain:
+  # unchanged from codesets_v3.yaml. "angina" alone is wrong (Herpangina); nothing matches R07.82 without "intercostal space".
+  patterns: ["chest pain", "precordial pain", "intercostal space"]
+  vocabularies: ["SNOMED"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# High-risk features
+# ----------------------------------------------------------------------------------------------------------------------
+uw_cad_dx:
+  # "Previous Dx of CAD": any coronary artery disease diagnosis, old MI and angina included. Personal "history of ..." status
+  # concepts stay out (coded old infarcts are caught by "myocardial infarction"). Prior CABG / stent are procedures, not
+  # diagnoses: not included.
+  patterns: ["coronary artery disease", "coronary arteriosclerosis", "coronary atherosclerosis", "atherosclerosis of coronary",
+             "chronic ischemic heart disease", "arteriosclerotic heart", "ischemic heart", "myocardial infarction",
+             "angina pectoris", "unstable angina", "acute coronary syndrome"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["due to and following", "following acute myocardial", "not resulting in", "family history", "history of",
+            "without angina"]
+uw_abnormal_ekg:
+  # The coded finding "Electrocardiogram abnormal" (R94.31), a result, not the test (`ekg` below is the test). Specific findings
+  # (bundle branch block, ST-T changes, LVH) are separate conditions and are not included.
+  patterns: ["electrocardiogram abnormal", "abnormal electrocardiogram", "abnormal ecg", "abnormal ekg"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+uw_cardiac_testing:
+  # "Additional cardiac testing (echo, cath, CCTA, etc.)": everything beyond the first-line EKG and troponin: transthoracic and
+  # transesophageal echo, stress tests (ECG, echo, SPECT, PET), cardiac MRI, coronary CT angiography, calcium score, FFR-CT and
+  # invasive coronary angiography. Chest X-ray, BNP, D-dimer, V/Q scan and Holter / event monitors are not included.
+  patterns: ["echocardiography, transthoracic", "transthoracic echocardiography", "echocardiography, transesophageal",
+             "transesophageal echocardiography", "cardiovascular stress test", "during rest and cardiovascular stress",
+             "echocardiographic contrast agent during stress", "myocardial contrast perfusion echocardiography",
+             "myocardial perfusion imaging", "myocardial imaging, positron", "absolute quantitation of myocardial blood flow",
+             "pet myocardial", "cardiac magnetic resonance", "magnetic resonance imaging.*heart",
+             "computed tomographic angiography, heart, coronary", "calcium scoring", "coronary calcium",
+             "noninvasive estimate.*coronary fractional flow reserve", "coronary angiograph", "coronary arteriograph",
+             "cardiac catheteri"]
+  vocabularies: ["SNOMED", "CPT4", "HCPCS"]
+  exclude: ["anesthesia", "thrombolysis", "cardiac output", "congenital", "fetal", "guidance", "monitoring"]
+nitrates:
+  # "Rx nitrates": nitroglycerin, isosorbide mononitrate and isosorbide dinitrate, every dose form and strength (sublingual,
+  # spray, patch, topical, extended release, injection; IV is a hospital drug, add "injection" and "intravenous" to the exclude
+  # list for dispensed Rx only). Excluded as in codesets_v3.yaml: rectal ointment (Rectiv, anal fissure) and the isosorbide
+  # dinitrate + hydralazine combination (heart failure).
+  patterns: ["nitroglycerin", "isosorbide mononitrate", "isosorbide dinitrate"]
+  vocabularies: ["RxNorm"]
+  exclude: ["rectal", "hydralazine"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Low-risk features
+# ----------------------------------------------------------------------------------------------------------------------
+troponin:
+  # cTn I or T; high-sensitivity is not separable in this extract. LOINC kept for portability to other extracts.
+  patterns: ["troponin"]
+  vocabularies: ["LOINC", "SNOMED", "CPT4"]
+ekg:
+  # Resting 12-lead ECG only. CPT4 93000 / 93005 / 93010 and the HCPCS screening ECGs.
+  patterns: ["electrocardiogram, routine"]
+  vocabularies: ["CPT4", "HCPCS"]
+gerd:
+  # Conditions only (a reflux *study* was matching).
+  patterns: ["gastroesophageal reflux", "gastro-esophageal reflux", "heartburn"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+anxiety:
+  patterns: ["anxiety"]
+  vocabularies: ["SNOMED"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Explanations that move a case down ("later coded as ...")
+# ----------------------------------------------------------------------------------------------------------------------
+uw_gi_dx:
+  # "Other GI related Dx": upper GI and biliary / pancreatic causes. Reflux is excluded because `gerd` has it.
+  patterns: ["peptic ulcer", "gastric ulcer", "duodenal ulcer", "gastritis", "esophagitis", "esophageal spasm", "dyspepsia",
+             "hiatal hernia", "hiatus hernia", "cholecystitis", "cholelithiasis", "gallstone", "biliary colic", "pancreatitis"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["reflux", "history of"]
+uw_muscle_strain:
+  # Strain / sprain of the chest wall only. A strain of any other body site (limb, neck) says nothing about chest pain; widen the
+  # patterns to "strain|sprain" if Sean means any. The first run (2026-11-02) matched 0 concepts: this extract has no "strain of
+  # muscle of chest" concept, only the chest wall sprains below (SNOMED names: "Sprain of sternum", "Sternoclavicular sprain",
+  # "Chondrocostal joint sprain", "Thoracic back sprain"). Generic "Muscle pain" and "Muscle and tendon injury" are left out: any site.
+  patterns: ["strain of.*(?:chest|thora|intercostal|pectoral)", "(?:chest|thora|intercostal|pectoral).*strain", "intercostal muscle",
+             "sprain of sternum", "sternoclavicular sprain", "chondrocostal joint sprain", "thoracic back sprain"]
+  vocabularies: ["SNOMED"]
+  domain: Condition
+  exclude: ["history of"]
+costochondritis:
+  patterns: ["costochondritis", "costal chondritis", "tietze"]
+  vocabularies: ["SNOMED"]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Overlay (LAST on purpose)
+# ----------------------------------------------------------------------------------------------------------------------
+uw_noncardiac_cp:
+  # "Later noted as intercostal or non-cardiac chest pain". `chest_pain` (the anchor tag) also matches "chest pain" and
+  # "intercostal space", so these concepts sit in both and the token stays `chest_pain`; `groups` lists both. The timing
+  # (after the anchor) is read in the notebook, not here.
+  patterns: ["non-?cardiac chest pain", "chest pain.*non-?cardiac", "intercostal.*pain", "pain.*intercostal"]
+  vocabularies: ["SNOMED"]
