@@ -17,7 +17,8 @@ from itertools import combinations
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ethos_omop as eo  # noqa: E402
 
-UMBRELLA = {"stress_test", "cad"}      # listed last in codesets_v2.yaml on purpose; overlap with fine-grained tags is expected
+UMBRELLA = {"stress_test", "cad", "nitrate_antianginal",   # listed last in codesets_v2.yaml / v3 on purpose; overlap with fine-grained tags is expected
+            "uw_noncardiac_cp"}                             # overlay on chest_pain, listed last in codesets_sean.yaml
 
 ap = argparse.ArgumentParser()
 ap.add_argument("codesets", nargs="?", default="codesets_v2.yaml")

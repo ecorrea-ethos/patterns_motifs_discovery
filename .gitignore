@@ -38,3 +38,7 @@ nb/repr_learn_mammography/outputs/
 /slides/
 *.pdf
 /MEDS_ML4H_2025_Tutorial/
+.Rproj.user
+.Renviron
+*.docx
+*.parquet

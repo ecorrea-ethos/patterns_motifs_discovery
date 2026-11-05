@@ -1,0 +1,136 @@
+---
+title: "Connect to the Snowflake OMOP instance with DatabaseConnector"
+output: html_document
+---
+
+Credentials are read from environment variables, never stored in this file. They live in
+the `.Renviron` next to this file, which R loads when you open `rstudio.Rproj` and which
+git ignores (open it with `usethis::edit_r_environ("project")`, then restart R):
+
+    SNOWFLAKE_ACCOUNT=<account identifier, e.g. xy12345.us-east-1>
+    SNOWFLAKE_USER=<user>
+    SNOWFLAKE_PASSWORD=<password, leave out if you sign in with single sign-on>
+    SNOWFLAKE_WAREHOUSE=<warehouse>
+    SNOWFLAKE_DATABASE=<database>
+    SNOWFLAKE_CDM_SCHEMA=<schema that holds the OMOP tables>
+
+## Start clean
+
+Run this chunk by itself, first. It clears memory and restarts R so the latest `.Renviron` is read.
+Run the next chunks after the restart finishes. The chunk is not evaluated when knitting.
+
+```{r restart-clean, eval=FALSE}
+rm(list = ls(all.names = TRUE))
+invisible(gc())
+if (interactive() && exists(".rs.restartR")) .rs.restartR()
+```
+
+## One-time setup
+
+Install the package and download the Snowflake JDBC driver (Java must be available to R).
+
+```{r setup-once, eval=FALSE}
+#install.packages("DatabaseConnector")
+dir.create("~/jdbc_drivers", showWarnings = FALSE)
+Sys.setenv(DATABASECONNECTOR_JAR_FOLDER = "~/jdbc_drivers")
+#To make the driver folder permanent, add `DATABASECONNECTOR_JAR_FOLDER=~/jdbc_drivers` to `~/.Renviron`.
+
+DatabaseConnector::downloadJdbcDrivers("snowflake")
+```
+
+
+## Connect
+
+```{r connect}
+library(DatabaseConnector)
+Sys.setenv(DATABASECONNECTOR_JAR_FOLDER = "~/jdbc_drivers")
+
+# Unset variables become "", not NA: the Java driver throws a NullPointerException on NA.
+env <- function(x) Sys.getenv(x, unset = "")
+
+# Single sign-on (browser window opens): no password needed, so SNOWFLAKE_PASSWORD stays unset.
+# For a password login, remove "&authenticator=externalbrowser" and set SNOWFLAKE_PASSWORD.
+connectionDetails <- createConnectionDetails(
+  dbms             = "snowflake",
+  connectionString = sprintf(
+    "jdbc:snowflake://%s.snowflakecomputing.com/?warehouse=%s&db=%s&authenticator=externalbrowser",
+    env("SNOWFLAKE_ACCOUNT"), env("SNOWFLAKE_WAREHOUSE"), env("SNOWFLAKE_DATABASE")),
+  user     = env("SNOWFLAKE_USER"),
+  password = env("SNOWFLAKE_PASSWORD")
+)
+
+connection <- connect(connectionDetails)
+cdmSchema  <- env("SNOWFLAKE_CDM_SCHEMA")
+```
+
+## Test the connection
+
+```{r test}
+renderTranslateQuerySql(
+  connection,
+  "SELECT COUNT(*) AS n_patients FROM @cdm.person",
+  cdm = cdmSchema
+)
+```
+
+## Disconnect
+
+```{r disconnect}
+disconnect(connection)
+```
+
+
+```{r}
+GIBleed <- cs(descendants(192671), name = "GIbleed")
+GIBleed
+```
+
+```{r}
+giBleedCohort <- cohort(
+  entry = entry(
+    conditionOccurrence(GIBleed),
+    observationWindow = continuousObservation(0L, 0L),
+    primaryCriteriaLimit = "First"
+  ),
+  exit = exit(
+    endStrategy = observationExit()
+  )
+)
+giBleedCohort
+
+
+```
+
+
+
+
+```{r test}
+cs0 <- cs(descendants(443238, 201820, 442793),
+descendants(exclude(195771, 201254, 435216, 761051, 4058243, 40484648)),
+name = "Type 2 diabetes mellitus (diabetes mellitus excluding T1DM and secondary)")
+ch <- cohort(
+entry = entry(
+conditionOccurrence(cs0),
+observationWindow = continuousObservation(priorDays = 365)
+),
+exit = exit(
+endStrategy = observationExit()
+)
+)
+chJson <- toCohortJson(ch)
+ch
+```
+
+```{r}
+giBleedCohortJson <- as.json(giBleedCohort)
+sql <- CirceR::buildCohortQuery(
+  expression = CirceR::cohortExpressionFromJson(giBleedCohortJson),
+  options = CirceR::createGenerateOptions(generateStats = FALSE)
+)
+sql
+```
+
+
+## Chest pain
+
+

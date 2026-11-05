@@ -29,6 +29,7 @@ import csv
 import glob
 import numpy as np
 import pandas as pd
+import scipy.sparse as sp
 import yaml
 
 DATABASE = "ETHOS_PRODUCTION"
@@ -586,6 +587,124 @@ def bag_of_codes(events, col="tag", min_count=20, binary=True):
     sub  = events[events[col].isin(keep)]
     X    = pd.crosstab(sub["person_id"], sub[col])
     return (X > 0).astype(int) if binary else X
+
+
+def bag_of_codes_sparse(events, col="tag", min_count=20, binary=True):
+    """
+    Same patient x code matrix as bag_of_codes(), built straight into a scipy CSR matrix (no dense crosstab).
+
+    Returns (X, person_ids, columns): X is float64 CSR; rows follow the sorted person_ids and columns the sorted code names, i.e. the order
+    pd.crosstab gives, so X.toarray() equals bag_of_codes(...).to_numpy(). min_count counts EVENTS per code, as in bag_of_codes().
+    binary=False keeps the event counts. Needed once the column count makes a dense frame impossible (feature x age x sex).
+    """
+    vc   = events[col].value_counts()
+    keep = vc[vc >= min_count].index
+    sub  = events.loc[events[col].isin(keep), ["person_id", col]]
+    pid, pu = pd.factorize(sub["person_id"], sort=True)
+    cid, cu = pd.factorize(sub[col], sort=True)
+    X = sp.coo_matrix((np.ones(len(sub), dtype=np.float64), (pid, cid)), shape=(len(pu), len(cu))).tocsr()   # duplicate cells are summed
+    if binary:
+        X.data[:] = 1.0
+    return X, np.asarray(pu), list(cu)
+
+
+# ---------------------------------------------------------------  age and sex columns (extra columns next to the bag of codes)
+
+DEFAULT_AGE_EDGES = (25, 30, 35, 40, 45, 50, 55, 60, 65)    # Census 5-year edges; the thin tails are merged into "<25" and "65+"
+_SEX = ("F", "M", "U")
+
+
+def age_band_labels(edges=DEFAULT_AGE_EDGES):
+    """Labels of the bands cut by `edges`: ['<25', '25-29', ..., '60-64', '65+'] for the default."""
+    e = sorted(edges)
+    return [f"<{e[0]}"] + [f"{a}-{b - 1}" for a, b in zip(e[:-1], e[1:])] + [f"{e[-1]}+"]
+
+
+def _sex(gender):
+    """'female' / 'male' (any case, or 'f' / 'm') -> 'F' / 'M'; anything else, a missing value included, -> 'U'."""
+    return gender.astype(str).str.strip().str.lower().map({"female": "F", "f": "F", "male": "M", "m": "M"}).fillna("U")
+
+
+def demographics(person, ref, edges=DEFAULT_AGE_EDGES):
+    """
+    person (load_person) and ref (frame indexed by person_id with a `ref_date` column, e.g. the first chest pain) -> one row per person:
+    sex 'F' / 'M' / 'U', age (years at ref_date), age_band, stratum 'sex|band'. Persons without a reference date or birth date get NaN age,
+    band and stratum. A read-out table (who is in each component); the columns the NMF sees come from age_sex_block and demographic_block.
+    """
+    d = (person.drop_duplicates("person_id").set_index("person_id")[["gender", "birth_date"]]
+               .join(ref[["ref_date"]], how="inner"))
+    sex = _sex(d["gender"])
+    age = (d["ref_date"] - d["birth_date"]).dt.days / 365.25
+    labels = np.array(age_band_labels(edges), dtype=object)
+    band = pd.Series(labels[np.searchsorted(sorted(edges), age.to_numpy(), side="right")], index=d.index, dtype=object).where(age.notna())
+    return pd.DataFrame({"sex": sex, "age": age, "age_band": band, "stratum": (sex + "|" + band.fillna("")).where(band.notna())})
+
+
+def demographic_block(events, person, person_ids, edges=DEFAULT_AGE_EDGES, min_patients=1):
+    """
+    One-hot sex and age band: 'demo_sex_F', 'demo_age_35-39'. `events` are the rows of the anchor event only (the chest pain events);
+    the band is the age AT EACH OF THEM, so a patient with chest pain at 38 and again at 44 lights two bands, as in age_sex_block. Sex is
+    the person's: one column per patient. Nothing is crossed with a code. Columns with fewer than `min_patients` patients (or none) are
+    dropped; an event without a birth date lights no band, and events of people outside `person_ids` are ignored.
+    Returns (CSR, names), rows in the order of `person_ids`; column order: F < M < U, then the youngest band first.
+    """
+    e = sorted(edges)
+    labels = age_band_labels(e)
+    n = len(person_ids)
+    p = person.drop_duplicates("person_id").set_index("person_id")
+    sex = pd.Index(_SEX).get_indexer(_sex(p["gender"]).reindex(person_ids).fillna("U").to_numpy())
+    row = pd.Index(person_ids).get_indexer(events["person_id"])
+    age = ((events["event_date"] - events["person_id"].map(p["birth_date"])).dt.days / 365.25).to_numpy()
+    ok = (row >= 0) & ~np.isnan(age)
+    band = np.searchsorted(e, age[ok], side="right")
+    M_sex = sp.csr_matrix((np.ones(n), (np.arange(n), sex)), shape=(n, len(_SEX)))
+    M_age = sp.csr_matrix((np.ones(int(ok.sum())), (row[ok], band)), shape=(n, len(labels)))
+    M_age.data[:] = 1                                                    # two chest pain events in one band count once
+    X = sp.hstack([M_sex, M_age], format="csr")
+    names = [f"demo_sex_{s}" for s in _SEX] + [f"demo_age_{b}" for b in labels]
+    keep = np.flatnonzero(np.asarray(X.sum(axis=0)).ravel() >= max(int(min_patients), 1))
+    return X[:, keep].tocsr(), [names[j] for j in keep]
+
+
+def age_sex_block(events, person, person_ids, groups, edges=DEFAULT_AGE_EDGES, min_patients=1, col="group", chunk=5_000_000):
+    """
+    One column per (code, sex, age band AT THE EVENT): 'anxiety_F_35-39' is 1 for a woman who had an event of the code while aged 35-39.
+    Age is taken at the date of each event, so a patient with the code at 38 and again at 44 lights two columns; sex is the person's.
+    `groups` are the codes to cross, matched on the events column `col`: the NMF token 'tag' crosses every code (curated groups and
+    concept-level codes alike), 'group' only the curated ones. Meant to sit NEXT TO the plain columns. Columns with fewer than
+    `min_patients` patients are dropped. Events without a birth date drop out. Events are scanned `chunk` rows at a time (46M events).
+    Returns (CSR, names), rows in the order of `person_ids`; a name splits back with name.rsplit('_', 2) into code, sex, band.
+    Column order: code (sorted), then F < M < U, then the youngest band first.
+    """
+    e = sorted(edges)
+    labels = age_band_labels(e)
+    nb, ns = len(labels), len(_SEX)
+    gnames = pd.Index(sorted(set(groups)))
+    p = person.drop_duplicates("person_id").set_index("person_id")
+    pidx = pd.Index(person_ids)
+    sex = pd.Index(_SEX).get_indexer(_sex(p["gender"]).reindex(person_ids).fillna("U").to_numpy())
+    parts = []
+    for s0 in range(0, len(events), chunk):
+        ev = events.iloc[s0:s0 + chunk]
+        g = gnames.get_indexer(ev[col])                                  # -1: not a code to cross (a missing code included)
+        row = pidx.get_indexer(ev["person_id"])
+        age = ((ev["event_date"] - ev["person_id"].map(p["birth_date"])).dt.days / 365.25).to_numpy()
+        ok = (g >= 0) & (row >= 0) & ~np.isnan(age)
+        if ok.any():
+            key = (g[ok].astype(np.int64) * ns + sex[row[ok]]) * nb + np.searchsorted(e, age[ok], side="right")
+            parts.append(pd.DataFrame({"r": row[ok], "k": key}).drop_duplicates())     # one cell per patient, code, sex and band
+    if not parts:
+        return sp.csr_matrix((len(person_ids), 0)), []
+    cells = pd.concat(parts, ignore_index=True).drop_duplicates()
+    n = cells["k"].value_counts()
+    keys = np.sort(n[n >= max(int(min_patients), 1)].index.to_numpy())
+    if not len(keys):
+        return sp.csr_matrix((len(person_ids), 0)), []
+    cells = cells[cells["k"].isin(keys)]
+    X = sp.csr_matrix((np.ones(len(cells)), (cells["r"].to_numpy(), np.searchsorted(keys, cells["k"].to_numpy()))),
+                      shape=(len(person_ids), len(keys)))
+    names = [f"{gnames[k // nb // ns]}_{_SEX[k // nb % ns]}_{labels[k % nb]}" for k in keys.tolist()]
+    return X, names
 
 
 def sequences(events, col="tag", dedup_same_day=True, collapse_repeats=True):

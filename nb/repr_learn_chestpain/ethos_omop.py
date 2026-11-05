@@ -26,10 +26,14 @@ No Snowflake access? Run `make_demo_extract.py` — it writes a synthetic
 """
 
 import os
+import re
 import csv
 import glob
+import math
+import time
 import numpy as np
 import pandas as pd
+import scipy.sparse as sp
 import yaml
 
 DATABASE = "ETHOS_PRODUCTION"
@@ -125,29 +129,137 @@ def _write_csv(out_dir, name, cols, rows):
     print(f"{name}: {len(rows)} rows")
 
 
+CHUNK_ROWS   = 500_000                    # rows fetched from Snowflake and written to disk at a time
+EXTRACT_DONE = "extract_complete.txt"     # written by extract_cohort() when every table is on disk
+RETRIES      = 4                          # attempts per table (query + download) before the error is raised
+RETRY_PAUSE  = 60                         # seconds to wait between attempts
+_RETRY_ERRNO = {390422, 390111, 390114, 250001, 250003, 250005}   # Snowflake: network policy, session / token gone, cannot connect
+
+
+def _retriable(e):
+    """A dropped or blocked connection (network, VPN, expired session) is worth another try; a SQL error is not."""
+    return (isinstance(e, (OSError, TimeoutError)) or getattr(e, "errno", None) in _RETRY_ERRNO
+            or type(e).__name__ in ("OperationalError", "InterfaceError"))
+
+
+def _reconnect(cur, opened):
+    """A cursor on a fresh connection. The connection that failed is closed when _dump_core opened it itself (the caller closes its own)."""
+    old = getattr(cur, "connection", None)
+    if old is not None and old in opened:
+        try:
+            old.close()
+        except Exception:
+            pass
+        opened.remove(old)
+    new = connect()
+    opened.append(new)
+    return new.cursor()
+
+
+def _short(n):
+    return f"{n / 1e6:.1f}M" if n >= 1e6 else f"{n / 1e3:.0f}k" if n >= 1e3 else f"{n:.0f}"
+
+
+def _stream_csv(cur, out_dir, name, chunk_rows=CHUNK_ROWS):
+    """
+    Write the result of the query just executed on `cur` to <name>.csv, `chunk_rows` rows at a time, so a table of
+    tens of millions of rows never sits in memory. The rows go to <name>.csv.part and the file gets its final name
+    only after the last block: a dropped connection leaves a .part file, never a half table that looks finished.
+
+    One progress line per block, rewritten in place like an epoch bar: chunk i / total, bar, rows, percent, elapsed,
+    eta and rows per second. The total comes from cur.rowcount (the size of the result, known once the query has
+    run); without it the line shows the running count only.
+    """
+    cols = [c[0].lower() for c in cur.description]
+    final = os.path.join(out_dir, f"{name}.csv")
+    total = getattr(cur, "rowcount", None)
+    total = total if isinstance(total, int) and total > 0 else None
+    n_chunks = math.ceil(total / chunk_rows) if total else None
+    n, i, t0 = 0, 0, time.time()
+    with open(final + ".part", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(cols)
+        while True:
+            rows = cur.fetchmany(chunk_rows)
+            if not rows:
+                break
+            w.writerows(rows)
+            n += len(rows)
+            i += 1
+            el = time.time() - t0
+            rate = n / el if el > 0 else 0.0
+            if total:
+                frac = min(n / total, 1.0)
+                k = int(20 * frac)
+                bar = "=" * k + (">" + "." * (19 - k) if k < 20 else "")
+                eta = (total - n) / rate if rate else 0.0
+                line = (f"{name:<27} {i:>3}/{n_chunks:<3} [{bar}] {_short(n)}/{_short(total)} rows {frac:4.0%}  "
+                        f"{el:4.0f}s  eta {eta:4.0f}s  {_short(rate)}/s")
+            else:
+                line = f"{name:<27} {i:>3} chunks  {_short(n)} rows  {el:4.0f}s  {_short(rate)}/s"
+            print("\r" + line, end="", flush=True)
+    os.replace(final + ".part", final)
+    print(f"\r{name:<27} done: {n:,} rows in {time.time() - t0:.0f}s" + " " * 60)
+    return n
+
+
+def _same_cohort(out_dir, pids):
+    """
+    True when the CSVs already in out_dir belong to the cohort `pids`: policy.csv (written first by extract_cohort)
+    exists and, like person.csv when it is there, lists exactly these person ids.
+    """
+    want = {int(x) for x in pids}
+    for name in ("policy", "person"):
+        p = os.path.join(out_dir, f"{name}.csv")
+        if os.path.exists(p) and set(pd.read_csv(p, usecols=["person_id"])["person_id"].astype("int64")) != want:
+            return False
+    return os.path.exists(os.path.join(out_dir, "policy.csv"))
+
+
 def _dump_core(cur, existing, pids, out_dir, tables=None,
-               slim_concept=True, with_ancestors=True):
+               slim_concept=True, with_ancestors=True, resume=False, chunk_rows=CHUNK_ROWS):
     """
     Dump CORE_TABLES filtered to `pids` (dip-excluded per domain), plus a
     concept.csv (dip-excluded, optionally slimmed to referenced concept_ids)
     and optional concept_ancestor.csv, then add standard-named symlinks for
     meds_etl_omop. Shared by extract_omop() (sampled pids) and
     extract_cohort() (cohort-sourced pids) so both write the identical shape.
+
+    Every table is streamed to disk in blocks of `chunk_rows` rows (_stream_csv). With resume=True a table whose
+    CSV is already in out_dir is skipped, so a run that broke off continues with the tables that are missing.
+    A table whose query or download fails on a network error is retried RETRIES times, RETRY_PAUSE seconds apart: first on
+    the same connection, then on a new one (connect(), which may open the browser sign-in again).
     """
     id_list = ",".join(str(p) for p in pids)
 
+    opened = []                                   # connections opened here by a retry
+
     def dump(table, where=None, fname=None):
+        nonlocal cur
         if table not in existing:
             print(f"skip {table}: not in schema")
+            return 0
+        if resume and os.path.exists(os.path.join(out_dir, f"{fname or table}.csv")):
+            print(f"skip {fname or table}: already on disk (resume)")
             return 0
         sql = f"SELECT * FROM {DATABASE}.{SCHEMA}.{table}"
         if where:
             sql += f" WHERE {where}"
-        cur.execute(sql)
-        cols = [c[0].lower() for c in cur.description]
-        rows = cur.fetchall()
-        _write_csv(out_dir, fname or table, cols, rows)
-        return len(rows)
+        name = fname or table
+        for attempt in range(1, RETRIES + 1):
+            try:
+                print(f"{name}: query running ...", end="\r", flush=True)
+                cur.execute(sql)
+                return _stream_csv(cur, out_dir, name, chunk_rows)
+            except Exception as e:
+                if attempt == RETRIES or not _retriable(e):
+                    raise
+                how = "on the same connection" if attempt == 1 else "on a new connection (the browser sign-in may open again)"
+                print(f"\n{name}: {type(e).__name__}: {str(e).splitlines()[0][:160]}\n"
+                      f"  attempt {attempt}/{RETRIES} failed; waiting {RETRY_PAUSE}s, then retrying {how} ...", flush=True)
+                time.sleep(RETRY_PAUSE)
+                if attempt > 1:
+                    cur = _reconnect(cur, opened)
 
     for table in (tables or CORE_TABLES):
         where = f"person_id IN ({id_list})"
@@ -168,12 +280,19 @@ def _dump_core(cur, existing, pids, out_dir, tables=None,
     dump("concept", where)
 
     if with_ancestors and "concept_ancestor" in existing:
-        union = " UNION ".join(
-            f"SELECT DISTINCT {col} AS cid FROM {DATABASE}.{SCHEMA}.{tbl}"
-            f" WHERE person_id IN ({id_list})"
-            for tbl, col, _, _ in EVENT_SOURCES if tbl in existing)
-        dump("concept_ancestor",
-             f"descendant_concept_id IN (SELECT cid FROM ({union}))")
+        concept_csv = os.path.join(out_dir, "concept.csv")
+        if slim_concept and os.path.exists(concept_csv):
+            # the concepts of the cohort are already on disk (the slim concept.csv): ask for their ancestors by id instead of
+            # scanning the six event tables a second time (that scan took about 8 minutes on the chest pain cohort)
+            cids = pd.read_csv(concept_csv, usecols=["concept_id"])["concept_id"].astype("int64")
+            where = f"descendant_concept_id IN ({','.join(str(c) for c in cids)})"
+        else:
+            union = " UNION ".join(
+                f"SELECT DISTINCT {col} AS cid FROM {DATABASE}.{SCHEMA}.{tbl}"
+                f" WHERE person_id IN ({id_list})"
+                for tbl, col, _, _ in EVENT_SOURCES if tbl in existing)
+            where = f"descendant_concept_id IN (SELECT cid FROM ({union}))"
+        dump("concept_ancestor", where)
 
     # --- standard-named symlinks for meds_etl_omop
     for master, standard in MASTER_TO_STANDARD_NAME.items():
@@ -187,6 +306,11 @@ def _dump_core(cur, existing, pids, out_dir, tables=None,
                 import shutil
                 shutil.copy(os.path.join(out_dir, src), dst)
                 print(f"copied {dst} <- {src}")
+    for c in opened:
+        try:
+            c.close()
+        except Exception:
+            pass
 
 
 def extract_omop(n_patients=10000, out_dir=OUT_DIR, conn=None,
@@ -226,7 +350,7 @@ def extract_omop(n_patients=10000, out_dir=OUT_DIR, conn=None,
 
 
 def extract_cohort(cohort_sql, out_dir="../data_input", conn=None,
-                    tables=None, slim_concept=True, with_ancestors=True):
+                    tables=None, slim_concept=True, with_ancestors=True, resume=False, chunk_rows=CHUNK_ROWS):
     """
     Cohort-driven extract: cohort_sql (raw SQL, or a path to a .sql file) is
     any query that returns person_id — the seeds. Those ids are then used to
@@ -234,6 +358,16 @@ def extract_cohort(cohort_sql, out_dir="../data_input", conn=None,
     extract_omop(), filtered to the cohort and with ethos_dip disclosure rows
     excluded, so notebooks load these CSVs offline afterward instead of
     re-hitting Snowflake.
+
+    A second column in the query, if there is one, is the application date of
+    the person (sql/chest_pain_cohort.sql v0.3: the latest interview start of
+    the person's policies). It is written to policy.csv (person_id,
+    application_date), which load_policy_dates() and reference_dates() read.
+
+    The tables are streamed to disk in blocks of `chunk_rows` rows and each CSV appears only when complete. With
+    resume=True the tables already on disk are skipped, so after a dropped connection the same call continues with
+    the missing ones; it refuses (ValueError) when the folder holds CSVs of another cohort or of an old extract
+    without policy.csv (_same_cohort). When every table is on disk the file EXTRACT_DONE is written.
     """
     cohort_sql = _resolve_sql(cohort_sql)
     close_after = conn is None
@@ -246,28 +380,102 @@ def extract_cohort(cohort_sql, out_dir="../data_input", conn=None,
     existing = {row[1].lower() for row in cur.fetchall()}
 
     cur.execute(cohort_sql)
-    pids = [r[0] for r in cur.fetchall()]
+    rows = cur.fetchall()
+    pids = [r[0] for r in rows]
     print(f"cohort seeded {len(pids)} person_ids")
     if not pids:
         print("cohort_sql returned 0 person_ids — nothing to dump")
         if close_after:
             conn.close()
         return out_dir
+    if resume and any(f.endswith(".csv") for f in os.listdir(out_dir)) and not _same_cohort(out_dir, pids):
+        raise ValueError(f"{out_dir} holds CSVs of another cohort, or of an old extract without policy.csv: "
+                         "move the folder away, or call without resume")
+    if len(rows[0]) > 1:
+        _write_csv(out_dir, "policy", ["person_id", "application_date"], [(r[0], r[1]) for r in rows])
 
-    _dump_core(cur, existing, pids, out_dir, tables, slim_concept, with_ancestors)
+    _dump_core(cur, existing, pids, out_dir, tables, slim_concept, with_ancestors, resume, chunk_rows)
+    with open(os.path.join(out_dir, EXTRACT_DONE), "w") as f:
+        f.write(f"{pd.Timestamp.now():%Y-%m-%d %H:%M}  {len(pids)} persons\n")
 
     if close_after:
         conn.close()
     return out_dir
 
 
+POLICY_SQL =os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "sql", "chest_pain_policy_dates.sql")
+_EXTRACT_MARK = "-- ==== EXTRACT ===="
+
+
+def extract_policy_dates(out_dir=OUT_DIR, app_date_col="APPLICATION_DATE", sql_path=POLICY_SQL, conn=None, chunk=10_000):
+    """
+    Write `policy.csv` (person_id, policy_id, application_date) next to person.csv, for the persons of an existing extract.
+
+    The query is the part of sql/chest_pain_policy_dates.sql after the EXTRACT marker. `app_date_col` is a column of
+    dbt_mart_transformation.m_policy_carrier_product; the default is a GUESS, run the DISCOVERY query of that file first and pass the real name.
+    Needs Snowflake (externalbrowser sign-in, like extract_cohort). Person ids go in `chunk` at a time.
+    """
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", app_date_col):
+        raise ValueError(f"app_date_col must be a plain column name, got {app_date_col!r}")
+    p = _read(out_dir, "person")
+    if p is None:
+        raise FileNotFoundError(f"{out_dir}/person.csv not found: run extract_cohort() first")
+    pids = p["person_id"].dropna().astype("int64").unique().tolist()
+    with open(sql_path) as f:
+        txt = f.read()
+    if _EXTRACT_MARK not in txt:
+        raise ValueError(f"{sql_path} has no '{_EXTRACT_MARK}' line")
+    template = txt.split(_EXTRACT_MARK, 1)[1].strip().rstrip(";").replace("{{APPLICATION_DATE_COLUMN}}", app_date_col)
+    close_after = conn is None
+    if conn is None:
+        conn = connect()
+    cur = conn.cursor()
+    cols, rows = None, []
+    for i in range(0, len(pids), chunk):
+        cur.execute(template.replace("{{PERSON_IDS}}", ",".join(str(x) for x in pids[i:i + chunk])))
+        cols = [c[0].lower() for c in cur.description]
+        rows.extend(cur.fetchall())
+    if close_after:
+        conn.close()
+    _write_csv(out_dir, "policy", cols or ["person_id", "policy_id", "application_date"], rows)
+    return os.path.join(out_dir, "policy.csv")
+
+
 # ==============================================================  LOAD (offline)
 
-def _read(out_dir, table, **kw):
-    p = os.path.join(out_dir, f"{table}.csv")
-    if not os.path.exists(p):
+def _fresh_parquet(out_dir, table):
+    """<table>.parquet (made by csv_to_parquet.py) when it exists and is not older than the CSV, else None."""
+    pqt = os.path.join(out_dir, f"{table}.parquet")
+    csv = os.path.join(out_dir, f"{table}.csv")
+    if os.path.exists(pqt) and (not os.path.exists(csv) or os.path.getmtime(pqt) >= os.path.getmtime(csv)):
+        return pqt
+    return None
+
+
+def _read(out_dir, table, columns=None, **kw):
+    """
+    One extract table as a DataFrame, or None when it is absent.
+
+    Reads <table>.parquet when it is fresh (see _fresh_parquet) and holds every requested column
+    (columns=None = every column of the CSV), else the CSV. columns limits what is loaded and a
+    column the table does not have is skipped. kw go to read_csv only.
+    """
+    pqt = _fresh_parquet(out_dir, table)
+    csv = os.path.join(out_dir, f"{table}.csv")
+    if pqt:
+        import pyarrow.parquet as pq
+        have = set(pq.read_schema(pqt).names)
+        if columns is not None:
+            need = set(columns)
+        else:
+            need = set(pd.read_csv(csv, nrows=0).columns) if os.path.exists(csv) else have
+        if need <= have:
+            return pd.read_parquet(pqt, columns=None if columns is None else list(columns))
+    if not os.path.exists(csv):
         return None
-    return pd.read_csv(p, low_memory=False, **kw)
+    if columns is not None:
+        kw["usecols"] = lambda c: c in columns
+    return pd.read_csv(csv, low_memory=False, **kw)
 
 
 def load_concept(out_dir=OUT_DIR):
@@ -333,7 +541,7 @@ def load_events(out_dir=OUT_DIR, domains=None, standard_only=True):
     for table, cid_col, date_col, domain in EVENT_SOURCES:
         if domains and domain not in domains:
             continue
-        df = _read(out_dir, table)
+        df = _read(out_dir, table, columns=["person_id", cid_col, date_col])
         if df is None or cid_col not in df or date_col not in df:
             continue
         sub = df[["person_id", cid_col, date_col]].rename(
@@ -380,6 +588,47 @@ def load_death(out_dir=OUT_DIR):
         return pd.DataFrame(columns=["person_id", "death_date"])
     d["death_date"] = pd.to_datetime(d["death_date"], errors="coerce")
     return d[["person_id", "death_date"]].dropna()
+
+
+def load_policy_dates(out_dir=OUT_DIR):
+    """
+    Earliest application date per person, from policy.csv (written by extract_policy_dates), as a Series indexed by person_id.
+    None when the file is missing or holds no usable date. A person with several policies gets the EARLIEST application date.
+    """
+    d = _read(out_dir, "policy")
+    if d is None or not {"person_id", "application_date"} <= set(d.columns):
+        return None
+    d["application_date"] = pd.to_datetime(d["application_date"], errors="coerce")
+    d = d.dropna(subset=["person_id", "application_date"])
+    if not len(d):
+        return None
+    return d.groupby("person_id")["application_date"].min()
+
+
+def reference_dates(events, out_dir=OUT_DIR, mode="application"):
+    """
+    The date age and recency are measured from, one row per person of `events`: columns ref_date and ref_source.
+
+    mode 'application'  the application date of policy.csv; persons without one (or every person, when the file is missing) fall back to
+                        their last observed event and say so in ref_source. The extract has no observation_period, so the last event is
+                        only a PROXY: record dates are spread over 2017-2026 and a record can end long before the application.
+    mode 'last_event'   the last observed event of every person.
+    """
+    if mode not in ("application", "last_event"):
+        raise ValueError(f"mode must be 'application' or 'last_event', got {mode!r}")
+    ref = pd.DataFrame({"ref_date": events.groupby("person_id")["event_date"].max()})
+    ref["ref_source"] = "last_event"
+    if mode == "application":
+        app = load_policy_dates(out_dir)
+        if app is None:
+            print(f"WARNING reference_dates: {out_dir}/policy.csv missing or empty, every person falls back to the last observed event "
+                  "(run extract_policy_dates, see sql/chest_pain_policy_dates.sql)")
+        else:
+            a = app.reindex(ref.index)
+            use = a.notna()
+            ref["ref_date"] = a.where(use, ref["ref_date"])
+            ref.loc[use, "ref_source"] = "application"
+    return ref
 
 
 # =====================================================  concept set resolution
@@ -454,6 +703,8 @@ def build_codesets(concept, codesets=None, verbose=True):
                                                       # vocabularies/domain/exclude optional
     or:
       tag: {concept_ids: [...]}                      # literal, resolve() skipped entirely
+    or both: the tag is the union of the literal ids and the name-matched hits (the ids are
+      added as given, vocabularies/domain/exclude filter the patterns only).
 
     Name-resolution is what makes most codesets portable across the real extract and the
     demo extract alike; use literal concept_ids only for a tag where the exact id set is
@@ -462,22 +713,19 @@ def build_codesets(concept, codesets=None, verbose=True):
     codesets = codesets or CODESETS
     out = {}
     for tag, spec in codesets.items():
-        if "concept_ids" in spec:
-            ids = {int(c) for c in spec["concept_ids"]}
-            out[tag] = ids
-            if verbose:
-                names = concept.loc[concept["concept_id"].isin(ids), "concept_name"]
-                print(f"{tag:16s} {len(ids):5d} concepts (literal)   "
-                      f"e.g. {names.head(2).tolist()}")
-            continue
-        hit = resolve(concept, spec["patterns"],
-                      vocabularies=spec.get("vocabularies"),
-                      domain=spec.get("domain"),
-                      exclude=spec.get("exclude"))
-        out[tag] = set(hit["concept_id"].astype("int64"))
+        ids = {int(c) for c in spec.get("concept_ids", [])}
+        if "patterns" in spec:
+            hit = resolve(concept, spec["patterns"],
+                          vocabularies=spec.get("vocabularies"),
+                          domain=spec.get("domain"),
+                          exclude=spec.get("exclude"))
+            ids |= set(hit["concept_id"].astype("int64"))
+            names, kind = hit["concept_name"], ""
+        else:
+            names, kind = concept.loc[concept["concept_id"].isin(ids), "concept_name"], " (literal)"
+        out[tag] = ids
         if verbose:
-            print(f"{tag:16s} {len(out[tag]):5d} concepts   "
-                  f"e.g. {hit['concept_name'].head(2).tolist()}")
+            print(f"{tag:16s} {len(ids):5d} concepts{kind}   e.g. {names.head(2).tolist()}")
     return out
 
 
@@ -587,6 +835,148 @@ def bag_of_codes(events, col="tag", min_count=20, binary=True):
     sub  = events[events[col].isin(keep)]
     X    = pd.crosstab(sub["person_id"], sub[col])
     return (X > 0).astype(int) if binary else X
+
+
+def bag_of_codes_sparse(events, col="tag", min_count=20, binary=True):
+    """
+    Same patient x code matrix as bag_of_codes(), built straight into a scipy CSR matrix (no dense crosstab).
+
+    Returns (X, person_ids, columns): X is float64 CSR; rows follow the sorted person_ids and columns the sorted code names, i.e. the order
+    pd.crosstab gives, so X.toarray() equals bag_of_codes(...).to_numpy(). min_count counts EVENTS per code, as in bag_of_codes().
+    binary=False keeps the event counts. Needed once the column count makes a dense frame impossible (feature x age x sex).
+    """
+    vc   = events[col].value_counts()
+    keep = vc[vc >= min_count].index
+    sub  = events.loc[events[col].isin(keep), ["person_id", col]]
+    pid, pu = pd.factorize(sub["person_id"], sort=True)
+    cid, cu = pd.factorize(sub[col], sort=True)
+    X = sp.coo_matrix((np.ones(len(sub), dtype=np.float64), (pid, cid)), shape=(len(pu), len(cu))).tocsr()   # duplicate cells are summed
+    if binary:
+        X.data[:] = 1.0
+    return X, np.asarray(pu), list(cu)
+
+
+# ---------------------------------------------------------------  age and sex columns (extra columns next to the bag of codes)
+
+DEFAULT_AGE_EDGES = (25, 30, 35, 40, 45, 50, 55, 60, 65)    # Census 5-year edges; the thin tails are merged into "<25" and "65+"
+_SEX = ("F", "M", "U")
+
+
+def age_band_labels(edges=DEFAULT_AGE_EDGES):
+    """Labels of the bands cut by `edges`: ['<25', '25-29', ..., '60-64', '65+'] for the default."""
+    e = sorted(edges)
+    return [f"<{e[0]}"] + [f"{a}-{b - 1}" for a, b in zip(e[:-1], e[1:])] + [f"{e[-1]}+"]
+
+
+def _sex(gender):
+    """'female' / 'male' (any case, or 'f' / 'm') -> 'F' / 'M'; anything else, a missing value included, -> 'U'."""
+    return gender.astype(str).str.strip().str.lower().map({"female": "F", "f": "F", "male": "M", "m": "M"}).fillna("U")
+
+
+def demographics(person, ref, edges=DEFAULT_AGE_EDGES):
+    """
+    person (load_person) and ref (frame indexed by person_id with a `ref_date` column, e.g. the first chest pain) -> one row per person:
+    sex 'F' / 'M' / 'U', age (years at ref_date), age_band, stratum 'sex|band'. Persons without a reference date or birth date get NaN age,
+    band and stratum. A read-out table (who is in each component); the columns the NMF sees come from age_sex_block and demographic_block.
+    """
+    d = (person.drop_duplicates("person_id").set_index("person_id")[["gender", "birth_date"]]
+               .join(ref[["ref_date"]], how="inner"))
+    sex = _sex(d["gender"])
+    age = (d["ref_date"] - d["birth_date"]).dt.days / 365.25
+    labels = np.array(age_band_labels(edges), dtype=object)
+    band = pd.Series(labels[np.searchsorted(sorted(edges), age.to_numpy(), side="right")], index=d.index, dtype=object).where(age.notna())
+    return pd.DataFrame({"sex": sex, "age": age, "age_band": band, "stratum": (sex + "|" + band.fillna("")).where(band.notna())})
+
+
+def demographic_block(events, person, person_ids, edges=DEFAULT_AGE_EDGES, min_patients=1):
+    """
+    One-hot sex and age band: 'demo_sex_F', 'demo_age_35-39'. `events` are the rows of the anchor event only (the chest pain events);
+    the band is the age AT EACH OF THEM, so a patient with chest pain at 38 and again at 44 lights two bands, as in age_sex_block. Sex is
+    the person's: one column per patient. Nothing is crossed with a code. Columns with fewer than `min_patients` patients (or none) are
+    dropped; an event without a birth date lights no band, and events of people outside `person_ids` are ignored.
+    Returns (CSR, names), rows in the order of `person_ids`; column order: F < M < U, then the youngest band first.
+    """
+    e = sorted(edges)
+    labels = age_band_labels(e)
+    n = len(person_ids)
+    p = person.drop_duplicates("person_id").set_index("person_id")
+    sex = pd.Index(_SEX).get_indexer(_sex(p["gender"]).reindex(person_ids).fillna("U").to_numpy())
+    row = pd.Index(person_ids).get_indexer(events["person_id"])
+    age = ((events["event_date"] - events["person_id"].map(p["birth_date"])).dt.days / 365.25).to_numpy()
+    ok = (row >= 0) & ~np.isnan(age)
+    band = np.searchsorted(e, age[ok], side="right")
+    M_sex = sp.csr_matrix((np.ones(n), (np.arange(n), sex)), shape=(n, len(_SEX)))
+    M_age = sp.csr_matrix((np.ones(int(ok.sum())), (row[ok], band)), shape=(n, len(labels)))
+    M_age.data[:] = 1                                                    # two chest pain events in one band count once
+    X = sp.hstack([M_sex, M_age], format="csr")
+    names = [f"demo_sex_{s}" for s in _SEX] + [f"demo_age_{b}" for b in labels]
+    keep = np.flatnonzero(np.asarray(X.sum(axis=0)).ravel() >= max(int(min_patients), 1))
+    return X[:, keep].tocsr(), [names[j] for j in keep]
+
+
+def risk_age_sex_block(events, person, person_ids, rules, min_patients=1):
+    """
+    One 0/1 column per rule, 'demo_<name>': 1 for a patient who, at ANY of `events` (the chest pain events), is of the rule's sex and
+    at least its age. `rules` is a tuple of (name, sex, min_age), e.g. (('male_45plus', 'M', 45), ('female_55plus', 'F', 55)), Sean's
+    high-risk rule: the visit is on or after the min_age-th birthday (a man on his 45th birthday counts; a 29 Feb birth turns a year older
+    on 28 Feb). A man with chest pain at 44 and again at 46 is 1 in 'male_45plus'. Unknown sex, no birth date and events of people outside
+    `person_ids` light nothing. Columns with fewer than `min_patients` patients (or none) are dropped.
+    Returns (CSR, names), rows in the order of `person_ids`, columns in the order of `rules`.
+    """
+    p = person.drop_duplicates("person_id").set_index("person_id")
+    row = pd.Index(person_ids).get_indexer(events["person_id"])
+    sex = _sex(events["person_id"].map(p["gender"])).to_numpy()
+    birth = events["person_id"].map(p["birth_date"])
+    cols, names = [], []
+    for name, s, min_age in rules:
+        old_enough = (events["event_date"] >= birth + pd.DateOffset(years=min_age)).to_numpy()      # NaT (no birth date) compares False
+        r = np.unique(row[(row >= 0) & (sex == s) & old_enough])
+        cols.append(sp.csr_matrix((np.ones(len(r)), (r, np.zeros(len(r), dtype=int))), shape=(len(person_ids), 1)))
+        names.append(f"demo_{name}")
+    X = sp.hstack(cols, format="csr")
+    keep = np.flatnonzero(np.asarray(X.sum(axis=0)).ravel() >= max(int(min_patients), 1))
+    return X[:, keep].tocsr(), [names[j] for j in keep]
+
+
+def age_sex_block(events, person, person_ids, groups, edges=DEFAULT_AGE_EDGES, min_patients=1, col="group", chunk=5_000_000):
+    """
+    One column per (code, sex, age band AT THE EVENT): 'anxiety_F_35-39' is 1 for a woman who had an event of the code while aged 35-39.
+    Age is taken at the date of each event, so a patient with the code at 38 and again at 44 lights two columns; sex is the person's.
+    `groups` are the codes to cross, matched on the events column `col`: the NMF token 'tag' crosses every code (curated groups and
+    concept-level codes alike), 'group' only the curated ones. Meant to sit NEXT TO the plain columns. Columns with fewer than
+    `min_patients` patients are dropped. Events without a birth date drop out. Events are scanned `chunk` rows at a time (46M events).
+    Returns (CSR, names), rows in the order of `person_ids`; a name splits back with name.rsplit('_', 2) into code, sex, band.
+    Column order: code (sorted), then F < M < U, then the youngest band first.
+    """
+    e = sorted(edges)
+    labels = age_band_labels(e)
+    nb, ns = len(labels), len(_SEX)
+    gnames = pd.Index(sorted(set(groups)))
+    p = person.drop_duplicates("person_id").set_index("person_id")
+    pidx = pd.Index(person_ids)
+    sex = pd.Index(_SEX).get_indexer(_sex(p["gender"]).reindex(person_ids).fillna("U").to_numpy())
+    parts = []
+    for s0 in range(0, len(events), chunk):
+        ev = events.iloc[s0:s0 + chunk]
+        g = gnames.get_indexer(ev[col])                                  # -1: not a code to cross (a missing code included)
+        row = pidx.get_indexer(ev["person_id"])
+        age = ((ev["event_date"] - ev["person_id"].map(p["birth_date"])).dt.days / 365.25).to_numpy()
+        ok = (g >= 0) & (row >= 0) & ~np.isnan(age)
+        if ok.any():
+            key = (g[ok].astype(np.int64) * ns + sex[row[ok]]) * nb + np.searchsorted(e, age[ok], side="right")
+            parts.append(pd.DataFrame({"r": row[ok], "k": key}).drop_duplicates())     # one cell per patient, code, sex and band
+    if not parts:
+        return sp.csr_matrix((len(person_ids), 0)), []
+    cells = pd.concat(parts, ignore_index=True).drop_duplicates()
+    n = cells["k"].value_counts()
+    keys = np.sort(n[n >= max(int(min_patients), 1)].index.to_numpy())
+    if not len(keys):
+        return sp.csr_matrix((len(person_ids), 0)), []
+    cells = cells[cells["k"].isin(keys)]
+    X = sp.csr_matrix((np.ones(len(cells)), (cells["r"].to_numpy(), np.searchsorted(keys, cells["k"].to_numpy()))),
+                      shape=(len(person_ids), len(keys)))
+    names = [f"{gnames[k // nb // ns]}_{_SEX[k // nb % ns]}_{labels[k % nb]}" for k in keys.tolist()]
+    return X, names
 
 
 def sequences(events, col="tag", dedup_same_day=True, collapse_repeats=True):
@@ -851,7 +1241,12 @@ def describe_extract(out_dir=OUT_DIR):
         base = os.path.basename(p)
         if os.path.islink(p) or base.replace(".csv", "") in MASTER_TO_STANDARD_NAME.values():
             continue
-        n = sum(1 for _ in open(p)) - 1
+        pqt = _fresh_parquet(out_dir, base.replace(".csv", ""))
+        if pqt:                                          # row count from the parquet footer, no pass over the CSV
+            import pyarrow.parquet as pq
+            n = pq.ParquetFile(pqt).metadata.num_rows
+        else:
+            n = sum(1 for _ in open(p)) - 1
         rows.append({"file": os.path.basename(p), "rows": n,
                      "MB": round(os.path.getsize(p) / 1e6, 1)})
     return pd.DataFrame(rows).sort_values("rows", ascending=False)
